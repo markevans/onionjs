@@ -1,0 +1,11 @@
+define [
+  'vendor/mustache_view'
+  'vendor/text!<%= module_dirname %>/<%= template_filename %>'
+], (
+  MustacheView
+  template
+) ->
+
+  class <%= view_name %> extends MustacheView
+
+    @template template

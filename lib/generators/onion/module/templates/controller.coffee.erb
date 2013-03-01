@@ -1,0 +1,14 @@
+define [
+  'vendor/controller'
+  '<%= module_dirname %>/<%= view_basename %>'
+], (
+  Controller
+  <%= view_name %>
+) ->
+
+  class <%= controller_name %> extends Controller
+
+    @view <%= view_name %>
+
+    @after 'init', ->
+      @view.render(me: '<%= basename %>')

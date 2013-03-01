@@ -1,0 +1,7 @@
+Description:
+Generates a js controller
+
+Example:
+    rails generate js:controller autocomplete
+
+    This will create a controller, view, template and css for AutocompleteController
