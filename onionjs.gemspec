@@ -1,11 +1,11 @@
 # -*- encoding: utf-8 -*-
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'onion/version'
+require 'onionjs/version'
 
 Gem::Specification.new do |gem|
-  gem.name          = "onion-js"
-  gem.version       = Onion::VERSION
+  gem.name          = "onionjs"
+  gem.version       = Onionjs::VERSION
   gem.authors       = ["Mark Evans"]
   gem.email         = ["mark@new-bamboo.co.uk"]
   gem.description   = %q{Onion JS. Brings tears to your eyes.}
