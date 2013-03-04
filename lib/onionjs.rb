@@ -9,6 +9,8 @@ module Onionjs
       if app.config.respond_to?(:requirejs)
         app.config.requirejs.logical_asset_filter += [/\.mustache$/]
       end
+
+      ActionView::Base.send :include, Onionjs::Helper
     end
 
   end
