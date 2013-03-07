@@ -1,455 +1,453 @@
-requirejs [
-  'onion/collection'
-  'onion/event_emitter'
-  'onion/extend'
-], (Collection, eventEmitter, extend) ->
+Collection = requirejs('onion/collection')
+eventEmitter = requirejs('onion/event_emitter')
+extend = requirejs('onion/extend')
 
-  describe "Collection", ->
-    describe "array-like properties", ->
-      collection = null
+describe "Collection", ->
+  describe "array-like properties", ->
+    collection = null
+
+    beforeEach ->
+      collection = new Collection([
+        {number: 4}
+        {number: 27}
+      ])
+
+    it "implements forEach", ->
+      result = []
+      collection.forEach (obj, i)->
+        result.push [obj, i]
+      assert.equal(result, [
+        [{number: 4}, 0]
+        [{number: 27}, 1]
+      ])
+
+    it "implements map", ->
+      result = collection.map (obj, i) ->
+        [obj, i]
+      expect( result ).toEqual([
+        [{number: 4}, 0]
+        [{number: 27}, 1]
+      ])
+
+  describe "add", ->
+    collection = null
+
+    beforeEach ->
+      collection = new Collection([6, 22, 44])
+
+    it "defaults to a push when the collection has no order", ->
+      collection.add(35)
+      expect( collection.toArray() ).toEqual([6, 22, 44, 35])
+
+    it "emits an add event", ->
+      x = null
+      collection.on 'add', (item) -> x = item
+      collection.add(44)
+      expect( x ).toEqual(44)
+
+    it "emits a change event", ->
+      expect ->
+        collection.add(33)
+      .toEmitOn(collection, 'change', collection)
+
+    it "emits an itemsAdded event", ->
+      expect ->
+        collection.add(33)
+      .toEmitOn(collection, 'itemsAdded', [33])
+
+  describe "addMany", ->
+    collection = null
+
+    beforeEach ->
+      collection = new Collection([33, 76], orderBy: (a, b) -> Collection.compare(a, b))
+
+    it "adds many, in the correct order", ->
+      collection.addMany([56, 44])
+      expect( collection.toArray() ).toEqual([33, 44, 56, 76])
+
+    it "emits an addMany event", ->
+      spyOn(collection, 'emit')
+      collection.addMany([56, 44])
+      expect( collection.emit ).toHaveBeenCalledWith('addMany', [56, 44])
+
+    it "should work with a collection", ->
+      miniCollection = new Collection([56, 44])
+      spyOn(collection, 'emit')
+
+      collection.addMany(miniCollection)
+
+      expect( collection.toArray() ).toEqual([33, 44, 56, 76])
+      expect( collection.emit ).toHaveBeenCalledWith('addMany', miniCollection)
+
+    it "emits a change event", ->
+      expect ->
+        collection.addMany([33])
+      .toEmitOn(collection, 'change', collection)
+
+    it "emits an itemsAdded event", ->
+      expect ->
+        collection.addMany([22, 33])
+      .toEmitOn(collection, 'itemsAdded', [22, 33])
+
+  describe "remove", ->
+    collection = null
+
+    beforeEach ->
+      collection = new Collection([4, 4, 5])
+
+    it "removes the first element that matches", ->
+      result = collection.remove(4)
+      expect( result ).toEqual(true)
+      expect( collection.toArray() ).toEqual([4, 5])
+
+    it "does nothing if the element doesn't exist", ->
+      result = collection.remove(36)
+      expect( result ).toEqual(false)
+      expect( collection.toArray() ).toEqual([4, 4, 5])
+
+    it "emits a remove event", ->
+      collection.add(95)
+      expect ->
+        collection.remove(95)
+      .toEmitOn(collection, 'remove', 95, 3)
+
+    it "emits a change event", ->
+      expect ->
+        collection.remove(4)
+      .toEmitOn(collection, 'change', collection)
+
+    it "doesn't emit any events if not removed", ->
+      spyOn(collection, 'emit')
+      collection.remove(400)
+      expect( collection.emit ).not.toHaveBeenCalled()
+
+    it "emits an itemsRemoved event", ->
+      collection.add(7)
+      expect ->
+        collection.remove(7)
+      .toEmitOn(collection, 'itemsRemoved', [7])
+
+  describe "removeMany", ->
+    collection = null
+
+    beforeEach ->
+      collection = new Collection([4, 4, 5, 6, 7])
+
+    it "removes all elements that match", ->
+      result = collection.removeMany([4, 6])
+      expect( collection.toArray() ).toEqual([5, 7])
+
+    it "emits a removeMany event", ->
+      spyOn(collection, 'emit')
+      collection.removeMany([4, 6])
+      expect( collection.emit ).toHaveBeenCalledWith('removeMany', [4, 4, 6])
+
+    it "emits a change event", ->
+      expect ->
+        collection.removeMany([4, 6])
+      .toEmitOn(collection, 'change', collection)
+
+    it "doesn't emit any events if nothing is removed", ->
+      spyOn(collection, 'emit')
+      collection.removeMany([9, 10])
+      expect( collection.emit ).not.toHaveBeenCalled()
+
+    it "emits an itemsRemoved event", ->
+      expect ->
+        collection.removeMany([4, 6])
+      .toEmitOn(collection, 'itemsRemoved', [4, 4, 6])
+
+  describe "using 'isEqualTo'", ->
+    isEqualTo = (other) -> @name == other.name
+    newObject = (name) ->
+      name: name
+      isEqualTo: isEqualTo
+    collection = null
+    sparky = null
+    otherSparky = null
+    bilf = null
+    otherBilf = null
+
+    beforeEach ->
+      sparky = newObject('Sparky')
+      otherSparky = newObject('Sparky')
+      bilf = newObject('Bilf')
+      otherBilf = newObject('Bilf')
+      collection = new Collection([bilf, sparky, bilf])
+
+    it "removes using 'isEqualTo' if implemented on the objects", ->
+      collection.remove(otherSparky)
+      expect( collection.toArray() ).toEqual([bilf, bilf])
+
+    it "emits the remove event with the actual removed object (not the matched one)", ->
+      removedItem = null
+      collection.on 'remove', (item) -> removedItem = item
+      collection.remove(otherSparky)
+      expect( removedItem == sparky ).toEqual(true)
+
+    it "removes many using 'isEqualTo' if implemented on the objects", ->
+      collection.removeMany([otherBilf])
+      expect( collection.toArray() ).toEqual([sparky])
+
+    it "emits the remove many event with the actual removed objects (not the matched ones)", ->
+      removedItems = null
+      collection.on 'removeMany', (items) -> removedItems = items
+      collection.removeMany([otherBilf])
+      expect( removedItems.length ).toEqual(2)
+      expect( removedItems[0] == bilf ).toEqual(true)
+      expect( removedItems[1] == bilf ).toEqual(true)
+
+  describe "ordering", ->
+    collection = null
+
+    beforeEach ->
+      collection = new Collection([21, 44, 5])
+
+    it "orders the items", ->
+      collection.orderBy (a, b) -> Collection.compare(a, b)
+      expect( collection.toArray() ).toEqual([5, 21, 44])
+
+    it "adds items in the correct position", ->
+      collection.orderBy (a, b) -> Collection.compare(a, b)
+      collection.add(36)
+      expect( collection.toArray() ).toEqual([5, 21, 36, 44])
+
+    it "returns the insertion index", ->
+      collection.orderBy (a, b) -> Collection.compare(a, b)
+      expect( collection.add(36) ).toEqual(2)
+
+    it "allows passing the order as an arg", ->
+      collection = new Collection([21, 44, 5], orderBy: (a, b) -> Collection.compare(a, b))
+      expect( collection.toArray() ).toEqual([5, 21, 44])
+
+  describe "isEmpty", ->
+    it "is empty if there are no items", ->
+      collection = new Collection([])
+      expect( collection.isEmpty() ).toEqual(true)
+
+    it "is not empty if there are items", ->
+      collection = new Collection([1])
+      expect( collection.isEmpty() ).toEqual(false)
+
+  describe "set", ->
+    collection = null
+
+    beforeEach ->
+      collection = new Collection([7, 65])
+
+    it "resets all elements", ->
+      collection.set([4,2,3])
+      expect( collection.toArray() ).toEqual([4,2,3])
+
+    it "accepts another collection", ->
+      collection2 = new Collection([4,2,3])
+      collection.set(collection2)
+      expect( collection.toArray() ).toEqual([4,2,3])
+
+    it "orders according to its own order", ->
+      collection.orderBy (a, b) -> Collection.compare(a, b)
+      collection.set([4,2,3])
+      expect( collection.toArray() ).toEqual([2,3,4])
+
+    it "emits a set event", ->
+      newItems = null
+      collection.on 'set', (a) -> newItems = a
+      collection.set([4,5])
+      expect( newItems ).toEqual([4,5])
+
+    it "emits a change event", ->
+      expect ->
+        collection.set([4])
+      .toEmitOn(collection, 'change', collection)
+
+    it "emits an itemsAdded event for new items (even items that existed in the old collection)", ->
+      expect ->
+        collection.set([2, 65])
+      .toEmitOn(collection, 'itemsAdded', [2, 65])
+
+    it "emits an itemsRemoved event for old items (even items that exist in the new collection)", ->
+      expect ->
+        collection.set([2, 65])
+      .toEmitOn(collection, 'itemsRemoved', [7, 65])
+
+  describe "clone", ->
+    collection = null
+    cloned = null
+
+    beforeEach ->
+      collection = new Collection([3, 6, 8], orderBy: -> 0)
+      cloned = collection.clone()
+
+    it "copies the items", ->
+      expect( collection.toArray() ).toEqual( cloned.toArray() )
+
+    it "copies the comparator function", ->
+      expect( collection.__comparator__ ).toEqual( cloned.__comparator__ )
+
+    it "doesn't effect the original", ->
+      cloned.push(42)
+
+      expect( collection.toArray() ).toEqual( [3, 6, 8] )
+      expect( cloned.toArray() ).toEqual( [3, 6, 8, 42] )
+
+  describe "contains", ->
+    collection = null
+
+    beforeEach ->
+      collection = new Collection()
+
+    it "returns false if it doesn't contain an item", ->
+      expect( collection.contains('dice') ).toEqual(false)
+
+    it "returns true if it does contain an item", ->
+      collection.add('dice')
+      expect( collection.contains('dice') ).toEqual(true)
+
+  describe "onItem", ->
+    item = null
+    callback = ->
+
+    beforeEach ->
+      item =
+        on: jasmine.createSpy()
+        off: jasmine.createSpy()
+
+    it "subscribes to items currently in the collection", ->
+      collection = new Collection([item])
+      collection.onItem('change', callback)
+      expect(item.on).toHaveBeenCalledWith('change', callback)
+
+    it "subscribes to new items", ->
+      collection = new Collection()
+      collection.onItem('change', callback)
+      collection.add(item)
+      expect(item.on).toHaveBeenCalledWith('change', callback)
+
+    it "unsubscribes when items are removed", ->
+      collection = new Collection([item])
+      collection.onItem('change', callback)
+      expect(item.off).not.toHaveBeenCalled()
+      collection.remove(item)
+      expect(item.off).toHaveBeenCalledWith('change', callback)
+
+    it "does nothing if the item doesn't respond to on", ->
+      collection = new Collection([4])
+      collection.onItem('change', callback)
+      collection.add(5)
+
+  describe "bubble", ->
+    item = null
+    collection = null
+    callback = null
+
+    beforeEach ->
+      item = extend({}, eventEmitter)
+      collection = new Collection([item])
+
+    it "bubbles up item events", ->
+      collection.bubble('change', 'item:change')
+      expect ->
+        item.emit('change')
+      .toEmitOn(collection, 'item:change')
+
+    it "defaults to the same event name", ->
+      collection.bubble('change')
+      expect ->
+        item.emit('change')
+      .toEmitOn(collection, 'change')
+
+  describe "indexFor", ->
+    collection = null
+
+    describe "indexOf functionality", ->
+      beforeEach ->
+        collection = new Collection([6,3,2])
+
+      it "returns the index of an item", ->
+        expect( collection.indexFor(3) ).toEqual(1)
+
+      it "returns -1 if not found", ->
+        expect( collection.indexFor(33) ).toEqual(-1)
+
+    describe "using isEqualTo", ->
+      person = (name) ->
+        name: name
+        isEqualTo: (other) ->
+          other.name == @name
 
       beforeEach ->
         collection = new Collection([
-          {number: 4}
-          {number: 27}
+          person('john')
+          person('fred')
         ])
-
-      it "implements forEach", ->
-        result = []
-        collection.forEach (obj, i)->
-          result.push [obj, i]
-        assert.equal(result, [
-          [{number: 4}, 0]
-          [{number: 27}, 1]
-        ])
-
-      it "implements map", ->
-        result = collection.map (obj, i) ->
-          [obj, i]
-        expect( result ).toEqual([
-          [{number: 4}, 0]
-          [{number: 27}, 1]
-        ])
-
-    describe "add", ->
-      collection = null
-
-      beforeEach ->
-        collection = new Collection([6, 22, 44])
-
-      it "defaults to a push when the collection has no order", ->
-        collection.add(35)
-        expect( collection.toArray() ).toEqual([6, 22, 44, 35])
-
-      it "emits an add event", ->
-        x = null
-        collection.on 'add', (item) -> x = item
-        collection.add(44)
-        expect( x ).toEqual(44)
-
-      it "emits a change event", ->
-        expect ->
-          collection.add(33)
-        .toEmitOn(collection, 'change', collection)
-
-      it "emits an itemsAdded event", ->
-        expect ->
-          collection.add(33)
-        .toEmitOn(collection, 'itemsAdded', [33])
-
-    describe "addMany", ->
-      collection = null
-
-      beforeEach ->
-        collection = new Collection([33, 76], orderBy: (a, b) -> Collection.compare(a, b))
-
-      it "adds many, in the correct order", ->
-        collection.addMany([56, 44])
-        expect( collection.toArray() ).toEqual([33, 44, 56, 76])
-
-      it "emits an addMany event", ->
-        spyOn(collection, 'emit')
-        collection.addMany([56, 44])
-        expect( collection.emit ).toHaveBeenCalledWith('addMany', [56, 44])
-
-      it "should work with a collection", ->
-        miniCollection = new Collection([56, 44])
-        spyOn(collection, 'emit')
-
-        collection.addMany(miniCollection)
-
-        expect( collection.toArray() ).toEqual([33, 44, 56, 76])
-        expect( collection.emit ).toHaveBeenCalledWith('addMany', miniCollection)
-
-      it "emits a change event", ->
-        expect ->
-          collection.addMany([33])
-        .toEmitOn(collection, 'change', collection)
-
-      it "emits an itemsAdded event", ->
-        expect ->
-          collection.addMany([22, 33])
-        .toEmitOn(collection, 'itemsAdded', [22, 33])
-
-    describe "remove", ->
-      collection = null
-
-      beforeEach ->
-        collection = new Collection([4, 4, 5])
-
-      it "removes the first element that matches", ->
-        result = collection.remove(4)
-        expect( result ).toEqual(true)
-        expect( collection.toArray() ).toEqual([4, 5])
-
-      it "does nothing if the element doesn't exist", ->
-        result = collection.remove(36)
-        expect( result ).toEqual(false)
-        expect( collection.toArray() ).toEqual([4, 4, 5])
-
-      it "emits a remove event", ->
-        collection.add(95)
-        expect ->
-          collection.remove(95)
-        .toEmitOn(collection, 'remove', 95, 3)
-
-      it "emits a change event", ->
-        expect ->
-          collection.remove(4)
-        .toEmitOn(collection, 'change', collection)
-
-      it "doesn't emit any events if not removed", ->
-        spyOn(collection, 'emit')
-        collection.remove(400)
-        expect( collection.emit ).not.toHaveBeenCalled()
-
-      it "emits an itemsRemoved event", ->
-        collection.add(7)
-        expect ->
-          collection.remove(7)
-        .toEmitOn(collection, 'itemsRemoved', [7])
-
-    describe "removeMany", ->
-      collection = null
-
-      beforeEach ->
-        collection = new Collection([4, 4, 5, 6, 7])
-
-      it "removes all elements that match", ->
-        result = collection.removeMany([4, 6])
-        expect( collection.toArray() ).toEqual([5, 7])
-
-      it "emits a removeMany event", ->
-        spyOn(collection, 'emit')
-        collection.removeMany([4, 6])
-        expect( collection.emit ).toHaveBeenCalledWith('removeMany', [4, 4, 6])
-
-      it "emits a change event", ->
-        expect ->
-          collection.removeMany([4, 6])
-        .toEmitOn(collection, 'change', collection)
-
-      it "doesn't emit any events if nothing is removed", ->
-        spyOn(collection, 'emit')
-        collection.removeMany([9, 10])
-        expect( collection.emit ).not.toHaveBeenCalled()
-
-      it "emits an itemsRemoved event", ->
-        expect ->
-          collection.removeMany([4, 6])
-        .toEmitOn(collection, 'itemsRemoved', [4, 4, 6])
-
-    describe "using 'isEqualTo'", ->
-      isEqualTo = (other) -> @name == other.name
-      newObject = (name) ->
-        name: name
-        isEqualTo: isEqualTo
-      collection = null
-      sparky = null
-      otherSparky = null
-      bilf = null
-      otherBilf = null
-
-      beforeEach ->
-        sparky = newObject('Sparky')
-        otherSparky = newObject('Sparky')
-        bilf = newObject('Bilf')
-        otherBilf = newObject('Bilf')
-        collection = new Collection([bilf, sparky, bilf])
-
-      it "removes using 'isEqualTo' if implemented on the objects", ->
-        collection.remove(otherSparky)
-        expect( collection.toArray() ).toEqual([bilf, bilf])
-
-      it "emits the remove event with the actual removed object (not the matched one)", ->
-        removedItem = null
-        collection.on 'remove', (item) -> removedItem = item
-        collection.remove(otherSparky)
-        expect( removedItem == sparky ).toEqual(true)
-
-      it "removes many using 'isEqualTo' if implemented on the objects", ->
-        collection.removeMany([otherBilf])
-        expect( collection.toArray() ).toEqual([sparky])
-
-      it "emits the remove many event with the actual removed objects (not the matched ones)", ->
-        removedItems = null
-        collection.on 'removeMany', (items) -> removedItems = items
-        collection.removeMany([otherBilf])
-        expect( removedItems.length ).toEqual(2)
-        expect( removedItems[0] == bilf ).toEqual(true)
-        expect( removedItems[1] == bilf ).toEqual(true)
-
-    describe "ordering", ->
-      collection = null
-
-      beforeEach ->
-        collection = new Collection([21, 44, 5])
-
-      it "orders the items", ->
-        collection.orderBy (a, b) -> Collection.compare(a, b)
-        expect( collection.toArray() ).toEqual([5, 21, 44])
-
-      it "adds items in the correct position", ->
-        collection.orderBy (a, b) -> Collection.compare(a, b)
-        collection.add(36)
-        expect( collection.toArray() ).toEqual([5, 21, 36, 44])
-
-      it "returns the insertion index", ->
-        collection.orderBy (a, b) -> Collection.compare(a, b)
-        expect( collection.add(36) ).toEqual(2)
-
-      it "allows passing the order as an arg", ->
-        collection = new Collection([21, 44, 5], orderBy: (a, b) -> Collection.compare(a, b))
-        expect( collection.toArray() ).toEqual([5, 21, 44])
-
-    describe "isEmpty", ->
-      it "is empty if there are no items", ->
-        collection = new Collection([])
-        expect( collection.isEmpty() ).toEqual(true)
-
-      it "is not empty if there are items", ->
-        collection = new Collection([1])
-        expect( collection.isEmpty() ).toEqual(false)
-
-    describe "set", ->
-      collection = null
-
-      beforeEach ->
-        collection = new Collection([7, 65])
-
-      it "resets all elements", ->
-        collection.set([4,2,3])
-        expect( collection.toArray() ).toEqual([4,2,3])
-
-      it "accepts another collection", ->
-        collection2 = new Collection([4,2,3])
-        collection.set(collection2)
-        expect( collection.toArray() ).toEqual([4,2,3])
-
-      it "orders according to its own order", ->
-        collection.orderBy (a, b) -> Collection.compare(a, b)
-        collection.set([4,2,3])
-        expect( collection.toArray() ).toEqual([2,3,4])
-
-      it "emits a set event", ->
-        newItems = null
-        collection.on 'set', (a) -> newItems = a
-        collection.set([4,5])
-        expect( newItems ).toEqual([4,5])
-
-      it "emits a change event", ->
-        expect ->
-          collection.set([4])
-        .toEmitOn(collection, 'change', collection)
-
-      it "emits an itemsAdded event for new items (even items that existed in the old collection)", ->
-        expect ->
-          collection.set([2, 65])
-        .toEmitOn(collection, 'itemsAdded', [2, 65])
-
-      it "emits an itemsRemoved event for old items (even items that exist in the new collection)", ->
-        expect ->
-          collection.set([2, 65])
-        .toEmitOn(collection, 'itemsRemoved', [7, 65])
-
-    describe "clone", ->
-      collection = null
-      cloned = null
-
-      beforeEach ->
-        collection = new Collection([3, 6, 8], orderBy: -> 0)
-        cloned = collection.clone()
-
-      it "copies the items", ->
-        expect( collection.toArray() ).toEqual( cloned.toArray() )
-
-      it "copies the comparator function", ->
-        expect( collection.__comparator__ ).toEqual( cloned.__comparator__ )
-
-      it "doesn't effect the original", ->
-        cloned.push(42)
-
-        expect( collection.toArray() ).toEqual( [3, 6, 8] )
-        expect( cloned.toArray() ).toEqual( [3, 6, 8, 42] )
-
-    describe "contains", ->
-      collection = null
-
-      beforeEach ->
-        collection = new Collection()
-
-      it "returns false if it doesn't contain an item", ->
-        expect( collection.contains('dice') ).toEqual(false)
-
-      it "returns true if it does contain an item", ->
-        collection.add('dice')
-        expect( collection.contains('dice') ).toEqual(true)
-
-    describe "onItem", ->
-      item = null
-      callback = ->
-
-      beforeEach ->
-        item =
-          on: jasmine.createSpy()
-          off: jasmine.createSpy()
-
-      it "subscribes to items currently in the collection", ->
-        collection = new Collection([item])
-        collection.onItem('change', callback)
-        expect(item.on).toHaveBeenCalledWith('change', callback)
-
-      it "subscribes to new items", ->
-        collection = new Collection()
-        collection.onItem('change', callback)
-        collection.add(item)
-        expect(item.on).toHaveBeenCalledWith('change', callback)
-
-      it "unsubscribes when items are removed", ->
-        collection = new Collection([item])
-        collection.onItem('change', callback)
-        expect(item.off).not.toHaveBeenCalled()
-        collection.remove(item)
-        expect(item.off).toHaveBeenCalledWith('change', callback)
-
-      it "does nothing if the item doesn't respond to on", ->
-        collection = new Collection([4])
-        collection.onItem('change', callback)
-        collection.add(5)
-
-    describe "bubble", ->
-      item = null
-      collection = null
-      callback = null
-
-      beforeEach ->
-        item = extend({}, eventEmitter)
-        collection = new Collection([item])
-
-      it "bubbles up item events", ->
-        collection.bubble('change', 'item:change')
-        expect ->
-          item.emit('change')
-        .toEmitOn(collection, 'item:change')
-
-      it "defaults to the same event name", ->
-        collection.bubble('change')
-        expect ->
-          item.emit('change')
-        .toEmitOn(collection, 'change')
-
-    describe "indexFor", ->
-      collection = null
-
-      describe "indexOf functionality", ->
-        beforeEach ->
-          collection = new Collection([6,3,2])
-
-        it "returns the index of an item", ->
-          expect( collection.indexFor(3) ).toEqual(1)
-
-        it "returns -1 if not found", ->
-          expect( collection.indexFor(33) ).toEqual(-1)
-
-      describe "using isEqualTo", ->
-        person = (name) ->
-          name: name
-          isEqualTo: (other) ->
-            other.name == @name
-
-        beforeEach ->
-          collection = new Collection([
-            person('john')
-            person('fred')
-          ])
-
-        it "returns the correct index", ->
-          expect( collection.indexFor(person('fred')) ).toEqual(1)
-
-        it "returns -1 if not found", ->
-          expect( collection.indexFor(345) ).toEqual(-1)
-
-    describe "indexWhere", ->
-      collection = null
-
-      beforeEach ->
-        collection = new Collection(['john', 'fred', 'egg'])
 
       it "returns the correct index", ->
-        expect( collection.indexWhere (name) -> name == 'fred' ).toEqual(1)
+        expect( collection.indexFor(person('fred')) ).toEqual(1)
 
       it "returns -1 if not found", ->
-        expect( collection.indexWhere (name) -> name == 'blurgh' ).toEqual(-1)
+        expect( collection.indexFor(345) ).toEqual(-1)
 
-    describe "special positions", ->
-      collection = null
+  describe "indexWhere", ->
+    collection = null
 
-      beforeEach ->
-        collection = new Collection([4, 25, 235])
+    beforeEach ->
+      collection = new Collection(['john', 'fred', 'egg'])
 
-      it "returns the first", ->
-        expect( collection.first() ).toEqual(4)
+    it "returns the correct index", ->
+      expect( collection.indexWhere (name) -> name == 'fred' ).toEqual(1)
 
-      it "returns the last", ->
-        expect( collection.last() ).toEqual(235)
+    it "returns -1 if not found", ->
+      expect( collection.indexWhere (name) -> name == 'blurgh' ).toEqual(-1)
 
-      it "returns undefined if it doesn't exist", ->
-        collection = new Collection()
-        expect( collection.first() ).toEqual(undefined)
-        expect( collection.last() ).toEqual(undefined)
+  describe "special positions", ->
+    collection = null
 
-    describe "membershipFor", ->
-      it "returns a membership object", ->
-        collection = new Collection()
-        membership = collection.membershipFor({})
-        expect( membership.exists() ).toEqual(false)
+    beforeEach ->
+      collection = new Collection([4, 25, 235])
 
-    describe "filtering", ->
-      newModel = (attributes)-> {attrs: -> attributes}
-      collection = null
-      [m1, m2, m3, m4] = []
+    it "returns the first", ->
+      expect( collection.first() ).toEqual(4)
 
-      beforeEach ->
-        m1 = newModel(kung: 1, fu: 1)
-        m2 = newModel(kung: 1, fu: 2)
-        m3 = newModel(kung: 2, fu: 1)
-        m4 = newModel(kung: 1, fu: 1)
-        collection = new Collection [m1, m2, m3, m4]
+    it "returns the last", ->
+      expect( collection.last() ).toEqual(235)
 
-      describe "where", ->
-        it "returns an array of ones that exactly match", ->
-          expect( collection.where(kung: 1, fu: 1) ).toEqual([m1, m4])
+    it "returns undefined if it doesn't exist", ->
+      collection = new Collection()
+      expect( collection.first() ).toEqual(undefined)
+      expect( collection.last() ).toEqual(undefined)
 
-        it "ignores items that don't have an 'attrs' method", ->
-          collection.add(4)
-          expect( collection.where(kung: 1, fu: 1) ).toEqual([m1, m4])
+  describe "membershipFor", ->
+    it "returns a membership object", ->
+      collection = new Collection()
+      membership = collection.membershipFor({})
+      expect( membership.exists() ).toEqual(false)
 
-      describe "removeWhere", ->
-        it "remove ones that exactly match", ->
-          collection.removeWhere(kung: 1, fu: 1)
-          expect( collection.toArray() ).toEqual([m2, m3])
+  describe "filtering", ->
+    newModel = (attributes)-> {attrs: -> attributes}
+    collection = null
+    [m1, m2, m3, m4] = []
 
-        it "ignores items that don't have an 'attrs' method", ->
-          collection.add(4)
-          collection.removeWhere(kung: 1, fu: 1)
-          expect( collection.toArray() ).toEqual([m2, m3, 4])
+    beforeEach ->
+      m1 = newModel(kung: 1, fu: 1)
+      m2 = newModel(kung: 1, fu: 2)
+      m3 = newModel(kung: 2, fu: 1)
+      m4 = newModel(kung: 1, fu: 1)
+      collection = new Collection [m1, m2, m3, m4]
+
+    describe "where", ->
+      it "returns an array of ones that exactly match", ->
+        expect( collection.where(kung: 1, fu: 1) ).toEqual([m1, m4])
+
+      it "ignores items that don't have an 'attrs' method", ->
+        collection.add(4)
+        expect( collection.where(kung: 1, fu: 1) ).toEqual([m1, m4])
+
+    describe "removeWhere", ->
+      it "remove ones that exactly match", ->
+        collection.removeWhere(kung: 1, fu: 1)
+        expect( collection.toArray() ).toEqual([m2, m3])
+
+      it "ignores items that don't have an 'attrs' method", ->
+        collection.add(4)
+        collection.removeWhere(kung: 1, fu: 1)
+        expect( collection.toArray() ).toEqual([m2, m3, 4])

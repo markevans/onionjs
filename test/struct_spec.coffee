@@ -1,186 +1,187 @@
-requirejs ['onion/collection', 'onion/struct'], (Collection, Struct) ->
+Collection = requirejs('onion/collection')
+Struct = requirejs('onion/struct')
 
-  describe "Struct", ->
+describe "Struct", ->
 
-    describe "attributes", ->
-      class TestStruct extends Struct
-        @attributes 'brucy'
-      struct = null
+  describe "attributes", ->
+    class TestStruct extends Struct
+      @attributes 'brucy'
+    struct = null
 
-      beforeEach ->
-        struct = new TestStruct(brucy: 'bonus')
+    beforeEach ->
+      struct = new TestStruct(brucy: 'bonus')
 
-      it "sets attributes we care about", ->
-        expect( struct.attrs() ).toEqual(brucy: 'bonus')
+    it "sets attributes we care about", ->
+      expect( struct.attrs() ).toEqual(brucy: 'bonus')
 
-      it "returns the class's attribute names", ->
-        expect( TestStruct.attributeNames ).toEqual(['brucy'])
+    it "returns the class's attribute names", ->
+      expect( TestStruct.attributeNames ).toEqual(['brucy'])
 
-    describe "#attrs", ->
-      class TestStruct extends Struct
-        @attributes 'hello', 'whats', 'nada'
-      struct = null
+  describe "#attrs", ->
+    class TestStruct extends Struct
+      @attributes 'hello', 'whats', 'nada'
+    struct = null
 
-      beforeEach ->
-        struct = new TestStruct(hello: 'guys', whats: 'up', nada: 'much')
+    beforeEach ->
+      struct = new TestStruct(hello: 'guys', whats: 'up', nada: 'much')
 
-      it "gives all the attrs", ->
-        expect( struct.attrs() ).toEqual(hello: 'guys', whats: 'up', nada: 'much')
+    it "gives all the attrs", ->
+      expect( struct.attrs() ).toEqual(hello: 'guys', whats: 'up', nada: 'much')
 
-      it "allows specifying specific attrs", ->
-        expect( struct.attrs('hello', 'whats') ).toEqual(hello: 'guys', whats: 'up')
+    it "allows specifying specific attrs", ->
+      expect( struct.attrs('hello', 'whats') ).toEqual(hello: 'guys', whats: 'up')
 
-    describe "setting", ->
-      class TestStruct extends Struct
-        @attributes 'gold', 'silver'
-      struct = null
+  describe "setting", ->
+    class TestStruct extends Struct
+      @attributes 'gold', 'silver'
+    struct = null
 
-      beforeEach ->
-        struct = new TestStruct()
+    beforeEach ->
+      struct = new TestStruct()
 
-      it "sets and emits a change event", ->
-        expect ->
-          struct.setGold('lots')
-        .toEmitOn(struct, 'change')
-        expect( struct.gold() ).toEqual('lots')
+    it "sets and emits a change event", ->
+      expect ->
+        struct.setGold('lots')
+      .toEmitOn(struct, 'change')
+      expect( struct.gold() ).toEqual('lots')
 
-      it "sets and emits a set event when a value is first set", ->
+    it "sets and emits a set event when a value is first set", ->
+      struct.setGold(null)
+      expect ->
+        struct.setGold('lots')
+      .toEmitOn(struct, 'set:gold', 'lots')
+      expect( struct.gold() ).toEqual('lots')
+
+    it "sets and emits a unset event when a value is set to null", ->
+      struct.setGold('lots')
+      expect ->
         struct.setGold(null)
-        expect ->
-          struct.setGold('lots')
-        .toEmitOn(struct, 'set:gold', 'lots')
+      .toEmitOn(struct, 'unset:gold')
+
+    it "doesn't trigger if not changed", ->
+      struct.setGold('lots')
+      expect ->
+        struct.setGold('lots')
+      .not.toEmitOn(struct, 'change')
+
+    describe "setting many", ->
+      it "allows setting multiple at once", ->
+        struct.setAttrs(gold: 'lots', silver: 'not so much')
         expect( struct.gold() ).toEqual('lots')
+        expect( struct.silver() ).toEqual('not so much')
 
-      it "sets and emits a unset event when a value is set to null", ->
-        struct.setGold('lots')
+      it "doesn't allow setting attributes it doesn't know about", ->
         expect ->
-          struct.setGold(null)
-        .toEmitOn(struct, 'unset:gold')
+          struct.setAttrs(what: 'the')
+        .toThrow("unknown attribute what for TestStruct")
 
-      it "doesn't trigger if not changed", ->
-        struct.setGold('lots')
-        expect ->
-          struct.setGold('lots')
-        .not.toEmitOn(struct, 'change')
+  describe "instances", ->
+    class TestStruct extends Struct
 
-      describe "setting many", ->
-        it "allows setting multiple at once", ->
-          struct.setAttrs(gold: 'lots', silver: 'not so much')
-          expect( struct.gold() ).toEqual('lots')
-          expect( struct.silver() ).toEqual('not so much')
+    it "maintains a collection of instances", ->
+      struct1 = new TestStruct()
+      struct2 = new TestStruct()
+      expect( TestStruct.instances().toArray() ).toEqual([struct1, struct2])
 
-        it "doesn't allow setting attributes it doesn't know about", ->
-          expect ->
-            struct.setAttrs(what: 'the')
-          .toThrow("unknown attribute what for TestStruct")
+  describe "collection", ->
+    class TestStruct extends Struct
+      @collection 'things'
+    struct = null
 
-    describe "instances", ->
-      class TestStruct extends Struct
+    beforeEach ->
+      struct = new TestStruct()
 
-      it "maintains a collection of instances", ->
-        struct1 = new TestStruct()
-        struct2 = new TestStruct()
-        expect( TestStruct.instances().toArray() ).toEqual([struct1, struct2])
+    it "returns a collection", ->
+      expect( struct.things() instanceof Collection ).toEqual(true)
+      expect( struct.things().toArray() ).toEqual([])
 
-    describe "collection", ->
-      class TestStruct extends Struct
-        @collection 'things'
-      struct = null
+    it "allows setting an order", ->
+      TestStruct.collection 'bings', orderBy: (a, b) -> if a > b then 1 else -1
+      struct.bings().add(1)
+      struct.bings().add(3)
+      struct.bings().add(2)
+      expect( struct.bings().toArray() ).toEqual([1,2,3])
 
-      beforeEach ->
-        struct = new TestStruct()
+    it "allows setting with setXXXX", ->
+      struct.setThings([2,4])
+      expect( struct.things().toArray() ).toEqual([2,4])
 
-      it "returns a collection", ->
-        expect( struct.things() instanceof Collection ).toEqual(true)
-        expect( struct.things().toArray() ).toEqual([])
+    it "allows setting on init", ->
+      expect( new TestStruct(things: [3,5]).things().toArray() ).toEqual([3,5])
 
-      it "allows setting an order", ->
-        TestStruct.collection 'bings', orderBy: (a, b) -> if a > b then 1 else -1
-        struct.bings().add(1)
-        struct.bings().add(3)
-        struct.bings().add(2)
-        expect( struct.bings().toArray() ).toEqual([1,2,3])
+    it "triggers the change event on setXXXX", ->
+      spyOn(struct, 'emit')
+      struct.setThings([2,4])
+      expect( struct.emit ).toHaveBeenCalledWith('change:things')
 
-      it "allows setting with setXXXX", ->
-        struct.setThings([2,4])
-        expect( struct.things().toArray() ).toEqual([2,4])
+    it "allows setting a different type", ->
+      class MyCollection
+      TestStruct.collection 'stuff', type: MyCollection
+      expect( struct.stuff() instanceof MyCollection ).toEqual(true)
 
-      it "allows setting on init", ->
-        expect( new TestStruct(things: [3,5]).things().toArray() ).toEqual([3,5])
+  describe "decorateWriter", ->
+    class TestStruct extends Struct
+      @attributes 'thing'
+      @decorateWriter 'thing', (value) -> value.toUpperCase()
 
-      it "triggers the change event on setXXXX", ->
-        spyOn(struct, 'emit')
-        struct.setThings([2,4])
-        expect( struct.emit ).toHaveBeenCalledWith('change:things')
+    it "decorates a writer with a function", ->
+      struct = new TestStruct()
+      struct.setThing('blob')
+      expect( struct.thing() ).toEqual('BLOB')
 
-      it "allows setting a different type", ->
-        class MyCollection
-        TestStruct.collection 'stuff', type: MyCollection
-        expect( struct.stuff() instanceof MyCollection ).toEqual(true)
+    it "does nothing if set to null", ->
+      struct = new TestStruct()
+      struct.setThing(null)
+      expect( struct.thing() ).toEqual(null)
 
-    describe "decorateWriter", ->
-      class TestStruct extends Struct
-        @attributes 'thing'
-        @decorateWriter 'thing', (value) -> value.toUpperCase()
+    it "works on null if the flag is set", ->
+      TestStruct.attributes 'array'
+      TestStruct.decorateWriter 'array', ((value) -> [value]), includeNull: true
+      struct = new TestStruct()
+      struct.setArray(null)
+      expect( struct.array() ).toEqual([null])
 
-      it "decorates a writer with a function", ->
-        struct = new TestStruct()
-        struct.setThing('blob')
-        expect( struct.thing() ).toEqual('BLOB')
+  describe "mid", ->
+    class TestStruct extends Struct
+    struct = null
 
-      it "does nothing if set to null", ->
-        struct = new TestStruct()
-        struct.setThing(null)
-        expect( struct.thing() ).toEqual(null)
+    beforeEach ->
+      struct = new TestStruct()
 
-      it "works on null if the flag is set", ->
-        TestStruct.attributes 'array'
-        TestStruct.decorateWriter 'array', ((value) -> [value]), includeNull: true
-        struct = new TestStruct()
-        struct.setArray(null)
-        expect( struct.array() ).toEqual([null])
+    it "is truthy", ->
+      expect( struct.mid() ).toBeTruthy()
 
-    describe "mid", ->
-      class TestStruct extends Struct
-      struct = null
+    it "is unique", ->
+      expect( struct.mid() ).not.toEqual( new TestStruct().mid() )
 
-      beforeEach ->
-        struct = new TestStruct()
+  describe "load", ->
+    class TestStruct extends Struct
+    struct = null
 
-      it "is truthy", ->
-        expect( struct.mid() ).toBeTruthy()
+    beforeEach ->
+      struct = TestStruct.load(something: 'nice')
 
-      it "is unique", ->
-        expect( struct.mid() ).not.toEqual( new TestStruct().mid() )
+    it "creates a struct with attrs exactly as passed in", ->
+      expect( struct.attrs() ).toEqual(something: 'nice')
 
-    describe "load", ->
-      class TestStruct extends Struct
-      struct = null
+  describe "setDefaults", ->
+    class TestStruct extends Struct
+      @attributes 'colour'
+    struct = null
 
-      beforeEach ->
-        struct = TestStruct.load(something: 'nice')
+    beforeEach ->
+      struct = new TestStruct()
 
-      it "creates a struct with attrs exactly as passed in", ->
-        expect( struct.attrs() ).toEqual(something: 'nice')
+    it "sets if not already set", ->
+      struct.setDefaults(colour: 'blue')
+      expect( struct.colour() ).toEqual('blue')
 
-    describe "setDefaults", ->
-      class TestStruct extends Struct
-        @attributes 'colour'
-      struct = null
+    it "doesn't overwrite", ->
+      struct.setColour('red')
+      struct.setDefaults(colour: 'blue')
+      expect( struct.colour() ).toEqual('red')
 
-      beforeEach ->
-        struct = new TestStruct()
-
-      it "sets if not already set", ->
-        struct.setDefaults(colour: 'blue')
-        expect( struct.colour() ).toEqual('blue')
-
-      it "doesn't overwrite", ->
-        struct.setColour('red')
-        struct.setDefaults(colour: 'blue')
-        expect( struct.colour() ).toEqual('red')
-
-      it "doesn't overwrite falsy but already set", ->
-        struct.setColour('')
-        struct.setDefaults(colour: 'blue')
-        expect( struct.colour() ).toEqual('')
+    it "doesn't overwrite falsy but already set", ->
+      struct.setColour('')
+      struct.setDefaults(colour: 'blue')
+      expect( struct.colour() ).toEqual('')

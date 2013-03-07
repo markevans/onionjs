@@ -1,20 +1,21 @@
-requirejs ['onion/slice'], (slice) ->
-  describe "slice", ->
-    attrs = {}
+slice = requirejs('onion/slice')
 
-    beforeEach ->
-      attrs = {
-        apple: 1
-        banana: 2
-        carrot: 3
-      }
+describe "slice", ->
+  attrs = {}
 
-    it "slices the specified attributes", ->
-      expect( slice(attrs, 'apple', 'carrot') ).toEqual({
-        apple: 1
-        carrot: 3
-      })
+  beforeEach ->
+    attrs = {
+      apple: 1
+      banana: 2
+      carrot: 3
+    }
 
-    it "does not set keys that doesn't exist", ->
-      result = slice(attrs, 'apple', 'carrot', 'kiwi')
-      expect( Object.prototype.hasOwnProperty.call(result, 'kiwi') ).toEqual(false)
+  it "slices the specified attributes", ->
+    expect( slice(attrs, 'apple', 'carrot') ).toEqual({
+      apple: 1
+      carrot: 3
+    })
+
+  it "does not set keys that doesn't exist", ->
+    result = slice(attrs, 'apple', 'carrot', 'kiwi')
+    expect( Object.prototype.hasOwnProperty.call(result, 'kiwi') ).toEqual(false)
