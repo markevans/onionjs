@@ -1,10 +1,10 @@
 if(typeof define!=='function'){var define=require('amdefine')(module);}
 
 define([
-  'vendor/collection',
-  'vendor/decorator',
-  'vendor/extend',
-  'vendor/sub'
+  'onion/collection',
+  'onion/decorator',
+  'onion/extend',
+  'onion/sub'
 ], function(Collection, decorator, extend, sub){
 
   var removeDuplicates = function (items) {
