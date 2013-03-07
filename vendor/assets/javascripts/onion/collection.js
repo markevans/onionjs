@@ -77,7 +77,7 @@ define([
       },
 
       addMany: function(items) {
-        itemsArray = Array.prototype.slice.call(items)
+        var itemsArray = Array.prototype.slice.call(items)
         this.splice.apply(this, [this.length, 0].concat(itemsArray))
         this.order()
         this.emit('itemsAdded', items)
