@@ -5,4 +5,7 @@ requirejs.config({
   nodeRequire: require
 })
 
+chai = requirejs('chai')
+
 global.requirejs = requirejs
+global.expect = chai.expect

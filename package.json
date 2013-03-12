@@ -14,10 +14,12 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "requirejs": "latest",
-    "mocha": "latest",
-    "amdefine": "latest",
-    "jquery": "latest",
-    "coffee-script": "latest"
+    "requirejs": "*",
+    "mocha": "*",
+    "amdefine": "*",
+    "jquery": "*",
+    "coffee-script": "*",
+    "sinon": "*",
+    "chai": "*"
   }
 }

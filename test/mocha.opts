@@ -1,3 +1,4 @@
---require test/setup
 --compilers coffee:coffee-script
 --reporter list
+--require test/setup
+--require test/matchers
