@@ -1,6 +1,6 @@
 if(typeof define!=='function'){var define=require('amdefine')(module);}
 
-define(['vendor/supplement-0.1.1.min'], function(){
+define(function(){
 
   return {
     channels: function(){
@@ -42,9 +42,12 @@ define(['vendor/supplement-0.1.1.min'], function(){
     off: function(event, callback){
       var channels = this.channels()
       if(channels[event]){
-        channels[event] = channels[event].reject(function(sub){
-          return sub.event == event && sub.callback == callback
-        })
+        channels[event] = channels[event].reduce(function(channel, sub){
+          if(! (sub.event == event && sub.callback == callback) ) {
+            channel.push(sub)
+          }
+          return channel
+        }, [])
       }
       return this
     },

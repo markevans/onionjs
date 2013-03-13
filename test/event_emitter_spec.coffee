@@ -17,17 +17,17 @@ describe "event_emitter", ->
 
     it "subscribes", ->
       emitter.on('egg', f1)
-      expect( emitter.channels()['egg'] ).toEqual([{event: 'egg', callback: f1}])
+      expect( emitter.channels()['egg'] ).to.eql([{event: 'egg', callback: f1}])
 
     it "unsubscribes", ->
       emitter.on('egg', f1)
       emitter.off('egg', f1)
-      expect( emitter.channels()['egg'] ).toEqual([])
+      expect( emitter.channels()['egg'] ).to.eql([])
 
     it "doesn't unsubscribe if the channel is not the same", ->
       emitter.on('egg', f1)
       emitter.off('bacon', f1)
-      expect( emitter.channels()['egg'] ).toEqual([{event: 'egg', callback: f1}])
+      expect( emitter.channels()['egg'] ).to.eql([{event: 'egg', callback: f1}])
 
     it "unsubscribes the correct subscription", ->
       emitter.on('egg', f1)
@@ -36,7 +36,7 @@ describe "event_emitter", ->
 
       emitter.off('egg', f2)
 
-      expect( emitter.channels()['egg'] ).toEqual([
+      expect( emitter.channels()['egg'] ).to.eql([
         {event: 'egg', callback: f1}
         {event: 'egg', callback: f3}
       ])
@@ -44,20 +44,20 @@ describe "event_emitter", ->
   describe "emit", ->
     it "allows emitting more than one arg", ->
       emitter = copy(eventEmitter, {})
-      callback = jasmine.createSpy(->)
+      callback = sinon.spy()
       emitter.on('egg', callback)
       emitter.emit('egg', 'bar', 'fly')
-      expect( callback ).toHaveBeenCalledWith('bar', 'fly')
+      assert.isTrue( callback.calledWith('bar', 'fly') )
 
   describe "one", ->
     it "subscribes the caller to only one event", ->
       emitter = copy(eventEmitter, {})
-      callback = jasmine.createSpy(->)
+      callback = sinon.spy()
       emitter.one('egg', callback)
       emitter.emit('egg', 'bar', 'fly')
       emitter.emit('egg', 'bar', 'flea')
-      expect( callback ).toHaveBeenCalledWith('bar', 'fly')
-      expect( callback ).not.toHaveBeenCalledWith('bar', 'flea')
+      assert.isTrue( callback.calledWith('bar', 'fly') )
+      assert.isFalse( callback.calledWith('bar', 'flea') )
 
   describe "silently", ->
     emitter = null
@@ -67,10 +67,10 @@ describe "event_emitter", ->
 
     it "doesn't emit any events", ->
       x = null
-      callback = jasmine.createSpy(->)
+      callback = sinon.spy()
       emitter.on 'something', callback
       emitter.silently ->
         x = 3
         emitter.emit('something')
-      expect( x ).toEqual(3)
-      expect( callback ).not.toHaveBeenCalled()
+      expect( x ).to.eql(3)
+      assert.isFalse( callback.called )
