@@ -21,11 +21,11 @@ describe "MustacheView", ->
 
     it "allows setting as a string", ->
       view.setDom('<div>')
-      expect( view.dom().constructor ).to.eql(HTMLDivElement)
+      assert.isTrue( $(view.dom()).is('div') )
 
     it "allows setting on init", ->
       view = new MustacheView(dom: '<div>')
-      expect( view.dom().constructor ).to.eql(HTMLDivElement)
+      assert.isTrue( $(view.dom()).is('div') )
 
     it "calls __setUpDomListeners__ when set", ->
       element = $('<div>')[0]
@@ -205,37 +205,37 @@ describe "MustacheView", ->
           view.$dom().click()
         .toEmitOn(view, 'someEvent', some: 'args')
 
-    describe "class onDom", ->
-      class MyView extends MustacheView
-      view = null
+  describe "class onDom", ->
+    class MyView extends MustacheView
+    view = null
 
-      beforeEach ->
-        view = new MyView()
+    beforeEach ->
+      view = new MyView()
 
-      afterEach ->
-        view.destroy()
+    afterEach ->
+      view.destroy()
 
-      it "calls instance onDom when dom is set", ->
-        MyView.onDom('.link', 'click', 'clickedYo')
-        sinon.spy(view, 'onDom')
-        assert.isFalse( view.onDom.called )
-        view.setDom('<div></div>')
-        assert.ok( view.onDom.calledWith('.link', 'click', 'clickedYo') )
+    it "calls instance onDom when dom is set", ->
+      MyView.onDom('.link', 'click', 'clickedYo')
+      sinon.spy(view, 'onDom')
+      assert.isFalse( view.onDom.called )
+      view.setDom('<div></div>')
+      assert.ok( view.onDom.calledWith('.link', 'click', 'clickedYo') )
 
-    describe "insertChild", ->
-      view = null
-      childView = null
+  describe "insertChild", ->
+    view = null
+    childView = null
 
-      beforeEach ->
-        view = new MustacheView(dom: '<div><p data-child="bunion">wassup</p></div>')
-        childView = {
-          appendTo: (element) -> $('<a>CHILDVIEW</a>').appendTo(element)
-        }
+    beforeEach ->
+      view = new MustacheView(dom: '<div><p data-child="bunion">wassup</p></div>')
+      childView = {
+        appendTo: (element) -> $('<a>CHILDVIEW</a>').appendTo(element)
+      }
 
-      it "uses data-child", ->
-        view.insertChild(childView, 'bunion')
-        expect( view.toHTML() ).to.eql('<div><p data-child="bunion">wassup<a>CHILDVIEW</a></p></div>')
+    it "uses data-child", ->
+      view.insertChild(childView, 'bunion')
+      expect( view.toHTML() ).to.eql('<div><p data-child="bunion">wassup<a>CHILDVIEW</a></p></div>')
 
-      it "appends to main container if id not known", ->
-        view.insertChild(childView, 'butterscotch')
-        expect( view.toHTML() ).to.eql('<div><p data-child="bunion">wassup</p><a>CHILDVIEW</a></div>')
+    it "appends to main container if id not known", ->
+      view.insertChild(childView, 'butterscotch')
+      expect( view.toHTML() ).to.eql('<div><p data-child="bunion">wassup</p><a>CHILDVIEW</a></div>')

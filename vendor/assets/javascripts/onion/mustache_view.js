@@ -110,7 +110,7 @@ define([
 
       insertChild: function(childView, id){
         if (childView.appendTo) {
-          var container = this.find('[data-child~="'+id+'"]')
+          var container = this.find('[data-child="'+id+'"]')
           if(container.length === 0) container = this.$dom()
           childView.appendTo(container)
         }
