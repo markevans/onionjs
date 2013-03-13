@@ -1,6 +1,7 @@
 Controller = requirejs('onion/controller')
 eventEmitter = requirejs('onion/event_emitter')
 Struct = requirejs('onion/struct')
+extend = requirejs('onion/extend')
 
 describe "Controller", ->
 
@@ -146,9 +147,11 @@ describe "Controller", ->
 
   describe "onView", ->
     controller = null
+    emitter = null
 
     beforeEach ->
       controller = new Controller()
+      emitter = extend({}, eventEmitter)
 
     it "raises an error if there is no view", ->
       expect ->
@@ -156,14 +159,14 @@ describe "Controller", ->
       .to.throw("there is no view to subscribe to")
 
     it "subscribes to the view and calls a method on itself with correct args", ->
-      controller.view = eventEmitter
+      controller.view = emitter
       controller.something = sinon.spy()
       controller.onView('chosen', 'something')
       controller.view.emit('chosen', 'some', 'args')
       assert.isTrue( controller.something.calledWith('some', 'args') )
 
     it "allows passing a callback instead of a method name", ->
-      controller.view = eventEmitter
+      controller.view = emitter
       callback = sinon.spy()
       controller.onView('chosen', callback)
       controller.view.emit('chosen', 'some', 'args')
@@ -172,7 +175,7 @@ describe "Controller", ->
     it "has a class-level DSL", ->
       class MyController extends Controller
         @onView 'chosen', 'bingo'
-        initView: -> eventEmitter
+        initView: -> emitter
         bingo: sinon.spy()
 
       controller = new MyController()
