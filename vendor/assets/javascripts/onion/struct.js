@@ -102,10 +102,6 @@ define([
         return this.__instances__
       },
 
-      detect: function(filter) {
-        return this.instances().detect(filter)
-      },
-
       attributes: function(){
         if(!this.attributeNames) this.attributeNames = []
         var i
