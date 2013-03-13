@@ -15,15 +15,30 @@ describe "jquery formParams plugin", ->
       swimming: 'pool'
     })
 
-
-  it "works for checkboxes", ->
+  it "works for radio buttons", ->
     html = """
            <form>
-             <input type="checkbox" name="golf", value="great" checked="checked" />
-             <input type="checkbox" name="golf", value="stuff" />
+             <input type="radio" name="golf", value="great" checked="checked" />
+             <input type="radio" name="golf", value="stuff" />
            </form>
            """
     expect( $(html).formParams() ).to.eql(golf: 'great')
+
+  it "works for checked checkboxes", ->
+    html = """
+           <form>
+             <input type="checkbox" name="golf", value="great" checked="checked" />
+           </form>
+           """
+    expect( $(html).formParams() ).to.eql(golf: 'great')
+
+  it "works for unchecked checkboxes", ->
+    html = """
+           <form>
+             <input type="checkbox" name="golf", value="great" />
+           </form>
+           """
+    expect( $(html).formParams() ).to.eql(golf: null)
 
   it "allows specifying a namespace", ->
     html = """
@@ -37,3 +52,11 @@ describe "jquery formParams plugin", ->
       golf: 'course'
       swimming: 'pool'
     })
+
+  it "works for unchecked checkboxes with a namespace", ->
+    html = """
+           <form>
+             <input type="checkbox" name="joke[golf]", value="great" />
+           </form>
+           """
+    expect( $(html).formParams('joke') ).to.eql(golf: null)

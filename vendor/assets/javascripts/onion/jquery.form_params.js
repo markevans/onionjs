@@ -7,18 +7,33 @@ define(['jquery'], function($) {
     return inputName.replace(matcher, '$1')
   }
 
+  function doWithKey(namespace, inputName, callback) {
+    if (namespace) {
+      if (inputName.match(namespace+'\\[')) {
+        callback(attrFromInputName(inputName, namespace))
+      }
+    } else {
+      callback(inputName)
+    }
+  }
+
   $.fn.formParams = function(namespace){
+
     // Normal params
     var params = this.serializeArray().
       reduce(function(params, input){
-        if(namespace){
-          if(input.name.match(namespace+'\\['))
-            params[attrFromInputName(input.name, namespace)] = input.value
-        } else {
-          params[input.name] = input.value
-        }
+        doWithKey(namespace, input.name, function (key) {
+          params[key] = input.value
+        })
         return params;
       }, {});
+
+    // Unchecked checkboxes
+    this.find('input[type=checkbox]:not(:checked)').each(function () {
+      doWithKey(namespace, this.name, function (key) {
+        params[key] = null
+      })
+    })
 
     // Attached files
     this.find('input[type=file]').each(function(){
