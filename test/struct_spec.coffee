@@ -129,10 +129,10 @@ describe "Struct", ->
       struct.setThing('blob')
       expect( struct.thing() ).to.eql('BLOB')
 
-    it "does nothing if set to null", ->
+    it "ignores the decorator if set to null", ->
       struct = new TestStruct()
       struct.setThing(null)
-      expect( struct.thing() ).to.eql(null)
+      expect( struct.thing() ).to.eql(undefined)
 
     it "works on null if the flag is set", ->
       TestStruct.attributes 'array'
