@@ -49,7 +49,7 @@ define([
         if(!this.__requiredModels__) this.__requiredModels__ = []
         var arg
         for(var i=0; i<arguments.length; i++){
-          modelName = arguments[i]
+          var modelName = arguments[i]
           if(this.__requiredModels__.indexOf(modelName) == -1){
             this.__requiredModels__.push(modelName)
           }
@@ -166,7 +166,8 @@ define([
           child = this.children[childId][itemId]
         }
         else {
-          child = Object.values(this.children[id])[0]
+          var key = Object.keys(this.children[id])[0]
+          child = this.children[id][key]
         }
         return child
       },
@@ -197,9 +198,9 @@ define([
           var child = this.children[id]
           delete this.children[id]
           if(child) {
-            Object.values(child).forEach(function(controller) {
-              controller.destroy()
-            })
+            for(var key in child) {
+              child[key].destroy()
+            }
           }
         }
       },
