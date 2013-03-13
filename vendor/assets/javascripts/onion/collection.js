@@ -10,8 +10,8 @@ define([
 
   var conditionsMatch = function (item, conditions) {
     if(typeof item.attrs != 'function') return false
-    attrs = item.attrs()
-    for(key in conditions) {
+    var attrs = item.attrs()
+    for(var key in conditions) {
       if( attrs[key] != conditions[key] ) return false
     }
     return true
