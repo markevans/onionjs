@@ -15,14 +15,14 @@ describe "Validator", ->
         validator.__runValidations__ = ->
 
       it "calls the done callback", ->
-        callback = jasmine.createSpy()
+        callback = sinon.spy()
         validator.validate(attributes).done(callback)
-        expect( callback ).toHaveBeenCalled()
+        assert.isTrue( callback.called )
 
       it "doesn't call the fail callback", ->
-        callback = jasmine.createSpy()
+        callback = sinon.spy()
         validator.validate(attributes).fail(callback)
-        expect( callback ).not.toHaveBeenCalled()
+        assert.isFalse( callback.called )
 
     describe "when invalid", ->
       ourErrors = null
@@ -33,11 +33,11 @@ describe "Validator", ->
           errors.add('type', 'bad')
 
       it "doesn't call the done callback when invalid", ->
-        callback = jasmine.createSpy()
+        callback = sinon.spy()
         validator.validate(attributes).done(callback)
-        expect( callback ).not.toHaveBeenCalled()
+        assert.isFalse( callback.called )
 
       it "calls the fail callback when invalid", ->
-        callback = jasmine.createSpy()
+        callback = sinon.spy()
         validator.validate(attributes).fail(callback)
-        expect( callback ).toHaveBeenCalledWith(ourErrors)
+        assert.isTrue( callback.calledWith(ourErrors) )

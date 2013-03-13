@@ -11,11 +11,11 @@ describe "slice", ->
     }
 
   it "slices the specified attributes", ->
-    expect( slice(attrs, 'apple', 'carrot') ).toEqual({
+    expect( slice(attrs, 'apple', 'carrot') ).to.eql({
       apple: 1
       carrot: 3
     })
 
   it "does not set keys that doesn't exist", ->
     result = slice(attrs, 'apple', 'carrot', 'kiwi')
-    expect( Object.prototype.hasOwnProperty.call(result, 'kiwi') ).toEqual(false)
+    expect( Object.prototype.hasOwnProperty.call(result, 'kiwi') ).to.eql(false)

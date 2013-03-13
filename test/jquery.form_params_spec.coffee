@@ -10,7 +10,7 @@ describe "jquery formParams plugin", ->
              <input name="swimming", value="pool" />
            </form>
            """
-    expect( $(html).formParams() ).toEqual({
+    expect( $(html).formParams() ).to.eql({
       golf: 'course'
       swimming: 'pool'
     })
@@ -23,7 +23,7 @@ describe "jquery formParams plugin", ->
              <input type="checkbox" name="golf", value="stuff" />
            </form>
            """
-    expect( $(html).formParams() ).toEqual(golf: 'great')
+    expect( $(html).formParams() ).to.eql(golf: 'great')
 
   it "allows specifying a namespace", ->
     html = """
@@ -33,7 +33,7 @@ describe "jquery formParams plugin", ->
              <input name="japes", value="grapes" />
            </form>
            """
-    expect( $(html).formParams('joke') ).toEqual({
+    expect( $(html).formParams('joke') ).to.eql({
       golf: 'course'
       swimming: 'pool'
     })

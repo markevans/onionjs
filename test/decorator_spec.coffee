@@ -16,15 +16,15 @@ describe "decorator", ->
       decorator.after object, 'upcase', (string) ->
         @result += ' hooray'
       object.upcase('elephant')
-      expect( object.result ).toEqual('ELEPHANT hooray')
+      expect( object.result ).to.eql('ELEPHANT hooray')
 
     it "works with a string", ->
       decorator.after object, 'upcase', 'addThing'
       object.addThing = (string) ->
           @result += string
       object.upcase('elephant')
-      expect( object.result ).toEqual('ELEPHANTelephant')
+      expect( object.result ).to.eql('ELEPHANTelephant')
 
     it "doesn't change the return value", ->
       decorator.after object, 'upcase', ->
-      expect( object.upcase('elephant') ).toEqual('originalReturnValue')
+      expect( object.upcase('elephant') ).to.eql('originalReturnValue')

@@ -16,11 +16,11 @@ describe "Membership", ->
   describe "listening to add", ->
 
     it "says when a collection doesn't contain an item", ->
-      expect( membership.exists() ).toEqual(false)
+      expect( membership.exists() ).to.eql(false)
 
     it "says when an item contains an object", ->
       collection.set([item])
-      expect( membership.exists() ).toEqual(true)
+      expect( membership.exists() ).to.eql(true)
 
     it "emits when the item is added", ->
       expect(->
@@ -69,20 +69,20 @@ describe "Membership", ->
   describe "adding", ->
     it "adds to the collection", ->
       membership.add()
-      expect( collection.contains(item) ).toEqual(true)
+      expect( collection.contains(item) ).to.eql(true)
 
   describe "removing", ->
     it "removes from the collection", ->
       membership.add()
       membership.remove()
-      expect( collection.contains(item) ).toEqual(false)
+      expect( collection.contains(item) ).to.eql(false)
 
   describe "toggling", ->
     it "adds if it doesn't exist", ->
       membership.toggle()
-      expect( collection.contains(item) ).toEqual(true)
+      expect( collection.contains(item) ).to.eql(true)
 
     it "removes if it exists", ->
       membership.add()
       membership.toggle()
-      expect( collection.contains(item) ).toEqual(false)
+      expect( collection.contains(item) ).to.eql(false)
