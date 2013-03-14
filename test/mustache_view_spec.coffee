@@ -239,3 +239,8 @@ describe "MustacheView", ->
     it "appends to main container if id not known", ->
       view.insertChild(childView, 'butterscotch')
       expect( view.toHTML() ).to.eql('<div><p data-child="bunion">wassup</p><a>CHILDVIEW</a></div>')
+
+    it "allows specifying more than one data-child on the same element (space separated) without confusing with substrings", ->
+      view.setDom('<div><p data-child="bunion something else">wassup</p><span data-child="bunionBashers"></span></div>')
+      view.insertChild(childView, 'bunion')
+      expect( view.toHTML() ).to.eql('<div><p data-child="bunion something else">wassup<a>CHILDVIEW</a></p><span data-child="bunionBashers"></span></div>')
