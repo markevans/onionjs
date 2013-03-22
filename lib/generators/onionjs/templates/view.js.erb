@@ -1,0 +1,13 @@
+define([
+  'onion/mustache_view',
+  'onion/vendor/text!<%= module_dirname %>/<%= template_filename %>'
+], function (
+  MustacheView,
+  template
+) {
+
+  return MustacheView.sub('<%= view_name %>')
+
+    .template(template)
+
+})
