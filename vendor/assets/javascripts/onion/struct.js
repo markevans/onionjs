@@ -39,13 +39,18 @@ define([
 
       setAttrs: function(attrs){
         var key, methodName
+        var changeOccurred = false
         for(key in attrs){
           methodName = setterMethodName(key)
           if(this[methodName]){
-            this[methodName](attrs[key])
+            this[methodName](attrs[key], {globalChange: false})
+            changeOccurred = true
           } else {
             throw new Error("unknown attribute " + key + " for " + this.constructor.name)
           }
+        }
+        if (changeOccurred) {
+          this.emit('change')
         }
       },
 
@@ -59,12 +64,18 @@ define([
         copy(this.__attrs__, attrs)
       },
 
-      set: function(attr, value){
+      set: function(attr, value, opts){
+        opts = opts || {}
+        if (typeof opts.globalChange === 'undefined') {
+          opts.globalChange = true
+        }
         var from = this.__get__(attr)
         if(from != value) {
           this.__attrs__[attr] = value
           this.emit('change:'+attr, {from: from, to: value})
-          this.emit('change')
+          if (opts.globalChange) {
+            this.emit('change')
+          }
           if (from == null && value != null) {
             this.emit('set:'+attr, value)
           };
@@ -152,8 +163,8 @@ define([
 
       createWriter: function(attr){
         var methodName = setterMethodName(attr)
-        this.prototype[methodName] = function(value){
-          this.set(attr, value)
+        this.prototype[methodName] = function(value, opts){
+          this.set(attr, value, opts)
           return this
         }
       },

@@ -86,6 +86,7 @@ describe "Struct", ->
   describe "collection", ->
     class TestStruct extends Struct
       @collection 'things'
+      @attributes 'stuff', 'blah'
     struct = null
 
     beforeEach ->
@@ -113,6 +114,27 @@ describe "Struct", ->
       expect ->
         struct.setThings([2,4])
       .toEmitOn(struct, 'change:things')
+
+    it "triggers `change:XXX` for each change and then `change` once when setting many at once", ->
+      globalCalled = 0
+      thingsCalled = 0
+      stuffCalled = 0
+      blahCalled = 0
+      struct.on 'change', ->
+        globalCalled++
+      struct.on 'change:things', ->
+        thingsCalled++
+      struct.on 'change:stuff', ->
+        stuffCalled++
+      struct.on 'change:blah', ->
+        blahCalled++
+
+      struct.setAttrs({things: [2,4], stuff: 1, blah: 'stuffies!'})
+
+      expect( thingsCalled ).to.eql(1)
+      expect( stuffCalled ).to.eql(1)
+      expect( blahCalled ).to.eql(1)
+      expect( globalCalled ).to.eql(1)
 
     it "allows setting a different type", ->
       class MyCollection
