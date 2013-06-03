@@ -16,7 +16,7 @@ module Onionjs
           require(#{requires.to_json}, function(#{controller_name}){
             window.app = new #{controller_name}({
               preloadedData: #{preloaded_data.to_json}
-            }).appendTo('#{onionjs_app_anchor_selector(opts)}')
+            }).#{onionjs_app_anchor_action(opts)}('#{onionjs_app_anchor_selector(opts)}')
           })
         </script>
       )
@@ -43,6 +43,10 @@ module Onionjs
         id = opts[:id] || 'app'
         %(<div id="#{id}"></div>)
       end
+    end
+
+    def onionjs_app_anchor_action(opts)
+      opts[:anchor] ? 'anchorAt' : 'appendTo'
     end
 
   end

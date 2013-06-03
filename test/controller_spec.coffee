@@ -261,8 +261,8 @@ describe "Controller", ->
           expect( controller.getChild(['list', 'tres']) ).to.be.undefined
 
         it "sets the child view", ->
-          assert.isTrue( controller.view.insertChild.calledWith(child1.view, 'list') )
-          assert.isTrue( controller.view.insertChild.calledWith(child2.view, 'list') )
+          assert.isTrue( controller.view.insertChild.calledWith(child1.view, 'list', 'uno') )
+          assert.isTrue( controller.view.insertChild.calledWith(child2.view, 'list', 'dos') )
 
         it "destroys a replaced child", ->
           sinon.spy(child2, 'destroy')
@@ -321,3 +321,26 @@ describe "Controller", ->
         assert.isTrue( child1.destroy.called )
         assert.isTrue( child2.destroy.called )
         assert.isTrue( child.destroy.called )
+
+    describe "domReady", ->
+      view = null
+
+      class TestView
+        setDom: ->
+          this.domWasSet = true
+
+      beforeEach ->
+        view = new TestView()
+        controller = new Controller({}, {view})
+
+      it "is called after the view calls setDom()", ->
+        domReadyCalled = false
+        domWasSet = false
+        controller.domReady = ->
+          domReadyCalled = true
+          domWasSet = view.domWasSet
+
+        view.setDom('body')
+
+        expect( domReadyCalled ).to.eql(true)
+        expect( domWasSet ).to.eql(true)
