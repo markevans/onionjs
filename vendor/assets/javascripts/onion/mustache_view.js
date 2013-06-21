@@ -70,7 +70,18 @@ define([
 
       render: function (object) {
         var html = this.renderTemplate(this.template(), object)
-        this.setDom($(html)[0])
+        var parsedDom = null
+        try {
+          parsedDom = $(html)
+        }
+        catch (e) {
+          throw new Error(["Could not parse the result of rendering the template.",
+                           "A probable cause is that the result starts with spaces,",
+                           "and you are using jQuery 1.9.1 or 2.0, which don't accept this.",
+                           "To solve the problem, either remove the spaces at the beginning",
+                           "or upgrade jQuery."].join(" "))
+        }
+        this.setDom(parsedDom[0])
         return this
       },
 
