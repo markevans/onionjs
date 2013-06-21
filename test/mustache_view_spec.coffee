@@ -244,3 +244,14 @@ describe "MustacheView", ->
       view.setDom('<div><p data-child="bunion something else">wassup</p><span data-child="bunionBashers"></span></div>')
       view.insertChild(childView, 'bunion')
       expect( view.toHTML() ).to.eql('<div><p data-child="bunion something else">wassup<a>CHILDVIEW</a></p><span data-child="bunionBashers"></span></div>')
+
+    it "allows specifying a specific item when there are many under the same child", ->
+      view = new MustacheView(dom: '<div><p data-child="bunion"><span data-child-item="1">wassup</span><span data-child-item="2">wassup</span><span data-child-item="3">wassup</span></p></div>')
+      view.insertChild(childView, 'bunion', '2')
+      expect( view.toHTML() ).to.eql('<div><p data-child="bunion"><span data-child-item="1">wassup</span><span data-child-item="2">wassup<a>CHILDVIEW</a></span><span data-child-item="3">wassup</span></p></div>')
+
+    it "sets the DOM when in anchor mode", ->
+      childView = new MustacheView
+      view.insertChild(childView, 'bunion', null, {anchor: true})
+      expect( view.toHTML() ).to.eql('<div><p data-child="bunion">wassup</p></div>')
+      expect( childView.toHTML() ).to.eql('<p data-child="bunion">wassup</p>')

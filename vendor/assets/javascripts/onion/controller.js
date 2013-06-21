@@ -4,12 +4,14 @@ define([
     'onion/class_declarations',
     'onion/extend',
     'onion/type',
-    'onion/subscriber'
+    'onion/subscriber',
+    'onion/decorator'
   ], function(
     classDeclarations,
     extend,
     Type,
-    subscriber
+    subscriber,
+    decorator
 ) {
 
   var isFunction = function (object) {
@@ -34,6 +36,7 @@ define([
 
       // View
       this.view = opts.view || this.initView()
+      this.__setUpViewDecorators__()
       this.__setUpViewListeners__()
 
       // Children
@@ -116,6 +119,10 @@ define([
         // Override me
       },
 
+      domReady: function () {
+        // Override me
+      },
+
       onView: function (event, handler) {
         if (!this.view) {
           throw new Error("there is no view to subscribe to")
@@ -129,9 +136,15 @@ define([
         return this
       },
 
+      anchorAt: function(element){
+        this.view.setDom(element)
+        return this
+      },
+
       // Children
 
       setChild: function(id, child, models, options){
+        options = options || {anchor: false}
         if( isFunction(child) ) child = this.__newChild__(child, models, options)
 
         var childId, itemId
@@ -154,7 +167,7 @@ define([
 
         this.children[childId][itemId] = child
 
-        this.insertChild(child, childId)
+        this.insertChild(child, childId, itemId, options.anchor)
         return child
       },
 
@@ -205,8 +218,8 @@ define([
         }
       },
 
-      insertChild: function(child, id){
-        this.view.insertChild(child.view, id)
+      insertChild: function(child, id, itemId, anchor){
+        this.view.insertChild(child.view, id, itemId, anchor)
       },
 
       // "Private"
@@ -245,6 +258,16 @@ define([
 
       __isModelListenerEnabled__: function (modelName, eventName) {
         return !this.__disabledModelListeners__[toKey(modelName, eventName)]
+      },
+
+      __setUpViewDecorators__: function () {
+        if (!this.view) {
+          return
+        }
+        var self = this
+        decorator.after(this.view, 'setDom', function () {
+          self.domReady()
+        })
       },
 
       __setUpViewListeners__: function () {
