@@ -223,7 +223,7 @@ define([
         var name
         for(var i=0; i<requiredModels.length; i++){
           name = requiredModels[i]
-          if(this.models[name]){
+          if(typeof this.models[name] !== 'undefined'){
             this[name] = this.models[name]
             this.__createModelSubscriptionsFor__(name)
           } else {
