@@ -19,28 +19,36 @@ module Onionjs
 
     private
 
+    def underscored
+      @underscored ||= name.camelize.sub(/Controller$/, '').underscore
+    end
+
+    def namespace
+      @namespace ||= underscored.split('/')[0..-2].join('/')
+    end
+
     def basename
-      @basename ||= name.camelize.sub(/Controller$/, '').underscore
+      @basename ||= underscored.split('/').last
     end
 
     def module_dirname
-      basename
-    end
-
-    def controller_name
-      "#{basename.camelize}Controller"
+      namespace.present? ? namespace : basename
     end
 
     def controller_basename
-      controller_name.underscore
+      "#{basename}_controller"
     end
 
-    def view_name
-      "#{basename.camelize}View"
+    def controller_name
+      controller_basename.camelize
     end
 
     def view_basename
-      view_name.underscore
+      "#{basename}_view"
+    end
+
+    def view_name
+      view_basename.camelize
     end
 
     def template_filename
