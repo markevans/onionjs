@@ -69,7 +69,10 @@ define([
       },
 
       render: function (object) {
-        var html = this.renderTemplate(this.template(), object)
+        // Versions 1.9.1 and 2.0 of jQuery have a bug whereby $()
+        // doesn't accept a string that begins with spaces. Hence
+        // we trim() to avoid this
+        var html = this.renderTemplate(this.template(), object).trim()
         this.setDom($(html)[0])
         return this
       },
