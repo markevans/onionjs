@@ -3,9 +3,8 @@ if(typeof define!=='function'){var define=require('amdefine')(module);}
 define([
   'onion/type',
   'onion/event_emitter',
-  'onion/collection',
   'onion/has_uuid'
-], function(Type, eventEmitter, Collection, hasUUID){
+], function (Type, eventEmitter, hasUUID) {
 
   function setterMethodName(attributeName){
     return 'set' + attributeName.replace(/./, function(ch){ return ch.toUpperCase() })
@@ -30,23 +29,36 @@ define([
 
     .proto({
 
-      __get__: function(attr){
+      __readAttribute__: function(attr) {
         return this.__attrs__[attr]
       },
 
-      setAttrs: function(attrs){
-        var key, methodName
+      __writeAttribute__: function(attr, value) {
+        this.__attrs__[attr] = value
+      },
+
+      set: function(attr, value) {
+        var attrs = {}
+        attrs[attr] = value
+        var changes = this.__collectChanges__(attrs)
+        this.__writeAttribute__(attr, value)
+        this.__notifyChanges__(changes)
+        return this
+      },
+
+      setAttrs: function(attrs) {
+        var changes = this.__collectChanges__(attrs)
         for(key in attrs){
-          methodName = setterMethodName(key)
-          if(this[methodName]){
-            this[methodName](attrs[key])
+          if(this.constructor.attributeNames.indexOf(key) != -1){
+            this.__writeAttribute__(key, attrs[key])
           } else {
             throw new Error("unknown attribute " + key + " for " + this.constructor.name)
           }
         }
+        this.__notifyChanges__(changes)
       },
 
-      attrs: function(){
+      attrs: function() {
         var keys
         if(arguments.length) keys = Array.prototype.slice.apply(arguments)
         return copy({}, this.__attrs__, keys)
@@ -56,22 +68,37 @@ define([
         copy(this.__attrs__, attrs)
       },
 
-      set: function(attr, value){
-        var from = this.__get__(attr)
-        if(from != value) {
-          this.__attrs__[attr] = value
-          this.emit('change:'+attr, {from: from, to: value})
-          this.emit('change')
-          if (from == null && value != null) {
-            this.emit('set:'+attr, value)
+      __collectChanges__: function (attrs) {
+        var changes = {}
+        var newValue, oldValue
+        var attr
+        for (attr in attrs) {
+          newValue = attrs[attr]
+          oldValue = this.__readAttribute__(attr)
+          if(newValue != oldValue) {
+            changes[attr] = {from: oldValue, to: newValue}
+          }
+        }
+        return changes
+      },
+
+      __notifyChanges__: function (changes) {
+        var change
+        var attr
+        for (attr in changes) {
+          change = changes[attr]
+          this.emit('change:'+attr, change)
+          if (change.from == null && change.to != null) {
+            this.emit('set:'+attr, change.to)
           };
-          if (from != null && value == null) {
+          if (change.from != null && change.to == null) {
             this.emit('unset:'+attr)
           };
-
         }
-
-        return this
+        if (Object.keys(changes).length > 0) {
+          this.emit('change')
+        }
+        return changes
       },
 
       setDefaults: function (attrs) {
@@ -91,45 +118,14 @@ define([
         return instance
       },
 
-      instances: function() {
-        if(!this.__instances__) {
-          this.__instances__ = new Collection()
-        }
-
-        return this.__instances__
-      },
-
       attributes: function(){
         if(!this.attributeNames) this.attributeNames = []
         var i
         for(i=0; i<arguments.length; i++){
-          this.createReader(arguments[i])
-          this.createWriter(arguments[i])
+          this.__createReader__(arguments[i])
+          this.__createWriter__(arguments[i])
           this.attributeNames.push(arguments[i])
         }
-        return this
-      },
-
-      collection: function(name, options){
-        var privateName = '__'+name+'__'
-        options = options || {}
-        var type = options.type || Collection
-
-        // Reader
-        this.prototype[name] = function(){
-          if(!this[privateName]){
-            this[privateName] = new type()
-            if(options.orderBy){ this[privateName].orderBy(options.orderBy) }
-          }
-          return this[privateName]
-        }
-
-        // Writer
-        this.prototype[setterMethodName(name)] = function(items){
-          this[name]().set(items)
-          this.emit('change:' + name)
-        }
-
         return this
       },
 
@@ -141,13 +137,13 @@ define([
         return this
       },
 
-      createReader: function(attr){
+      __createReader__: function(attr){
         this.prototype[attr] = function(){
-          return this.__get__(attr)
+          return this.__readAttribute__(attr)
         }
       },
 
-      createWriter: function(attr){
+      __createWriter__: function(attr){
         var methodName = setterMethodName(attr)
         this.prototype[methodName] = function(value){
           this.set(attr, value)
@@ -158,9 +154,9 @@ define([
     })
 
     .after('init', function(attrs){
-      this.constructor.instances().add(this)
       this.__attrs__ = {}
       this.setAttrs(attrs)
     })
 
 })
+

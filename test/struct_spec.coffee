@@ -1,4 +1,3 @@
-Collection = requirejs('onion/collection')
 Struct = requirejs('onion/struct')
 
 describe "Struct", ->
@@ -11,7 +10,7 @@ describe "Struct", ->
     beforeEach ->
       struct = new TestStruct(brucy: 'bonus')
 
-    it "sets attributes we care about", ->
+    it "sets provided attributes", ->
       expect( struct.attrs() ).to.eql(brucy: 'bonus')
 
     it "returns the class's attribute names", ->
@@ -26,10 +25,12 @@ describe "Struct", ->
       struct = new TestStruct(hello: 'guys', whats: 'up', nada: 'much')
 
     it "gives all the attrs", ->
-      expect( struct.attrs() ).to.eql(hello: 'guys', whats: 'up', nada: 'much')
+      expect( struct.attrs() )
+        .to.eql(hello: 'guys', whats: 'up', nada: 'much')
 
     it "allows specifying specific attrs", ->
-      expect( struct.attrs('hello', 'whats') ).to.eql(hello: 'guys', whats: 'up')
+      expect( struct.attrs('hello', 'whats') )
+        .to.eql(hello: 'guys', whats: 'up')
 
   describe "setting", ->
     class TestStruct extends Struct
@@ -39,10 +40,17 @@ describe "Struct", ->
     beforeEach ->
       struct = new TestStruct()
 
-    it "sets and emits a change event", ->
+    it "sets and emits the `change` event", ->
       expect ->
         struct.setGold('lots')
       .toEmitOn(struct, 'change')
+      expect( struct.gold() )
+        .to.eql('lots', {gold: {from: undefined, to: 'lots'}})
+
+    it "sets and emits the `change:gold` event", ->
+      expect ->
+        struct.setGold('lots')
+      .toEmitOn(struct, 'change:gold', {from: undefined, to: 'lots'})
       expect( struct.gold() ).to.eql('lots')
 
     it "sets and emits a set event when a value is first set", ->
@@ -52,17 +60,15 @@ describe "Struct", ->
       .toEmitOn(struct, 'set:gold', 'lots')
       expect( struct.gold() ).to.eql('lots')
 
-    it "sets and emits a unset event when a value is set to null", ->
-      struct.setGold('lots')
-      expect ->
-        struct.setGold(null)
-      .toEmitOn(struct, 'unset:gold')
-
     it "doesn't trigger if not changed", ->
       struct.setGold('lots')
       expect ->
         struct.setGold('lots')
       .not.toEmitOn(struct, 'change')
+
+      expect ->
+        struct.setGold('lots')
+      .not.toEmitOn(struct, 'change:gold')
 
     describe "setting many", ->
       it "allows setting multiple at once", ->
@@ -75,49 +81,31 @@ describe "Struct", ->
           struct.setAttrs(what: 'the')
         .to.throw("unknown attribute what for TestStruct")
 
-  describe "instances", ->
-    class TestStruct extends Struct
+      it "emits `change:XXX` for each attribute", ->
+        changeGoldEvents = changeSilverEvents = 0
+        struct.on 'change:gold', ->
+          changeGoldEvents++
+        struct.on 'change:silver', ->
+          changeSilverEvents++
 
-    it "maintains a collection of instances", ->
-      struct1 = new TestStruct()
-      struct2 = new TestStruct()
-      expect( TestStruct.instances().toArray() ).to.eql([struct1, struct2])
+        struct.setAttrs(gold: 'lots', silver: 'not so much')
+        expect( changeGoldEvents ).to.eql( 1 )
+        expect( changeSilverEvents ).to.eql( 1 )
 
-  describe "collection", ->
-    class TestStruct extends Struct
-      @collection 'things'
-    struct = null
+        struct.setAttrs(gold: 'less now', silver: 'not so much')
+        expect( changeGoldEvents ).to.eql( 2 )
+        expect( changeSilverEvents ).to.eql( 1 )
 
-    beforeEach ->
-      struct = new TestStruct()
+      it "emits `change` only once, and only if there are changes", ->
+        changeEvents = 0
+        struct.on 'change', (changes) ->
+          changeEvents++
 
-    it "returns a collection", ->
-      expect( struct.things() instanceof Collection ).to.eql(true)
-      expect( struct.things().toArray() ).to.eql([])
+        struct.setAttrs(gold: 'lots', silver: 'not so much')
+        expect( changeEvents ).to.eql( 1 )
 
-    it "allows setting an order", ->
-      TestStruct.collection 'bings', orderBy: (a, b) -> if a > b then 1 else -1
-      struct.bings().add(1)
-      struct.bings().add(3)
-      struct.bings().add(2)
-      expect( struct.bings().toArray() ).to.eql([1,2,3])
-
-    it "allows setting with setXXXX", ->
-      struct.setThings([2,4])
-      expect( struct.things().toArray() ).to.eql([2,4])
-
-    it "allows setting on init", ->
-      expect( new TestStruct(things: [3,5]).things().toArray() ).to.eql([3,5])
-
-    it "triggers the change event on setXXXX", ->
-      expect ->
-        struct.setThings([2,4])
-      .toEmitOn(struct, 'change:things')
-
-    it "allows setting a different type", ->
-      class MyCollection
-      TestStruct.collection 'stuff', type: MyCollection
-      expect( struct.stuff() instanceof MyCollection ).to.eql(true)
+        struct.setAttrs(silver: 'not so much')
+        expect( changeEvents ).to.eql( 1 )
 
   describe "decorateWriter", ->
     class TestStruct extends Struct
@@ -132,7 +120,7 @@ describe "Struct", ->
     it "ignores the decorator if set to null", ->
       struct = new TestStruct()
       struct.setThing(null)
-      expect( struct.thing() ).to.eql(undefined)
+      expect( struct.thing() ).to.eql(null)
 
     it "works on null if the flag is set", ->
       TestStruct.attributes 'array'
