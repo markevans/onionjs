@@ -160,14 +160,6 @@ describe "MustacheView", ->
       view.appendTo('body')
       expect( $('body > .hello').length ).to.eql(1)
 
-  describe "append", ->
-    it "appends some shizzle", ->
-      view = new MustacheView(template: '<div><span>dich</span></div>')
-      view.render()
-      returnValue = view.append('pants')
-      expect( view.toHTML() ).to.eql('<div><span>dich</span>pants</div>')
-      expect( returnValue ).to.eql(view)
-
   describe "events", ->
 
     describe "instance onDom", ->

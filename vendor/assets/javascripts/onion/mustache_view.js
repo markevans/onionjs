@@ -103,11 +103,6 @@ define([
         return $(this.dom()).find(selector)
       },
 
-      append: function (element) {
-        this.$dom().append(element)
-        return this
-      },
-
       insertChild: function(childView, id){
         if (childView.appendTo) {
           var container = this.find('[data-child]').filter(function () {
