@@ -133,6 +133,7 @@ define([
 
       if(options.template) this.setTemplate(options.template)
       if(options.dom) this.setDom(options.dom)
+      this.models = options.models || {}
 
       // Helpers
       this.__helpers__ = {}

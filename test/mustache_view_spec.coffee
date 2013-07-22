@@ -3,6 +3,15 @@ $ = requirejs('jquery')
 
 describe "MustacheView", ->
 
+  describe "models", ->
+    it "allows setting on init", ->
+      view = new MustacheView(models: {bo: 'gee'})
+      expect( view.models ).to.eql({bo: 'gee'})
+
+    it "defaults to an empty object", ->
+      view = new MustacheView()
+      expect( view.models ).to.eql({})
+
   describe "dom", ->
     view = null
 
