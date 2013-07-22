@@ -17,37 +17,16 @@ define([
 
     .use(classDeclarations, 'helpers')
 
-    .extend({
-      template: function (template) {
-        this.prototype.__template__ = template
-        return this
-      }
-    })
-
     .proto({
-      setDom: function (dom) {
-        var oldDom = this.__dom__
-        dom = $(dom)[0]
-        if(oldDom) {
-          $(oldDom).replaceWith(dom)
-        }
-        this.__dom__ = dom
+      attachTo: function (dom) {
+        this.dom = $(dom)[0]
         this.__setUpDomListeners__()
         return this
       },
 
-      dom: function () {
-        if(!this.__dom__) throw new Error("the dom hasn't yet been set in "+this.constructor.name)
-        return this.__dom__
-      },
-
-      $dom: function () {
-        return $(this.dom())
-      },
-
       onDom: function (selector, event, newEvent, argumentsMapper) {
         var self = this
-        this.$dom().on(event, selector, function (event) {
+        $(this.dom).on(event, selector, function (event) {
           event.stopPropagation()
           event.preventDefault()
 
@@ -64,16 +43,6 @@ define([
         this.__applyClassDeclarations__('onDom')
       },
 
-      renderTemplate: function (template, object) {
-        return Mustache.render(template, extend({}, object, this.__helpers__))
-      },
-
-      render: function (object) {
-        var html = this.renderTemplate(this.template(), object)
-        this.setDom($(html)[0])
-        return this
-      },
-
       helpers: function () {
         var self = this,
             objects = Array.prototype.slice.call(arguments)
@@ -84,23 +53,24 @@ define([
         })
       },
 
-      setTemplate: function(template) {
-        this.__template__ = template
-        return this
-      },
-
-      template: function () {
-        if(!this.__template__) throw new Error("the template hasn't yet been set")
-        return this.__template__
-      },
-
       appendTo: function (element) {
-        $(this.dom()).appendTo(element)
+        $(this.dom).appendTo(element)
         return this
       },
 
       find: function (selector) {
-        return $(this.dom()).find(selector)
+        return $(this.dom).find(selector)
+      },
+
+      render: function (html) {
+        html = html.trim()
+        var newHtml = $(html)
+        if ( !html.match(/^<.+>$/) || newHtml.length != 1 ) {
+          throw new Error("render only takes HTML wrapped in a single tag")
+        }
+        $(this.dom).replaceWith(newHtml)
+        this.attachTo(newHtml)
+        return this
       },
 
       insertChild: function(childView, id){
@@ -108,26 +78,29 @@ define([
           var container = this.find('[data-child]').filter(function () {
             return $(this).data('child').match(new RegExp('\\b' + id + '\\b'))
           })
-          if(container.length === 0) container = this.$dom()
+          if(container.length === 0) container = $(this.dom)
           childView.appendTo(container)
         }
         return this
       },
 
       toHTML: function () {
-        return this.dom().outerHTML
+        return this.dom.outerHTML
       },
 
       destroy: function () {
-        this.$dom().remove()
+        $(this.dom).remove()
       }
     })
 
     .after('init', function (options) {
       if(!options) options = {}
 
-      if(options.template) this.setTemplate(options.template)
-      if(options.dom) this.setDom(options.dom)
+      if(options.attachTo) {
+        this.attachTo(options.attachTo)
+      } else {
+        this.dom = $('<script>', {type: 'application/vnd.onionjs.placeholder'})[0]
+      }
       this.models = options.models || {}
 
       // Helpers
@@ -136,3 +109,4 @@ define([
     })
 
 })
+
