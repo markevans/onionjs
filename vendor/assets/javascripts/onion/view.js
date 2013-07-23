@@ -3,11 +3,9 @@ if(typeof define!=='function'){var define=require('amdefine')(module);}
 define([
   'onion/class_declarations',
   'onion/event_emitter',
-  'onion/extend',
-  'onion/vendor/mustache',
   'onion/type',
   'jquery'
-], function(classDeclarations, eventEmitter, extend, Mustache, Type, $){
+], function(classDeclarations, eventEmitter, Type, $){
 
   return Type.sub('View')
 
