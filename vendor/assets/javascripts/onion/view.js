@@ -61,6 +61,8 @@ define([
         return this
       },
 
+      render: function () {},
+
       insertChild: function(childView, id){
         if (childView.appendTo) {
           var container = this.find('[data-child]').filter(function () {
