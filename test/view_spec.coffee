@@ -1,27 +1,27 @@
-MustacheView = requirejs('onion/mustache_view')
+View = requirejs('onion/view')
 $ = requirejs('jquery')
 
-describe "MustacheView", ->
+describe "View", ->
 
   describe "models", ->
     it "allows setting on init", ->
-      view = new MustacheView(models: {bo: 'gee'})
+      view = new View(models: {bo: 'gee'})
       expect( view.models ).to.eql({bo: 'gee'})
 
     it "defaults to an empty object", ->
-      view = new MustacheView()
+      view = new View()
       expect( view.models ).to.eql({})
 
   describe "dom", ->
     it "defaults to a placeholder tag", ->
-      view = new MustacheView()
+      view = new View()
       expect( view.dom.tagName ).to.equal('SCRIPT')
 
   describe "attachTo", ->
     view = null
 
     beforeEach ->
-      view = new MustacheView()
+      view = new View()
 
     it "returns the dom if set", ->
       element = $('<div>')[0]
@@ -29,14 +29,14 @@ describe "MustacheView", ->
       expect( view.dom ).to.eql(element)
 
     it "allows setting on init", ->
-      view = new MustacheView(attachTo: '<div>')
+      view = new View(attachTo: '<div>')
       assert.isTrue( $(view.dom).is('div') )
 
   describe "render", ->
     view = null
 
     beforeEach ->
-      view = new MustacheView()
+      view = new View()
 
     it "sets the dom to the given html", ->
       view.render("<p>Hello</p>")
@@ -75,7 +75,7 @@ describe "MustacheView", ->
 
     beforeEach ->
       container = $('<div>')[0]
-      view = new MustacheView()
+      view = new View()
 
     it "appends the DOM to the specified element", ->
       view.appendTo(container)
@@ -83,7 +83,7 @@ describe "MustacheView", ->
 
   describe "destroy", ->
     it "removes itself from the dom", ->
-      view = new MustacheView()
+      view = new View()
       view.render('<div></div>').appendTo('body')
       expect( $(view.dom).parents('body').length ).to.eql(1)
       view.destroy()
@@ -91,7 +91,7 @@ describe "MustacheView", ->
 
   describe "toHTML", ->
     it "returns the entire html", ->
-      view = new MustacheView()
+      view = new View()
       view.attachTo('<div>gruber</div>')
       expect( view.toHTML() ).to.eql('<div>gruber</div>')
 
@@ -101,7 +101,7 @@ describe "MustacheView", ->
       view = null
 
       beforeEach ->
-        view = new MustacheView()
+        view = new View()
 
       afterEach ->
         view.destroy()
@@ -139,7 +139,7 @@ describe "MustacheView", ->
         .toEmitOn(view, 'someEvent', some: 'args')
 
     describe "class onDom", ->
-      class MyView extends MustacheView
+      class MyView extends View
       view = null
 
       beforeEach ->
@@ -168,7 +168,7 @@ describe "MustacheView", ->
     childView = null
 
     beforeEach ->
-      view = new MustacheView(attachTo: '<div><p data-child="bunion">wassup</p></div>')
+      view = new View(attachTo: '<div><p data-child="bunion">wassup</p></div>')
       childView = {
         appendTo: (element) -> $('<a>CHILDVIEW</a>').appendTo(element)
       }

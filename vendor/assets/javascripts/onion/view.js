@@ -9,7 +9,7 @@ define([
   'jquery'
 ], function(classDeclarations, eventEmitter, extend, Mustache, Type, $){
 
-  return Type.sub('MustacheView')
+  return Type.sub('View')
 
     .proto(eventEmitter)
 
