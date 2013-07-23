@@ -75,7 +75,9 @@ define([
       },
 
       view: function (ViewClass) {
-        this.prototype.initView = function () { return new ViewClass() }
+        this.prototype.initView = function () {
+          return new ViewClass({models: this.models})
+        }
         return this
       }
     })

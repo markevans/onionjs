@@ -139,11 +139,14 @@ describe "Controller", ->
       controller = new TestController()
       expect( controller.view ).to.eql(view)
 
-    it "instantiates the specified view class if declared at the class level", ->
-      View = ->
+    it "instantiates the specified view class if declared at the class level, passing in the models", ->
+      initializer = sinon.spy()
+      class View
+        constructor: initializer
       expect( TestController.view(View) ).to.eql(TestController)
       controller = new TestController()
       expect( controller.view.constructor ).to.eql(View)
+      expect( initializer.calledWith(models: controller.models) ).to.be.true
 
   describe "onView", ->
     controller = null
