@@ -11,7 +11,8 @@ define([
     .view(<%= view_name %>)
 
     .after('init', function () {
-      this.view.render({me: '<%= basename %>'})
+      this.view.render()
     })
 
 })
+

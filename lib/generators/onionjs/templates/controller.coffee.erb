@@ -11,4 +11,5 @@ define [
     @view <%= view_name %>
 
     @after 'init', ->
-      @view.render(me: '<%= basename %>')
+      @view.render()
+
