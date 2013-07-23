@@ -48,10 +48,15 @@ define([
         return $(this.dom).find(selector)
       },
 
-      findFromDataAttribute: function (dataAttr, value) {
+      findFromData: function (dataAttr, value) {
         return this.find('[data-' + dataAttr + ']').filter(function () {
           return $(this).data(dataAttr).match(new RegExp('\\b' + value + '\\b'))
         })
+      },
+
+      elemWithData: function (dataAttr, value) {
+        var $elems = this.findFromData(dataAttr, value)
+        return $elems.length ? $elems[0] : null
       },
 
       renderHTML: function (html) {
@@ -68,9 +73,14 @@ define([
       render: function () {},
 
       insertChild: function(childView, id){
-        var container = this.findFromDataAttribute('child', id)
-        if(container.length === 0) container = $(this.dom)
-        childView.appendTo(container)
+        var element
+        if(element = this.elemWithData('append-child', id)) {
+          childView.appendTo(element)
+        } else if(element = this.elemWithData('attach-child', id)) {
+          childView.attachTo(element)
+        } else {
+          childView.appendTo($(this.dom))
+        }
         return this
       },
 
