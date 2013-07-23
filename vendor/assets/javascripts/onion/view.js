@@ -15,8 +15,6 @@ define([
 
     .use(classDeclarations, 'onDom')
 
-    .use(classDeclarations, 'helpers')
-
     .proto({
       attachTo: function (dom) {
         this.dom = $(dom)[0]
@@ -41,16 +39,6 @@ define([
 
       __setUpDomListeners__: function () {
         this.__applyClassDeclarations__('onDom')
-      },
-
-      helpers: function () {
-        var self = this,
-            objects = Array.prototype.slice.call(arguments)
-        objects.forEach(function (object) {
-          for(var key in object) {
-            self.__helpers__[key] = object[key]
-          }
-        })
       },
 
       appendTo: function (element) {
@@ -102,10 +90,6 @@ define([
         this.dom = $('<script>', {type: 'application/vnd.onionjs.placeholder', 'data-view-class': this.constructor.name})[0]
       }
       this.models = options.models || {}
-
-      // Helpers
-      this.__helpers__ = {}
-      this.__applyClassDeclarations__('helpers')
     })
 
 })
