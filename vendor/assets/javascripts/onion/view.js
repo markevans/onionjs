@@ -62,11 +62,11 @@ define([
         return $(this.dom).find(selector)
       },
 
-      render: function (html) {
+      renderHTML: function (html) {
         html = html.trim()
         var newHtml = $(html)
         if ( !html.match(/^<.+>$/) || newHtml.length != 1 ) {
-          throw new Error("render only takes HTML wrapped in a single tag")
+          throw new Error("renderHTML only takes HTML wrapped in a single tag")
         }
         $(this.dom).replaceWith(newHtml)
         this.attachTo(newHtml)

@@ -34,30 +34,30 @@ describe "View", ->
       view = new View(attachTo: '<div>')
       assert.isTrue( $(view.dom).is('div') )
 
-  describe "render", ->
+  describe "renderHTML", ->
     view = null
 
     beforeEach ->
       view = new View()
 
     it "sets the dom to the given html", ->
-      view.render("<p>Hello</p>")
+      view.renderHTML("<p>Hello</p>")
       expect( view.dom.outerHTML ).to.eql('<p>Hello</p>')
 
     it "throws an error if called with non-wrapped content", ->
       expect(->
-        view.render("Hello")
+        view.renderHTML("Hello")
       ).to.throw()
 
     it "throws an error if called with wrapped content but not in a single tag", ->
       expect(->
-        view.render("<p>Hello</p><p>Hello</p>")
+        view.renderHTML("<p>Hello</p><p>Hello</p>")
       ).to.throw()
 
     it "doesn't get confused with things already on the page", ->
       testParagraph = $('<p class="test-paragraph"></p>').appendTo('body')
       expect(->
-        view.render("p.test-paragraph")
+        view.renderHTML("p.test-paragraph")
       ).to.throw()
       testParagraph.remove()
 
@@ -67,7 +67,7 @@ describe "View", ->
       view.attachTo(element)
       expect( container.innerHTML ).to.eql('<p>Hello</p>')
 
-      view.render("<span>dubble</span>")
+      view.renderHTML("<span>dubble</span>")
       expect( container.innerHTML ).to.eql('<span>dubble</span>')
       expect( view.dom.outerHTML ).to.eql('<span>dubble</span>')
 
@@ -86,7 +86,7 @@ describe "View", ->
   describe "destroy", ->
     it "removes itself from the dom", ->
       view = new View()
-      view.render('<div></div>').appendTo('body')
+      view.renderHTML('<div></div>').appendTo('body')
       expect( $(view.dom).parents('body').length ).to.eql(1)
       view.destroy()
       expect( $(view.dom).parents('body').length ).to.eql(0)
@@ -109,7 +109,7 @@ describe "View", ->
         view.destroy()
 
       it "forwards on events using onDOM", ->
-        view.render('<div><a class="link">CLICK ME</a></div>')
+        view.renderHTML('<div><a class="link">CLICK ME</a></div>')
         view.appendTo('body')
         view.onDom('.link', 'click', 'clickedYo')
         expect ->
@@ -117,7 +117,7 @@ describe "View", ->
         .toEmitOn(view, 'clickedYo')
 
       it "still works for the outermost element", ->
-        view.render('<a>CLICK ME</a>')
+        view.renderHTML('<a>CLICK ME</a>')
         view.appendTo('body')
         view.onDom('', 'click', 'clickedYo')
         expect ->
@@ -125,7 +125,7 @@ describe "View", ->
         .toEmitOn(view, 'clickedYo')
 
       it "still works for newly added html", ->
-        view.render('<div></div>')
+        view.renderHTML('<div></div>')
         view.appendTo('body')
         view.onDom('.link', 'click', 'clickedYo')
         $(view.dom).append('<a class="link">CLICK ME</a>')
@@ -163,7 +163,7 @@ describe "View", ->
 
       it "calls instance onDom when rendered", ->
         assertOnDomCalled ->
-          view.render('<div></div>')
+          view.renderHTML('<div></div>')
 
   describe "insertChild", ->
     view = null
