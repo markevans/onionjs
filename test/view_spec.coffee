@@ -13,9 +13,11 @@ describe "View", ->
       expect( view.models ).to.eql({})
 
   describe "dom", ->
-    it "defaults to a placeholder tag", ->
-      view = new View()
+    it "defaults to a placeholder tag with the View name", ->
+      MyView = View.sub('MyView')
+      view = new MyView()
       expect( view.dom.tagName ).to.equal('SCRIPT')
+      expect( $(view.dom).data('view-class') ).to.equal('MyView')
 
   describe "attachTo", ->
     view = null

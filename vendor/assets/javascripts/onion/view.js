@@ -99,7 +99,7 @@ define([
       if(options.attachTo) {
         this.attachTo(options.attachTo)
       } else {
-        this.dom = $('<script>', {type: 'application/vnd.onionjs.placeholder'})[0]
+        this.dom = $('<script>', {type: 'application/vnd.onionjs.placeholder', 'data-view-class': this.constructor.name})[0]
       }
       this.models = options.models || {}
 
