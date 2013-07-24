@@ -14,6 +14,10 @@ define([
     .use(classDeclarations, 'onDom')
 
     .proto({
+      $: function () {
+        return $(this.dom)
+      },
+
       attachTo: function (dom) {
         this.dom = $(dom)[0]
         this.__setUpDomListeners__()
@@ -22,7 +26,7 @@ define([
 
       onDom: function (selector, event, newEvent, argumentsMapper) {
         var self = this
-        $(this.dom).on(event, selector, function (event) {
+        this.$().on(event, selector, function (event) {
           event.stopPropagation()
           event.preventDefault()
 
@@ -40,12 +44,12 @@ define([
       },
 
       appendTo: function (element) {
-        $(this.dom).appendTo(element)
+        this.$().appendTo(element)
         return this
       },
 
       find: function (selector) {
-        return $(this.dom).find(selector)
+        return this.$().find(selector)
       },
 
       findFromData: function (dataAttr, value) {
@@ -65,7 +69,7 @@ define([
         if ( !html.match(/^<.+>$/m) || newHtml.length != 1 ) {
           throw new Error("renderHTML only takes HTML wrapped in a single tag - you gave:\n" + html)
         }
-        $(this.dom).replaceWith(newHtml)
+        this.$().replaceWith(newHtml)
         this.attachTo(newHtml)
         return this
       },
@@ -79,7 +83,7 @@ define([
         } else if(element = this.elemWithData('attach-child', id)) {
           childView.attachTo(element)
         } else {
-          childView.appendTo($(this.dom))
+          childView.appendTo(this.$())
         }
         return this
       },
@@ -89,7 +93,7 @@ define([
       },
 
       destroy: function () {
-        $(this.dom).remove()
+        this.$().remove()
       }
     })
 
