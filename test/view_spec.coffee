@@ -198,3 +198,7 @@ describe "View", ->
       view.insertChild(childView, 'bunion')
       expect( view.toHTML() ).to.eql('<div><p data-append-child="bunion something else"><a>CHILDVIEW</a></p><span data-append-child="bunionBashers"></span></div>')
 
+    it "doesn't complain if the child has no appendTo method", ->
+      view.attachTo('<div><p></p></div>')
+      view.insertChild({}, 'bunion')
+

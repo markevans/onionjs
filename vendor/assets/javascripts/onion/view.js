@@ -83,7 +83,7 @@ define([
         } else if(element = this.elemWithData('attach-child', id)) {
           childView.attachTo(element)
         } else {
-          childView.appendTo(this.$())
+          if(childView.appendTo) childView.appendTo(this.$())
         }
         return this
       },
