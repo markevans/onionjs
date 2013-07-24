@@ -32,6 +32,12 @@ describe "Controller", ->
       models.extra = 'extra'
       expect( controller.models ).to.eql({one: 1, two: 2})
 
+    it "allows falsy values for models", ->
+      models = {one: false, two: '', three: 0}
+      controller = new TestController(models)
+      TestController.models 'three'
+      expect( controller.models ).to.eql({one: false, two: '', three: 0})
+
     it "allows calling twice, with no overlap", ->
       TestController.models 'two', 'three'
       expect( TestController.__requiredModels__ ).to.eql(['one', 'two', 'three'])
