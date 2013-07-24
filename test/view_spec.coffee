@@ -61,6 +61,10 @@ describe "View", ->
       ).to.throw()
       testParagraph.remove()
 
+    it "is ok with multiline content", ->
+      view.renderHTML("<p>\nHello</p>")
+      expect( view.dom.outerHTML ).to.eql("<p>\nHello</p>")
+
     it "sets the dom on the page if attached", ->
       container = $('<div>')[0]
       element = $('<p>Hello</p>').appendTo(container)
