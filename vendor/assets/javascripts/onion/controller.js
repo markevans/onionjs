@@ -135,6 +135,11 @@ define([
         return this
       },
 
+      attachTo: function(element){
+        this.view.attachTo(element)
+        return this
+      },
+
       // Children
 
       setChild: function(id, child, models, options){
