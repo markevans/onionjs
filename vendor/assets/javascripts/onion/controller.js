@@ -89,6 +89,10 @@ define([
         if(this.view) this.view.destroy()
       },
 
+      run: function(){
+        // Override me
+      },
+
       // Models
 
       newModel: function(name, model){
@@ -131,6 +135,11 @@ define([
         return this
       },
 
+      attachTo: function(element){
+        this.view.attachTo(element)
+        return this
+      },
+
       // Children
 
       setChild: function(id, child, models, options){
@@ -157,6 +166,7 @@ define([
         this.children[childId][itemId] = child
 
         this.insertChild(child, childId)
+        child.run()
         return child
       },
 
