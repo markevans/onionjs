@@ -237,6 +237,12 @@ describe "Controller", ->
           childController = controller.setChild 'otherblah', ChildController
           assert.isTrue( controller.view.insertChild.calledWith(childController.view, 'otherblah') )
 
+        it "runs run() on the child controller", ->
+          child = new ChildController
+          sinon.spy(child, 'run')
+          controller.setChild 'egg', child
+          expect(child.run.called).to.be.true
+
       describe "when receiving a scalar id", ->
         beforeEach ->
           child = controller.setChild 'list', ChildController

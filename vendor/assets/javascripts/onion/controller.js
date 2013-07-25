@@ -89,6 +89,10 @@ define([
         if(this.view) this.view.destroy()
       },
 
+      run: function(){
+        // Override me
+      },
+
       // Models
 
       newModel: function(name, model){
@@ -157,6 +161,7 @@ define([
         this.children[childId][itemId] = child
 
         this.insertChild(child, childId)
+        child.run()
         return child
       },
 
