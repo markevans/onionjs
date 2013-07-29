@@ -217,8 +217,13 @@ describe "Controller", ->
         child = parent.children[0]
         expect( parent.view.insertChild.calledWith(child.view) ).to.be.true
 
+      it "allows adding models", ->
+        parent.spawn(ChildController, models: {egg: 'nog'})
+        expect( parent.children[0].models.egg ).to.equal('nog')
+
     describe "spawnWithModel", ->
-      it "gives the child access to the passed model"
+      it "gives the child access to the passed model", ->
+
 
     describe "destroyChildren", ->
     describe "destroyChild", ->

@@ -140,66 +140,19 @@ define([
 
       // Children
 
-      spawn: function(Child) {
-        child = this.__newChild__(Child)
+      spawn: function(Child, opts) {
+        if(!opts) opts = {}
+        var child = this.__newChild__(Child, opts.models)
         this.children.push(child)
         this.view.insertChild(child.view)
         child.run()
       },
 
-      getChild: function(id) {
-        var child
-        if (Array.isArray(id)) {
-          var childId = id[0]
-          var itemId = id[1]
-          child = this.children[childId][itemId]
-        }
-        else {
-          var key = Object.keys(this.children[id])[0]
-          child = this.children[id][key]
-        }
-        return child
-      },
-
-      addChild: function(id, child, models, options){
-        if (Array.isArray(id)) {
-          throw new Error("`addChild` can only receive simple ids. Instead, " + id + " was received")
-        }
-        return this.setChild([id, this.__nextItemId__(id)], child, models, options)
-      },
-
-      destroyChildren: function() {
-        var key
-        for(key in this.children) {
-          this.destroyChild(key)
-        }
-      },
-
-      destroyChild: function(id) {
-        if (Array.isArray(id)) {
-          var childId = id[0], itemId = id[1]
-          var child = this.children[childId]
-          var item = child[itemId]
-          delete child[itemId]
-          item.destroy()
-        }
-        else {
-          var child = this.children[id]
-          delete this.children[id]
-          if(child) {
-            for(var key in child) {
-              child[key].destroy()
-            }
-          }
-        }
-      },
-
-
       // "Private"
 
-      __newChild__: function(ctor, models, options){
+      __newChild__: function(ctor, models){
         var childModels = extend({}, this.models, models)
-        return new ctor(childModels, options)
+        return new ctor(childModels)
       },
 
       __registerModels__: function(){
@@ -245,15 +198,9 @@ define([
           if(!callback) throw new Error("Can't find method '"+callbackOrMethodName+"'")
           return callback
         }
-      },
-
-      __nextItemId__: function (id) {
-        if (typeof this.__nextItemIds__[id] === 'undefined') {
-          this.__nextItemIds__[id] = this.__firstItemId__
-        }
-        return this.__nextItemIds__[id]++
       }
 
     })
 
 })
+
