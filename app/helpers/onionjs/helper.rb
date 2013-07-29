@@ -3,7 +3,7 @@ module Onionjs
 
     def onionjs_app(app_name, preloaded_data={}, opts={})
       app_path = opts[:app_path] || "#{app_name}/#{app_name}_controller"
-      id = (opts[:id] || "app").html_safe
+
       pre_require = opts[:pre_require]
 
       requires = [app_path] + Array.wrap(pre_require)
@@ -16,14 +16,33 @@ module Onionjs
           require(#{requires.to_json}, function(#{controller_name}){
             window.app = new #{controller_name}({
               preloadedData: #{preloaded_data.to_json}
-            }).appendTo('##{id}')
+            }).appendTo('#{onionjs_app_anchor_selector(opts)}')
           })
         </script>
       )
 
-      html << %(<div id="#{id}"></div>)
+      html << onionjs_app_anchor_element(opts)
 
       html.html_safe
+    end
+
+    def onionjs_app_anchor_selector(opts)
+      if opts[:base]
+        opts[:base]
+      elsif opts[:id]
+        '#' + opts[:id].to_s
+      else
+        '#app'
+      end
+    end
+
+    def onionjs_app_anchor_element(opts)
+      if opts[:base]
+        ''
+      else
+        id = opts[:id] || 'app'
+        %(<div id="#{id}"></div>)
+      end
     end
 
   end
