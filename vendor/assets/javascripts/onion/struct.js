@@ -3,8 +3,9 @@ if(typeof define!=='function'){var define=require('amdefine')(module);}
 define([
   'onion/type',
   'onion/event_emitter',
-  'onion/collection'
-], function(Type, eventEmitter, Collection){
+  'onion/collection',
+  'onion/uuid'
+], function(Type, eventEmitter, Collection, uuid){
 
   function setterMethodName(attributeName){
     return 'set' + attributeName.replace(/./, function(ch){ return ch.toUpperCase() })
@@ -21,8 +22,6 @@ define([
     return dest
   }
 
-  var currentMid = 0
-
   return Type.sub('Struct')
 
     .proto(eventEmitter)
@@ -33,8 +32,8 @@ define([
         return this.__attrs__[attr]
       },
 
-      mid: function () {
-        return this.__mid__
+      uuid: function () {
+        return this.__uuid__
       },
 
       setAttrs: function(attrs){
@@ -161,7 +160,7 @@ define([
     })
 
     .after('init', function(attrs){
-      this.__mid__ = ++currentMid
+      this.__uuid__ = uuid()
       this.constructor.instances().add(this)
       this.__attrs__ = {}
       this.setAttrs(attrs)
