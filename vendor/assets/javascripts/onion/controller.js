@@ -42,7 +42,7 @@ define([
       this.__setUpViewListeners__()
 
       // Children
-      this.__children__ = []
+      this.__children__ = {}
     })
 
     .use(classDeclarations, 'onView')
@@ -151,11 +151,8 @@ define([
 
       spawn: function(Child, opts) {
         if(!opts) opts = {}
-        var child = this.__newChild__(Child, opts.models)
-        this.__children__.push({
-          controller: child,
-          type: child.constructor.name
-        })
+        var child = new Child(this.__mergeModels__(opts.models))
+        this.__addChild__(child)
         this.view.insertChild(child.view)
         child.run()
         return child
@@ -170,22 +167,29 @@ define([
 
       destroyChildren: function (opts) {
         if(!opts) opts = {}
-        var remainingChildren = []
-        this.__children__.forEach(function (params, i) {
-          if(!opts.type || opts.type == params.type) {
-            params.controller.destroy()
-          } else {
-            remainingChildren.push(params)
+        for(var id in this.__children__) {
+          var child = this.__children__[id]
+          if(!opts.type || opts.type == child.constructor.name) {
+            this.__destroyChild__(id)
           }
-        }, this)
-        this.__children__ = remainingChildren
+        }
       },
 
       // "Private"
 
-      __newChild__: function(ctor, models){
-        var childModels = extend({}, this.models, models)
-        return new ctor(childModels)
+      __mergeModels__: function(models) {
+        return extend({}, this.models, models)
+      },
+
+      __addChild__: function (child) {
+        var id = child.uuid()
+        this.__children__[id] = child
+      },
+
+      __destroyChild__: function (id) {
+        var child = this.__children__[id]
+        child.destroy()
+        delete this.__children__[id]
       },
 
       __registerModels__: function(){
