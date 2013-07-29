@@ -324,4 +324,8 @@ describe "Controller", ->
 
   describe "destroy", ->
     it "destroys children", ->
+      controller = new Controller
+      sinon.spy(controller, 'destroyChildren')
+      controller.destroy()
+      expect( controller.destroyChildren.called ).to.be.true
 
