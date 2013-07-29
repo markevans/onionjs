@@ -310,6 +310,18 @@ describe "Controller", ->
         expect( child2.destroy.called ).to.be.false
         expect( child3.destroy.called ).to.be.true
 
+    describe "destroyChild", ->
+      it "destroys the child spawned with the specified id", ->
+        child1 = parent.spawn(ChildController)
+        child2 = parent.spawn(ChildController, id: 'helo')
+        sinon.spy(child1, 'destroy')
+        sinon.spy(child2, 'destroy')
+
+        parent.destroyChild('helo')
+
+        expect( child1.destroy.called ).to.be.false
+        expect( child2.destroy.called ).to.be.true
+
   describe "destroy", ->
     it "destroys children", ->
 

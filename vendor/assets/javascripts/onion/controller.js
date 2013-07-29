@@ -175,14 +175,20 @@ define([
         for(var id in this.__children__) {
           var child = this.__children__[id]
           if(!opts.type || opts.type == child.constructor.name) {
-            this.__destroyChild__(id)
+            this.destroyChild(id)
           }
         }
       },
 
       destroyChildWithModel: function (modelName, model) {
         var id = idForControllerWithModel(modelName, model)
-        this.__destroyChild__(id)
+        this.destroyChild(id)
+      },
+
+      destroyChild: function (id) {
+        var child = this.__children__[id]
+        child.destroy()
+        delete this.__children__[id]
       },
 
       // "Private"
@@ -195,12 +201,6 @@ define([
         if(!id) id = child.constructor.name + '-' + child.uuid()
         this.__children__[id] = child
         return id
-      },
-
-      __destroyChild__: function (id) {
-        var child = this.__children__[id]
-        child.destroy()
-        delete this.__children__[id]
       },
 
       __registerModels__: function(){
