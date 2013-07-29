@@ -76,11 +76,12 @@ define([
 
       render: function () {},
 
-      insertChild: function(childView, id){
-        var element
-        if(element = this.elemWithData('append-child', id)) {
+      insertChild: function(childView){
+        var element,
+            type = childView.constructor.name
+        if(element = this.elemWithData('append', type)) {
           childView.appendTo(element)
-        } else if(element = this.elemWithData('attach-child', id)) {
+        } else if(element = this.elemWithData('attach', type)) {
           childView.attachTo(element)
         } else {
           if(childView.appendTo) childView.appendTo(this.$())

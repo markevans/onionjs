@@ -305,8 +305,6 @@ describe "Controller", ->
         expect( child2.destroy.called ).to.be.false
         expect( child3.destroy.called ).to.be.true
 
-    describe "destroyChild", ->
-
   describe "destroy", ->
     it "destroys children", ->
 

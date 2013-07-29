@@ -172,33 +172,36 @@ describe "View", ->
   describe "insertChild", ->
     view = null
     childView = null
+    ParentView = ChildView = null
 
     beforeEach ->
-      view = new View()
-      childView = new View(attachTo: '<a>CHILDVIEW</a>')
+      ParentView = class ParentView extends View
+      ChildView = class ChildView extends View
+      view = new ParentView()
+      childView = new ChildView(attachTo: '<a>CHILDVIEW</a>')
 
-    it "uses data-append-child", ->
-      view.attachTo('<div><p data-append-child="bunion"></p></div>')
-      view.insertChild(childView, 'bunion')
-      expect( view.toHTML() ).to.eql('<div><p data-append-child="bunion"><a>CHILDVIEW</a></p></div>')
+    it "uses data-append", ->
+      view.attachTo('<div><p data-append="ChildView"></p></div>')
+      view.insertChild(childView)
+      expect( view.toHTML() ).to.eql('<div><p data-append="ChildView"><a>CHILDVIEW</a></p></div>')
 
-    it "uses data-attach-child", ->
-      view.attachTo('<div><p data-attach-child="bunion"></p></div>')
-      view.insertChild(childView, 'bunion')
-      expect( view.toHTML() ).to.eql('<div><p data-attach-child="bunion"></p></div>')
-      expect( childView.toHTML() ).to.eql('<p data-attach-child="bunion"></p>')
+    it "uses data-attach", ->
+      view.attachTo('<div><p data-attach="ChildView"></p></div>')
+      view.insertChild(childView)
+      expect( view.toHTML() ).to.eql('<div><p data-attach="ChildView"></p></div>')
+      expect( childView.toHTML() ).to.eql('<p data-attach="ChildView"></p>')
 
     it "appends to main container if id not known", ->
       view.attachTo('<div><p></p></div>')
-      view.insertChild(childView, 'bunion')
+      view.insertChild(childView)
       expect( view.toHTML() ).to.eql('<div><p></p><a>CHILDVIEW</a></div>')
 
-    it "allows specifying more than one data-append-child on the same element (space separated) without confusing with substrings", ->
-      view.attachTo('<div><p data-append-child="bunion something else"></p><span data-append-child="bunionBashers"></span></div>')
-      view.insertChild(childView, 'bunion')
-      expect( view.toHTML() ).to.eql('<div><p data-append-child="bunion something else"><a>CHILDVIEW</a></p><span data-append-child="bunionBashers"></span></div>')
+    it "allows specifying more than one data-append on the same element (space separated) without confusing with substrings", ->
+      view.attachTo('<div><p data-append="ChildView something else"></p><span data-append="ChildViewBacon"></span></div>')
+      view.insertChild(childView)
+      expect( view.toHTML() ).to.eql('<div><p data-append="ChildView something else"><a>CHILDVIEW</a></p><span data-append="ChildViewBacon"></span></div>')
 
     it "doesn't complain if the child has no appendTo method", ->
       view.attachTo('<div><p></p></div>')
-      view.insertChild({}, 'bunion')
+      view.insertChild({})
 
