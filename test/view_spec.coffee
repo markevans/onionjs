@@ -213,3 +213,9 @@ describe "View", ->
       expect( view.toHTML() ).to.eql(html)
       expect( childView.toHTML() ).to.eql('<p data-attach="duck:2">Fried Egg</p>')
 
+    it "can set insert rules with class declarations", ->
+      ParentView.attachChild 'ChildView', 'hello'
+      view = new ParentView(attachTo: '<div><div data-attach="hello"></div></div>')
+      view.insertChild(childView)
+      expect( childView.toHTML() ).to.eql('<div data-attach="hello"></div>')
+

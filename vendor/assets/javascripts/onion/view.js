@@ -16,6 +16,7 @@ define([
     .proto(eventEmitter)
 
     .use(classDeclarations, 'onDom')
+    .use(classDeclarations, 'attachChild')
 
     .proto({
       $: function () {
@@ -142,6 +143,7 @@ define([
       }
       this.models = options.models || {}
       this.__insertRules__ = []
+      this.__applyClassDeclarations__('attachChild')
     })
 
 })
