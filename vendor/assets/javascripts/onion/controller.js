@@ -157,7 +157,7 @@ define([
         if(!opts) opts = {}
         var child = new Child(this.__mergeModels__(opts.models))
         this.__addChild__(child, opts.id)
-        this.view.insertChild(child.view)
+        this.view.insertChild(child.view, {modelName: opts.modelName, model: opts.model})
         child.run()
         return child
       },
@@ -167,7 +167,7 @@ define([
         var models = opts.models || {}
         models[modelName] = model
         var id = idForControllerWithModel(modelName, model)
-        return this.spawn(Child, {models: models, id: id})
+        return this.spawn(Child, {models: models, id: id, modelName: modelName, model: model})
       },
 
       destroyChildren: function (opts) {
@@ -194,6 +194,7 @@ define([
       __addChild__: function (child, id) {
         if(!id) id = child.constructor.name + '-' + child.uuid()
         this.__children__[id] = child
+        return id
       },
 
       __destroyChild__: function (id) {

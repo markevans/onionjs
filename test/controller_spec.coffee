@@ -249,6 +249,11 @@ describe "Controller", ->
         child = parent.spawnWithModel(ChildController, 'egg', egg, models: {food: 'pizza'})
         expect( child.models.food ).to.equal('pizza')
 
+      it "passes the model and modelName to insertChild", ->
+        sinon.spy(parent.view, 'insertChild')
+        child = parent.spawnWithModel(ChildController, 'egg', egg)
+        expect( parent.view.insertChild.calledWith(child.view, modelName: 'egg', model: egg) ).to.be.true
+
     describe "destroyChildren", ->
       OtherChildController = null
 
