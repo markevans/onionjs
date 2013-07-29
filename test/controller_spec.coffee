@@ -223,7 +223,14 @@ describe "Controller", ->
 
     describe "spawnWithModel", ->
       it "gives the child access to the passed model", ->
+        egg = {}
+        parent.spawnWithModel(ChildController, 'egg', egg)
+        expect( parent.children[0].models.egg ).to.equal(egg)
 
+      it "allows passing extra models", ->
+        egg = {}
+        parent.spawnWithModel(ChildController, 'egg', egg, models: {food: 'pizza'})
+        expect( parent.children[0].models.food ).to.equal('pizza')
 
     describe "destroyChildren", ->
     describe "destroyChild", ->
@@ -231,5 +238,4 @@ describe "Controller", ->
 
   describe "destroy", ->
     it "destroys children", ->
-      throw("TODO")
 

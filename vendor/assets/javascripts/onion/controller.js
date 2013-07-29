@@ -148,6 +148,13 @@ define([
         child.run()
       },
 
+      spawnWithModel: function(Child, modelName, model, opts) {
+        if(!opts) opts = {}
+        var models = opts.models || {}
+        models[modelName] = model
+        this.spawn(Child, {models: models})
+      },
+
       // "Private"
 
       __newChild__: function(ctor, models){
