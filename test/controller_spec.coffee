@@ -231,6 +231,11 @@ describe "Controller", ->
         child = parent.spawn(ChildController)
         expect( parent.view.insertChild.calledWith(child.view) ).to.be.true
 
+      it "passes the id to insertChild if given", ->
+        sinon.spy(parent.view, 'insertChild')
+        child = parent.spawn(ChildController, id: 'grog')
+        expect( parent.view.insertChild.calledWith(child.view, sinon.match(id: 'grog')) ).to.be.true
+
       it "allows adding models", ->
         child = parent.spawn(ChildController, models: {egg: 'nog'})
         expect( child.models.egg ).to.equal('nog')
@@ -252,7 +257,7 @@ describe "Controller", ->
       it "passes the model and modelName to insertChild", ->
         sinon.spy(parent.view, 'insertChild')
         child = parent.spawnWithModel(ChildController, 'egg', egg)
-        expect( parent.view.insertChild.calledWith(child.view, modelName: 'egg', model: egg) ).to.be.true
+        expect( parent.view.insertChild.calledWith(child.view, sinon.match(modelName: 'egg', model: egg)) ).to.be.true
 
     describe "destroyChildren", ->
       OtherChildController = null
