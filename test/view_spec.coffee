@@ -205,15 +205,28 @@ describe "View", ->
       view.attachTo('<div><p></p></div>')
       view.insertChild({})
 
+    it "can map where to attach a child", ->
+      view.attachChild 'ChildView', 'kiddo'
+      childHTML= """<p data-attach="kiddo">Fried Egg</p>"""
+      view.attachTo("""<div><p></p>#{childHTML}</div>""")
+      view.insertChild(childView)
+      expect( childView.toHTML() ).to.eql('<p data-attach="kiddo">Fried Egg</p>')
+
     it "can find where to attach based on model data", ->
       view.attachChild 'ChildView', ({model, modelName}) -> [modelName, model.id].join(':')
-      html = '<div><p data-attach="duck:1">Scrambled Egg</p><p data-attach="duck:2">Fried Egg</p></div>'
+      html = '<div><p></p><p data-attach="duck:2">Fried Egg</p></div>'
       view.attachTo(html)
       view.insertChild(childView, modelName: 'duck', model: { id: 2 })
-      expect( view.toHTML() ).to.eql(html)
       expect( childView.toHTML() ).to.eql('<p data-attach="duck:2">Fried Egg</p>')
 
-    it "can set insert rules with class declarations", ->
+    it "can find where to attach based on id", ->
+      view.attachChild 'ChildView', ({id}) -> id
+      html = '<div><p></p><p data-attach="doobie">Fried Egg</p></div>'
+      view.attachTo(html)
+      view.insertChild(childView, id: 'doobie')
+      expect( childView.toHTML() ).to.eql('<p data-attach="doobie">Fried Egg</p>')
+
+    it "can set attach rules with class declarations", ->
       ParentView.attachChild 'ChildView', 'hello'
       view = new ParentView(attachTo: '<div><div data-attach="hello"></div></div>')
       view.insertChild(childView)
