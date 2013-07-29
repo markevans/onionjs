@@ -22,6 +22,10 @@ define([
     return [key1, key2].join(' ')
   }
 
+  var idForControllerWithModel = function (modelName, model) {
+    return 'with-model-' + modelName + '-' + model.uuid()
+  }
+
   return Type.sub('Controller')
 
     .proto(subscriber)
@@ -152,7 +156,7 @@ define([
       spawn: function(Child, opts) {
         if(!opts) opts = {}
         var child = new Child(this.__mergeModels__(opts.models))
-        this.__addChild__(child)
+        this.__addChild__(child, opts.id)
         this.view.insertChild(child.view)
         child.run()
         return child
@@ -162,7 +166,8 @@ define([
         if(!opts) opts = {}
         var models = opts.models || {}
         models[modelName] = model
-        return this.spawn(Child, {models: models})
+        var id = idForControllerWithModel(modelName, model)
+        return this.spawn(Child, {models: models, id: id})
       },
 
       destroyChildren: function (opts) {
@@ -175,14 +180,19 @@ define([
         }
       },
 
+      destroyChildWithModel: function (modelName, model) {
+        var id = idForControllerWithModel(modelName, model)
+        this.__destroyChild__(id)
+      },
+
       // "Private"
 
       __mergeModels__: function(models) {
         return extend({}, this.models, models)
       },
 
-      __addChild__: function (child) {
-        var id = child.uuid()
+      __addChild__: function (child, id) {
+        if(!id) id = child.constructor.name + '-' + child.uuid()
         this.__children__[id] = child
       },
 

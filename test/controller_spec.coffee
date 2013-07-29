@@ -236,13 +236,16 @@ describe "Controller", ->
         expect( child.models.egg ).to.equal('nog')
 
     describe "spawnWithModel", ->
+      egg = null
+
+      beforeEach ->
+        egg = {uuid: -> 'abc'}
+
       it "gives the child access to the passed model", ->
-        egg = {}
         child = parent.spawnWithModel(ChildController, 'egg', egg)
         expect( child.models.egg ).to.equal(egg)
 
       it "allows passing extra models", ->
-        egg = {}
         child = parent.spawnWithModel(ChildController, 'egg', egg, models: {food: 'pizza'})
         expect( child.models.food ).to.equal('pizza')
 
@@ -284,8 +287,25 @@ describe "Controller", ->
         expect( child2.destroy.called ).to.be.false
         expect( child3.destroy.called ).to.be.true
 
-    describe "destroyChild", ->
     describe "destroyChildWithModel", ->
+      it "destroys a specific child, matched with a model (on its uuid)", ->
+        item1 = {uuid: -> 'a'}
+        item2 = {uuid: -> 'b'}
+
+        child1 = parent.spawn(ChildController)
+        child2 = parent.spawnWithModel(ChildController, 'item', item1)
+        child3 = parent.spawnWithModel(ChildController, 'item', item2)
+        sinon.spy(child1, 'destroy')
+        sinon.spy(child2, 'destroy')
+        sinon.spy(child3, 'destroy')
+
+        parent.destroyChildWithModel('item', item2)
+
+        expect( child1.destroy.called ).to.be.false
+        expect( child2.destroy.called ).to.be.false
+        expect( child3.destroy.called ).to.be.true
+
+    describe "destroyChild", ->
 
   describe "destroy", ->
     it "destroys children", ->
