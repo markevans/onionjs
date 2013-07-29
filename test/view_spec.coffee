@@ -205,3 +205,11 @@ describe "View", ->
       view.attachTo('<div><p></p></div>')
       view.insertChild({})
 
+    it "can find where to attach based on model data", ->
+      view.attachChild 'ChildView', ({model, modelName}) -> [modelName, model.id].join(':')
+      html = '<div><p data-attach="duck:1">Scrambled Egg</p><p data-attach="duck:2">Fried Egg</p></div>'
+      view.attachTo(html)
+      view.insertChild(childView, modelName: 'duck', model: { id: 2 })
+      expect( view.toHTML() ).to.eql(html)
+      expect( childView.toHTML() ).to.eql('<p data-attach="duck:2">Fried Egg</p>')
+

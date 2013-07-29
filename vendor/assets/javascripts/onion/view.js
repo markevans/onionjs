@@ -7,6 +7,10 @@ define([
   'jquery'
 ], function(classDeclarations, eventEmitter, Type, $){
 
+  var isFunction = function (object) {
+    return typeof object === 'function'
+  }
+
   return Type.sub('View')
 
     .proto(eventEmitter)
@@ -37,6 +41,11 @@ define([
           }
         })
         return this
+      },
+
+      attachChild: function (type, mapping) {
+        var rules = this.__insertRule__(type)
+        rules.push(['attach', mapping])
       },
 
       __setUpDomListeners__: function () {
@@ -76,7 +85,29 @@ define([
 
       render: function () {},
 
-      insertChild: function(childView){
+      insertChild: function (childView, opts) {
+        this.__applyInsertRules__(childView, opts) || this.__defaultInsertChild__(childView, opts)
+      },
+
+      __applyInsertRules__: function (childView, opts) {
+        var type = childView.constructor.name
+        return this.__insertRule__(type).some(function(rule){
+          var action = rule[0],
+              mapping = rule[1],
+              marker = isFunction(mapping) ? mapping(opts) : mapping,
+              element = this.elemWithData(action, marker)
+          if(element) {
+            if (action == 'attach') {
+              childView.attachTo(element)
+            } else {
+              childView.appendTo(element)
+            }
+            return true
+          }
+        }, this)
+      },
+
+      __defaultInsertChild__: function (childView, opts) {
         var element,
             type = childView.constructor.name
         if(element = this.elemWithData('append', type)) {
@@ -86,7 +117,10 @@ define([
         } else {
           if(childView.appendTo) childView.appendTo(this.$())
         }
-        return this
+      },
+
+      __insertRule__: function (type) {
+        return this.__insertRules__[type] = this.__insertRules__[type] || []
       },
 
       toHTML: function () {
@@ -107,6 +141,7 @@ define([
         this.dom = $('<script>', {type: 'application/vnd.onionjs.placeholder', 'data-view-class': this.constructor.name})[0]
       }
       this.models = options.models || {}
+      this.__insertRules__ = []
     })
 
 })
