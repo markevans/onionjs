@@ -37,9 +37,7 @@ define([
       this.__setUpViewListeners__()
 
       // Children
-      this.children = {}
-      this.__firstItemId__ = 0
-      this.__nextItemIds__ = {}
+      this.children = []
     })
 
     .use(classDeclarations, 'onView')
@@ -142,32 +140,11 @@ define([
 
       // Children
 
-      setChild: function(id, child, models, options){
-        if( isFunction(child) ) child = this.__newChild__(child, models, options)
-
-        var childId, itemId
-        if (Array.isArray(id)) {
-          childId = id[0]
-          itemId = id[1]
-        }
-        else {
-          childId = id
-          itemId = this.__firstItemId__
-        }
-
-        if (typeof this.children[childId] === 'undefined') {
-          this.children[childId] = {}
-        }
-
-        if (this.children[childId][itemId]) {
-          this.children[childId][itemId].destroy()
-        }
-
-        this.children[childId][itemId] = child
-
-        this.insertChild(child, childId)
+      spawn: function(Child) {
+        child = this.__newChild__(Child)
+        this.children.push(child)
+        this.view.insertChild(child.view)
         child.run()
-        return child
       },
 
       getChild: function(id) {
@@ -217,9 +194,6 @@ define([
         }
       },
 
-      insertChild: function(child, id){
-        this.view.insertChild(child.view, id)
-      },
 
       // "Private"
 

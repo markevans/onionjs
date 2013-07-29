@@ -191,142 +191,40 @@ describe "Controller", ->
       controller.view.emit('chosen')
       assert.isTrue( controller.bingo.called )
 
-  describe "child controllers", ->
-    class TestController extends Controller
-      initView: ->
-        insertChild: ->
-        destroy: ->
-
-    class ChildController extends Controller
-      initView: ->
-        destroy: ->
-
-    controller = undefined
-    child = child1 = child2 = undefined
+  describe "children", ->
+    parent = null
+    ChildController = null
 
     beforeEach ->
-      controller = new TestController()
+      parent = new Controller
+      parent.view = { insertChild: -> }
+      ChildController = class ChildController extends Controller
+        initView: -> {}
+        run: -> @hasRun = true
 
-    it "destroys child controllers when destroyed", ->
-      child1 = controller.setChild '1', ChildController
-      child2 = controller.setChild '2', ChildController
-      sinon.spy(child1, 'destroy')
-      sinon.spy(child2, 'destroy')
-      controller.destroy()
-      assert.isTrue( child1.destroy.called )
-      assert.isTrue( child2.destroy.called )
+    describe "spawn", ->
+      it "creates a new child controller", ->
+        parent.spawn(ChildController)
+        expect( parent.children[0] ).to.be.an.instanceof(ChildController)
 
-    it "adds any models passed in to its own", ->
-      controller.models = {one: 1}
-      childController = controller.setChild 'blah', ChildController, {two: 2}
-      expect( childController.models ).to.eql(one: 1, two: 2)
+      it "calls run() on the child controller", ->
+        parent.spawn(ChildController)
+        expect( parent.children[0].hasRun ).to.be.true
 
-    describe "setChild", ->
-      beforeEach ->
-        controller = new TestController()
-        sinon.spy(controller.view, 'insertChild')
+      it "calls insertChild on the parent's view", ->
+        sinon.spy(parent.view, 'insertChild')
+        parent.spawn(ChildController)
+        child = parent.children[0]
+        expect( parent.view.insertChild.calledWith(child.view) ).to.be.true
 
-      describe "in general", ->
-        it "can receive an instantiated controller", ->
-          givenChild = new ChildController
-          returnedChild = controller.setChild 'list', givenChild
-          expect(returnedChild).to.eql(givenChild)
-          expect(controller.getChild 'list').to.eql(givenChild)
+    describe "spawnWithModel", ->
+      it "gives the child access to the passed model"
 
-        it "inserts the child view", ->
-          childController = controller.setChild 'otherblah', ChildController
-          assert.isTrue( controller.view.insertChild.calledWith(childController.view, 'otherblah') )
-
-        it "runs run() on the child controller", ->
-          child = new ChildController
-          sinon.spy(child, 'run')
-          controller.setChild 'egg', child
-          expect(child.run.called).to.be.true
-
-      describe "when receiving a scalar id", ->
-        beforeEach ->
-          child = controller.setChild 'list', ChildController
-
-        it "sets a child controller", ->
-          expect( controller.getChild('list') ).to.eql(child)
-
-        it "sets the child view", ->
-          assert.isTrue( controller.view.insertChild.calledWith(child.view, 'list') )
-
-        it "destroys a replaced child", ->
-          sinon.spy(child, 'destroy')
-          newChild = controller.setChild 'list', ChildController
-          assert.isTrue( child.destroy.called )
-          expect( controller.getChild('list') ).to.eql(newChild)
-
-      describe "when receiving an array id", ->
-        beforeEach ->
-          child1 = controller.setChild ['list', 'uno'], ChildController
-          child2 = controller.setChild ['list', 'dos'], ChildController
-
-        it "sets a child controller", ->
-          expect( controller.getChild(['list', 'uno']) ).to.eql(child1)
-          expect( controller.getChild(['list', 'dos']) ).to.eql(child2)
-          expect( controller.getChild(['list', 'tres']) ).to.be.undefined
-
-        it "sets the child view", ->
-          assert.isTrue( controller.view.insertChild.calledWith(child1.view, 'list') )
-          assert.isTrue( controller.view.insertChild.calledWith(child2.view, 'list') )
-
-        it "destroys a replaced child", ->
-          sinon.spy(child2, 'destroy')
-          newChild = controller.setChild ['list', 'dos'], ChildController
-          assert.isTrue( child2.destroy.called )
-          expect( controller.getChild(['list', 'dos']) ).to.eql(newChild)
-
-    describe "addChild", ->
-      beforeEach ->
-        controller = new TestController()
-        sinon.spy(controller.view, 'insertChild')
-
-        child1 = controller.addChild 'list', ChildController
-        child2 = controller.addChild 'list', ChildController
-
-      it "sets a child controller", ->
-        expect( controller.children['list'] ).to.eql({0: child1, 1: child2})
-
-      it "sets the child view", ->
-        assert.isTrue( controller.view.insertChild.calledWith(child1.view, 'list') )
-        assert.isTrue( controller.view.insertChild.calledWith(child2.view, 'list') )
-
-      # This fails if we don't make sure that separate __nextChildId__ values are used for each child
-      it "doesn't mess up other children", ->
-        other1 = controller.setChild 'blah', ChildController
-        child3 = controller.addChild 'list', ChildController
-        other2 = controller.setChild 'blah', ChildController
-        expect( controller.children['blah'] ).to.eql({0: other2})
-
+    describe "destroyChildren", ->
     describe "destroyChild", ->
-      beforeEach ->
-        child1 = controller.addChild 'list', ChildController
-        child2 = controller.addChild 'list', ChildController
+    describe "destroyChildWithModel", ->
 
-      it "destroys all items in the child", ->
-        sinon.spy(child1, 'destroy')
-        sinon.spy(child2, 'destroy')
-        controller.destroyChild('list')
-        assert.isTrue( child1.destroy.called )
-        assert.isTrue( child2.destroy.called )
+  describe "destroy", ->
+    it "destroys children", ->
+      throw("TODO")
 
-      it "does nothing when the child doesn't already exist", ->
-        controller.destroyChild('spuds')
-
-    describe "destroy", ->
-      beforeEach ->
-        child = controller.addChild 'loneChild', ChildController
-        child1 = controller.addChild 'list', ChildController
-        child2 = controller.addChild 'list', ChildController
-
-      it "destroys all children", ->
-        sinon.spy(child1, 'destroy')
-        sinon.spy(child2, 'destroy')
-        sinon.spy(child, 'destroy')
-        controller.destroy()
-        assert.isTrue( child1.destroy.called )
-        assert.isTrue( child2.destroy.called )
-        assert.isTrue( child.destroy.called )
