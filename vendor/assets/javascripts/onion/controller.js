@@ -4,12 +4,14 @@ define([
     'onion/class_declarations',
     'onion/extend',
     'onion/type',
-    'onion/subscriber'
+    'onion/subscriber',
+    'onion/uuid'
   ], function(
     classDeclarations,
     extend,
     Type,
-    subscriber
+    subscriber,
+    uuid
 ) {
 
   var isFunction = function (object) {
@@ -26,6 +28,9 @@ define([
 
     .after('init', function(models, opts){
       if(!opts) opts = {}
+
+      // UUID
+      this.__uuid__ = uuid()
 
       // Models
       this.models = extend({}, models)
@@ -81,6 +86,10 @@ define([
     })
 
     .proto({
+      uuid: function () {
+        return this.__uuid__
+      },
+
       destroy: function(){
         this.unsubscribeAll()
         this.destroyChildren()

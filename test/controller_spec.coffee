@@ -5,6 +5,21 @@ extend = requirejs('onion/extend')
 
 describe "Controller", ->
 
+  describe "uuid", ->
+    TestController = null
+
+    beforeEach ->
+      class TestController extends Controller
+
+    it "has a uuid of an appropriate format", ->
+      controller = new Controller
+      expect( controller.uuid() ).to.match(/[\w+-]+/)
+
+    it "is unique per controller", ->
+      controller1 = new Controller
+      controller2 = new Controller
+      expect( controller1.uuid() ).not.to.eql( controller2.uuid() )
+
   describe "models", ->
     TestController = null
     controller = null
