@@ -37,7 +37,7 @@ define([
       this.__setUpViewListeners__()
 
       // Children
-      this.children = []
+      this.__children__ = []
     })
 
     .use(classDeclarations, 'onView')
@@ -84,7 +84,7 @@ define([
       destroy: function(){
         this.unsubscribeAll()
         this.destroyChildren()
-        if(this.view) this.view.destroy()
+        if(this.view && this.view.destroy) this.view.destroy()
       },
 
       run: function(){
@@ -143,16 +143,33 @@ define([
       spawn: function(Child, opts) {
         if(!opts) opts = {}
         var child = this.__newChild__(Child, opts.models)
-        this.children.push(child)
+        this.__children__.push({
+          controller: child,
+          type: child.constructor.name
+        })
         this.view.insertChild(child.view)
         child.run()
+        return child
       },
 
       spawnWithModel: function(Child, modelName, model, opts) {
         if(!opts) opts = {}
         var models = opts.models || {}
         models[modelName] = model
-        this.spawn(Child, {models: models})
+        return this.spawn(Child, {models: models})
+      },
+
+      destroyChildren: function (opts) {
+        if(!opts) opts = {}
+        var remainingChildren = []
+        this.__children__.forEach(function (params, i) {
+          if(!opts.type || opts.type == params.type) {
+            params.controller.destroy()
+          } else {
+            remainingChildren.push(params)
+          }
+        }, this)
+        this.__children__ = remainingChildren
       },
 
       // "Private"

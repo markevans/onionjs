@@ -204,35 +204,71 @@ describe "Controller", ->
 
     describe "spawn", ->
       it "creates a new child controller", ->
-        parent.spawn(ChildController)
-        expect( parent.children[0] ).to.be.an.instanceof(ChildController)
+        child = parent.spawn(ChildController)
+        expect( child ).to.be.an.instanceof(ChildController)
 
       it "calls run() on the child controller", ->
-        parent.spawn(ChildController)
-        expect( parent.children[0].hasRun ).to.be.true
+        child = parent.spawn(ChildController)
+        expect( child.hasRun ).to.be.true
 
       it "calls insertChild on the parent's view", ->
         sinon.spy(parent.view, 'insertChild')
-        parent.spawn(ChildController)
-        child = parent.children[0]
+        child = parent.spawn(ChildController)
         expect( parent.view.insertChild.calledWith(child.view) ).to.be.true
 
       it "allows adding models", ->
-        parent.spawn(ChildController, models: {egg: 'nog'})
-        expect( parent.children[0].models.egg ).to.equal('nog')
+        child = parent.spawn(ChildController, models: {egg: 'nog'})
+        expect( child.models.egg ).to.equal('nog')
 
     describe "spawnWithModel", ->
       it "gives the child access to the passed model", ->
         egg = {}
-        parent.spawnWithModel(ChildController, 'egg', egg)
-        expect( parent.children[0].models.egg ).to.equal(egg)
+        child = parent.spawnWithModel(ChildController, 'egg', egg)
+        expect( child.models.egg ).to.equal(egg)
 
       it "allows passing extra models", ->
         egg = {}
-        parent.spawnWithModel(ChildController, 'egg', egg, models: {food: 'pizza'})
-        expect( parent.children[0].models.food ).to.equal('pizza')
+        child = parent.spawnWithModel(ChildController, 'egg', egg, models: {food: 'pizza'})
+        expect( child.models.food ).to.equal('pizza')
 
     describe "destroyChildren", ->
+      OtherChildController = null
+
+      beforeEach ->
+        OtherChildController = class OtherChildController extends Controller
+
+      it "destroys all children", ->
+        child1 = parent.spawn(ChildController)
+        child2 = parent.spawn(OtherChildController)
+        sinon.spy(child1, 'destroy')
+        sinon.spy(child2, 'destroy')
+
+        parent.destroyChildren()
+
+        expect( child1.destroy.called ).to.be.true
+        expect( child2.destroy.called ).to.be.true
+
+      it "doesn't destroy an already destroyed child", ->
+        child = parent.spawn(ChildController)
+        sinon.spy(child, 'destroy')
+        parent.destroyChildren()
+        parent.destroyChildren()
+        expect( child.destroy.calledOnce ).to.be.true
+
+      it "destroys all children of a given type", ->
+        child1 = parent.spawn(ChildController)
+        child2 = parent.spawn(OtherChildController)
+        child3 = parent.spawn(ChildController)
+        sinon.spy(child1, 'destroy')
+        sinon.spy(child2, 'destroy')
+        sinon.spy(child3, 'destroy')
+
+        parent.destroyChildren(type: 'ChildController')
+
+        expect( child1.destroy.called ).to.be.true
+        expect( child2.destroy.called ).to.be.false
+        expect( child3.destroy.called ).to.be.true
+
     describe "destroyChild", ->
     describe "destroyChildWithModel", ->
 
