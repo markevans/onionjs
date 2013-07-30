@@ -98,7 +98,7 @@ define([
       renderHTML: function (html) {
         html = html.trim()
         var newHtml = $(html)
-        if ( !html.match(/^<.+>$/m) || newHtml.length != 1 ) {
+        if ( !html.match(/^<[\s\S]+>$/) || newHtml.length != 1 ) {
           throw new Error("renderHTML only takes HTML wrapped in a single tag - you gave:\n" + html)
         }
         this.$().replaceWith(newHtml)
