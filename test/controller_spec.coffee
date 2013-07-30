@@ -214,6 +214,8 @@ describe "Controller", ->
       parent = new Controller
       parent.view = { insertChild: -> }
       ChildController = class ChildController extends Controller
+        @after 'init', (models, opts) ->
+          @opts = opts
         initView: -> {}
         run: -> @hasRun = true
 
@@ -239,6 +241,10 @@ describe "Controller", ->
       it "allows adding models", ->
         child = parent.spawn(ChildController, models: {egg: 'nog'})
         expect( child.models.egg ).to.equal('nog')
+
+      it "passes opts to the child", ->
+        child = parent.spawn(ChildController, opts: {egg: 'nog'})
+        expect( child.opts ).to.eql(egg: 'nog')
 
     describe "spawnWithModel", ->
       egg = null
