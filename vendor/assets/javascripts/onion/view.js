@@ -53,6 +53,7 @@ define([
       attachTo: function (dom) {
         this.dom = $(dom)[0]
         this.__setUpDomListeners__()
+        this.__isRendered__ = true
         return this
       },
 
@@ -108,6 +109,10 @@ define([
 
       render: function () {},
 
+      isRendered: function () {
+        return this.__isRendered__
+      },
+
       insertChild: function (childView, opts) {
         this.__applyInsertRules__(childView, opts) || this.__defaultInsertChild__(childView, opts)
       },
@@ -160,6 +165,7 @@ define([
       this.models = options.models || {}
       this.__insertRules__ = []
       this.__applyClassDeclarations__('insertChildOfType')
+      this.__isRendered__ = false
     })
 
 })
