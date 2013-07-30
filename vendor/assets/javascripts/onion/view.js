@@ -63,7 +63,7 @@ define([
         })
       },
 
-      elemWithData: function (dataAttr, value) {
+      elementWithData: function (dataAttr, value) {
         var $elems = this.findFromData(dataAttr, value)
         return $elems.length ? $elems[0] : null
       },
@@ -105,9 +105,9 @@ define([
       __defaultInsertChild__: function (childView, opts) {
         var element,
             type = childView.constructor.name
-        if(element = this.elemWithData('append', type)) {
+        if(element = this.elementWithData('append', type)) {
           childView.appendTo(element)
-        } else if(element = this.elemWithData('attach', type)) {
+        } else if(element = this.elementWithData('attach', type)) {
           childView.attachTo(element)
         } else {
           if(childView.appendTo) childView.appendTo(this.$())
