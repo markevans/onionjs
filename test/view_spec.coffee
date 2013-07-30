@@ -170,65 +170,102 @@ describe "View", ->
           view.renderHTML('<div></div>')
 
   describe "insertChild", ->
-    view = null
+    parentView = null
     childView = null
     ParentView = ChildView = null
+
+    assertAttachesTo = (childHTML, callback) ->
+      parentHTML = """<div><p data-attach="SomeOtherView"></p>#{childHTML}</div>"""
+      parentView.attachTo(parentHTML)
+      callback()
+      expect( parentView.toHTML() ).to.eql(parentHTML)
+      expect( childView.toHTML() ).to.eql(childHTML)
+
+    assertAppendsTo = (parentHTML, selector, callback) ->
+      parentView.attachTo(parentHTML)
+      element = $(parentView.dom).filter(selector).add($(parentView.dom).find(selector))
+      lengthBefore = element.find(">").length
+      callback()
+      lengthAfter = element.find(">").length
+      expect( $(childView.dom).parent().is(element) ).to.be.true
+      expect( lengthAfter - lengthBefore ).to.equal(1)
 
     beforeEach ->
       ParentView = class ParentView extends View
       ChildView = class ChildView extends View
-      view = new ParentView()
+      parentView = new ParentView()
       childView = new ChildView(attachTo: '<a>CHILDVIEW</a>')
 
     it "uses data-append", ->
-      view.attachTo('<div><p data-append="ChildView"></p></div>')
-      view.insertChild(childView)
-      expect( view.toHTML() ).to.eql('<div><p data-append="ChildView"><a>CHILDVIEW</a></p></div>')
+      assertAppendsTo '<div><p data-append="ChildView"></p></div>', 'p', ->
+        parentView.insertChild(childView)
 
     it "uses data-attach", ->
-      view.attachTo('<div><p data-attach="ChildView"></p></div>')
-      view.insertChild(childView)
-      expect( view.toHTML() ).to.eql('<div><p data-attach="ChildView"></p></div>')
-      expect( childView.toHTML() ).to.eql('<p data-attach="ChildView"></p>')
+      assertAttachesTo """<p data-attach="ChildView"></p>""", ->
+        parentView.insertChild(childView)
 
     it "appends to main container if id not known", ->
-      view.attachTo('<div><p></p></div>')
-      view.insertChild(childView)
-      expect( view.toHTML() ).to.eql('<div><p></p><a>CHILDVIEW</a></div>')
+      assertAppendsTo '<div><p></p></div>', 'div', ->
+        parentView.insertChild(childView)
 
     it "allows specifying more than one data-append on the same element (space separated) without confusing with substrings", ->
-      view.attachTo('<div><p data-append="ChildView something else"></p><span data-append="ChildViewBacon"></span></div>')
-      view.insertChild(childView)
-      expect( view.toHTML() ).to.eql('<div><p data-append="ChildView something else"><a>CHILDVIEW</a></p><span data-append="ChildViewBacon"></span></div>')
+      assertAppendsTo """<div><p data-append="ChildView something else"></p></div>""", 'p', ->
+        parentView.insertChild(childView)
 
     it "doesn't complain if the child has no appendTo method", ->
-      view.attachTo('<div><p></p></div>')
-      view.insertChild({})
+      parentView.attachTo('<div></div>')
+      parentView.insertChild({})
 
-    it "can map where to attach a child", ->
-      view.attachChild 'ChildView', 'kiddo'
-      childHTML= """<p data-attach="kiddo">Fried Egg</p>"""
-      view.attachTo("""<div><p></p>#{childHTML}</div>""")
-      view.insertChild(childView)
-      expect( childView.toHTML() ).to.eql('<p data-attach="kiddo">Fried Egg</p>')
+    describe "insertChildOfType", ->
+      parentHTML = null
 
-    it "can find where to attach based on model data", ->
-      view.attachChild 'ChildView', ({model, modelName}) -> [modelName, model.id].join(':')
-      html = '<div><p></p><p data-attach="duck:2">Fried Egg</p></div>'
-      view.attachTo(html)
-      view.insertChild(childView, modelName: 'duck', model: { id: 2 })
-      expect( childView.toHTML() ).to.eql('<p data-attach="duck:2">Fried Egg</p>')
+      beforeEach ->
+        parentHTML = """<div><p></p><p class="egg"></p></div>"""
 
-    it "can find where to attach based on id", ->
-      view.attachChild 'ChildView', ({id}) -> id
-      html = '<div><p></p><p data-attach="doobie">Fried Egg</p></div>'
-      view.attachTo(html)
-      view.insertChild(childView, id: 'doobie')
-      expect( childView.toHTML() ).to.eql('<p data-attach="doobie">Fried Egg</p>')
+      it "specifies (overrides default) how to insert children of a type, using the params passed to insertChild", ->
+        parentView.insertChildOfType "ChildView", (child, params) ->
+          child.attachTo @find(".#{params.tag}")
+        assertAttachesTo '<p class="egg"></p>', ->
+          parentView.insertChild(childView, tag: 'egg')
 
-    it "can set attach rules with class declarations", ->
-      ParentView.attachChild 'ChildView', 'hello'
-      view = new ParentView(attachTo: '<div><div data-attach="hello"></div></div>')
-      view.insertChild(childView)
-      expect( childView.toHTML() ).to.eql('<div data-attach="hello"></div>')
+      it "doesn't affect children of a different type", ->
+        parentView.insertChildOfType "OtherChildView", (child, params) ->
+          child.attachTo @find(".#{params.tag}")
+        assertAppendsTo """<div><p class="egg"></p></div>""", 'div', ->
+          parentView.insertChild(childView, tag: 'egg')
+
+      it "works with a class declaration", ->
+        ParentView.insertChildOfType "ChildView", (child, params) ->
+          child.attachTo @find(".#{params.tag}")
+          true
+        parentView = new ParentView()
+        assertAttachesTo '<p class="egg"></p>', ->
+          parentView.insertChild(childView, tag: 'egg')
+
+      # it "can map where to attach a child", ->
+      #   parentView.attachChild 'ChildView', 'kiddo'
+      #   childHTML= """<p data-attach="kiddo">Fried Egg</p>"""
+      #   parentView.attachTo("""<div><p></p>#{childHTML}</div>""")
+      #   parentView.insertChild(childView)
+      #   expect( childView.toHTML() ).to.eql('<p data-attach="kiddo">Fried Egg</p>')
+
+      # it "can find where to attach based on model data", ->
+      #   parentView.attachChild 'ChildView', ({model, modelName}) -> [modelName, model.id].join(':')
+      #   html = '<div><p></p><p data-attach="duck:2">Fried Egg</p></div>'
+      #   parentView.attachTo(html)
+      #   parentView.insertChild(childView, modelName: 'duck', model: { id: 2 })
+      #   expect( childView.toHTML() ).to.eql('<p data-attach="duck:2">Fried Egg</p>')
+
+      # it "can find where to attach based on id", ->
+      #   parentView.attachChild 'ChildView', ({id}) -> id
+      #   html = '<div><p></p><p data-attach="doobie">Fried Egg</p></div>'
+      #   parentView.attachTo(html)
+      #   parentView.insertChild(childView, id: 'doobie')
+      #   expect( childView.toHTML() ).to.eql('<p data-attach="doobie">Fried Egg</p>')
+
+      # it "can set attach rules with class declarations", ->
+      #   ParentView.attachChild 'ChildView', 'hello'
+      #   parentView = new ParentView(attachTo: '<div><div data-attach="hello"></div></div>')
+      #   parentView.insertChild(childView)
+      #   expect( childView.toHTML() ).to.eql('<div data-attach="hello"></div>')
 

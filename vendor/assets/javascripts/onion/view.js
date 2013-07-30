@@ -16,7 +16,7 @@ define([
     .proto(eventEmitter)
 
     .use(classDeclarations, 'onDom')
-    .use(classDeclarations, 'attachChild')
+    .use(classDeclarations, 'insertChildOfType')
 
     .proto({
       $: function () {
@@ -42,11 +42,6 @@ define([
           }
         })
         return this
-      },
-
-      attachChild: function (type, mapping) {
-        var rules = this.__insertRule__(type)
-        rules.push(['attach', mapping])
       },
 
       __setUpDomListeners__: function () {
@@ -90,21 +85,20 @@ define([
         this.__applyInsertRules__(childView, opts) || this.__defaultInsertChild__(childView, opts)
       },
 
+      // attachChild: function (type, mapping) {
+      //   var rules = this.__insertRule__(type)
+      //   rules.push(['attach', mapping])
+      // },
+
+      insertChildOfType: function (type, rule) {
+        var rule = isFunction(rule) ? rule : this[rule]
+        this.__insertRulesForType__(type).push(rule)
+      },
+
       __applyInsertRules__: function (childView, opts) {
         var type = childView.constructor.name
-        return this.__insertRule__(type).some(function(rule){
-          var action = rule[0],
-              mapping = rule[1],
-              marker = isFunction(mapping) ? mapping(opts) : mapping,
-              element = this.elemWithData(action, marker)
-          if(element) {
-            if (action == 'attach') {
-              childView.attachTo(element)
-            } else {
-              childView.appendTo(element)
-            }
-            return true
-          }
+        return this.__insertRulesForType__(type).some(function(rule){
+          return rule.call(this, childView, opts)
         }, this)
       },
 
@@ -120,7 +114,7 @@ define([
         }
       },
 
-      __insertRule__: function (type) {
+      __insertRulesForType__: function (type) {
         return this.__insertRules__[type] = this.__insertRules__[type] || []
       },
 
@@ -143,7 +137,7 @@ define([
       }
       this.models = options.models || {}
       this.__insertRules__ = []
-      this.__applyClassDeclarations__('attachChild')
+      this.__applyClassDeclarations__('insertChildOfType')
     })
 
 })
