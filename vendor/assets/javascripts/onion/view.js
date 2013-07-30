@@ -20,26 +20,25 @@ define([
 
     .extend({
       attachChild: function (type, value) {
-        this.insertChildOfType(type, function (child, opts) {
-          if (isFunction(value)) {
-            value = value.call(this, opts)
-          }
-          var element = this.elementWithData('attach', value)
-          if (element) {
-            child.attachTo(element)
-            return true
-          }
+        this.__insertChildOfTypeUsingDataAttribute__(type, 'attach', value, function (child, element) {
+          child.attachTo(element)
         })
       },
 
       appendChild: function (type, value) {
+        this.__insertChildOfTypeUsingDataAttribute__(type, 'append', value, function (child, element) {
+          child.appendTo(element)
+        })
+      },
+
+      __insertChildOfTypeUsingDataAttribute__: function (type, attribute, value, insertCallback) {
         this.insertChildOfType(type, function (child, opts) {
           if (isFunction(value)) {
             value = value.call(this, opts)
           }
-          var element = this.elementWithData('append', value)
+          var element = this.elementWithData(attribute, value)
           if (element) {
-            child.appendTo(element)
+            insertCallback(child, element)
             return true
           }
         })
