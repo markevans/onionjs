@@ -242,6 +242,28 @@ describe "View", ->
         assertAttachesTo '<p class="egg"></p>', ->
           parentView.insertChild(childView, tag: 'egg')
 
+      it "calls the rules in order, stopping at the first that returns truthy", ->
+        rule1 = sinon.spy(-> false)
+        rule2 = sinon.spy(-> true)
+        rule3 = sinon.spy(-> true)
+
+        parentView.insertChildOfType "ChildView", rule1
+        parentView.insertChildOfType "ChildView", rule2
+        parentView.insertChildOfType "ChildView", rule3
+
+        parentView.insertChild(childView)
+
+        expect( rule1.called ).to.be.true
+        expect( rule2.called ).to.be.true
+        expect( rule3.called ).to.be.false
+
+      it "allows passing a string, referring to a method", ->
+        parentView.insertChildView = (child, params) ->
+          child.attachTo @find(".#{params.tag}")
+        parentView.insertChildOfType "ChildView", "insertChildView"
+        assertAttachesTo '<p class="egg"></p>', ->
+          parentView.insertChild(childView, tag: 'egg')
+
       # it "can map where to attach a child", ->
       #   parentView.attachChild 'ChildView', 'kiddo'
       #   childHTML= """<p data-attach="kiddo">Fried Egg</p>"""
