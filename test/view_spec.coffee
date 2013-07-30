@@ -306,3 +306,25 @@ describe "View", ->
         parentView = new ParentView(attachTo: """<div><p data-append="bungies"></p><p data-attach="doobies"></p></div>""")
         parentView.insertChild(childView)
         expect( $(childView.dom).parent().is('[data-append=bungies]') ).to.be.true
+
+  describe "isRendered", ->
+    view = null
+
+    beforeEach ->
+      ParentView = class ParentView extends View
+      ChildView = class ChildView extends View
+      view = new ParentView()
+      childView = new ChildView(attachTo: '<a>CHILDVIEW</a>')
+
+    it "is true right after attaching", ->
+      view.attachTo('<div></div>')
+      expect( view.isRendered() ).to.be.true
+
+    it "is false after appending", ->
+      view.appendTo('<div></div>')
+      expect( view.isRendered() ).to.be.false
+
+    it "is true after render", ->
+      view.appendTo('<div></div>')
+      view.renderHTML('<br>')
+      expect( view.isRendered() ).to.be.true
