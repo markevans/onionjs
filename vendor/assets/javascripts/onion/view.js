@@ -18,6 +18,21 @@ define([
     .use(classDeclarations, 'onDom')
     .use(classDeclarations, 'insertChildOfType')
 
+    .extend({
+      attachChild: function (type, dataAttachValue) {
+        this.insertChildOfType(type, function (child, opts) {
+          if (isFunction(dataAttachValue)) {
+            dataAttachValue = dataAttachValue.call(this, opts)
+          }
+          var element = this.elementWithData('attach', dataAttachValue)
+          if (element) {
+            child.attachTo(element)
+            return true
+          }
+        })
+      }
+    })
+
     .proto({
       $: function () {
         return $(this.dom)
@@ -84,11 +99,6 @@ define([
       insertChild: function (childView, opts) {
         this.__applyInsertRules__(childView, opts) || this.__defaultInsertChild__(childView, opts)
       },
-
-      // attachChild: function (type, mapping) {
-      //   var rules = this.__insertRule__(type)
-      //   rules.push(['attach', mapping])
-      // },
 
       insertChildOfType: function (type, rule) {
         var rule = isFunction(rule) ? rule : this[rule]
