@@ -11,7 +11,7 @@ define(function () {
       .proto({
 
         setItemChildren: function () {
-          this.destroyChildren(type: ItemController)
+          this.destroyChildren({type: ItemController})
           this.addItemChildren(this.models[collectionName])
         },
 
@@ -36,3 +36,4 @@ define(function () {
   }
 
 })
+
