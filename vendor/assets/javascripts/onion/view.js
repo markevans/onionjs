@@ -34,8 +34,8 @@ define([
       __insertChildOfTypeUsingDataAttribute__: function (type, attribute, value, insertCallback) {
         this.insertChildOfType(type, function (child, opts) {
           var dataValue = value
-          if (isFunction(value)) {
-            dataValue = value.call(this, opts)
+          if (isFunction(dataValue)) {
+            dataValue = dataValue.call(this, opts)
           }
           var element = this.elementWithData(attribute, dataValue)
           if (element) {
