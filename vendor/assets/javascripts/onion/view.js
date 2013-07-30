@@ -19,14 +19,27 @@ define([
     .use(classDeclarations, 'insertChildOfType')
 
     .extend({
-      attachChild: function (type, dataAttachValue) {
+      attachChild: function (type, value) {
         this.insertChildOfType(type, function (child, opts) {
-          if (isFunction(dataAttachValue)) {
-            dataAttachValue = dataAttachValue.call(this, opts)
+          if (isFunction(value)) {
+            value = value.call(this, opts)
           }
-          var element = this.elementWithData('attach', dataAttachValue)
+          var element = this.elementWithData('attach', value)
           if (element) {
             child.attachTo(element)
+            return true
+          }
+        })
+      },
+
+      appendChild: function (type, value) {
+        this.insertChildOfType(type, function (child, opts) {
+          if (isFunction(value)) {
+            value = value.call(this, opts)
+          }
+          var element = this.elementWithData('append', value)
+          if (element) {
+            child.appendTo(element)
             return true
           }
         })
