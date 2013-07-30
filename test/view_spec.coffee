@@ -275,6 +275,8 @@ describe "View", ->
         parentView = new ParentView()
         assertAttachesTo '<p data-attach="tag-egg"></p>', ->
           parentView.insertChild(childView, tag: 'egg')
+        assertAttachesTo '<p data-attach="tag-potato"></p>', ->
+          parentView.insertChild(childView, tag: 'potato')
 
       it "goes to the next rule until it finds the element", ->
         ParentView.attachChild 'ChildView', 'kiddo'
