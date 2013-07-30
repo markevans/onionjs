@@ -4,8 +4,8 @@ define([
   'onion/type',
   'onion/event_emitter',
   'onion/collection',
-  'onion/uuid'
-], function(Type, eventEmitter, Collection, uuid){
+  'onion/has_uuid'
+], function(Type, eventEmitter, Collection, hasUUID){
 
   function setterMethodName(attributeName){
     return 'set' + attributeName.replace(/./, function(ch){ return ch.toUpperCase() })
@@ -24,16 +24,14 @@ define([
 
   return Type.sub('Struct')
 
+    .use(hasUUID)
+
     .proto(eventEmitter)
 
     .proto({
 
       __get__: function(attr){
         return this.__attrs__[attr]
-      },
-
-      uuid: function () {
-        return this.__uuid__
       },
 
       setAttrs: function(attrs){
@@ -160,7 +158,6 @@ define([
     })
 
     .after('init', function(attrs){
-      this.__uuid__ = uuid()
       this.constructor.instances().add(this)
       this.__attrs__ = {}
       this.setAttrs(attrs)
