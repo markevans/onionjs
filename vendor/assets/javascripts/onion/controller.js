@@ -171,12 +171,11 @@ define([
 
       destroyChildren: function (opts) {
         if(!opts) opts = {}
-        for(var id in this.__children__) {
-          var child = this.__children__[id]
+        this.__eachChild__(function (child, id) {
           if(!opts.type || opts.type == child.constructor.name) {
             this.destroyChild(id)
           }
-        }
+        }, this)
       },
 
       destroyChildWithModel: function (modelName, model) {
@@ -200,6 +199,12 @@ define([
         if(!id) id = child.constructor.name + '-' + child.uuid()
         this.__children__[id] = child
         return id
+      },
+
+      __eachChild__: function (callback, context) {
+        for(var id in this.__children__) {
+          callback.call(context, this.__children__[id], id)
+        }
       },
 
       __registerModels__: function(){
