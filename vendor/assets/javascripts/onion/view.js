@@ -14,6 +14,7 @@ define([
   var matchesQueryOpts = function (controller, opts, queryOpts) {
     if(!queryOpts) queryOpts = {}
     if(queryOpts.type && queryOpts.type != controller.constructor.name) return false
+    if(queryOpts.tag && queryOpts.tag != opts.tag) return false
     return true
   }
 
