@@ -11,6 +11,12 @@ define([
     return typeof object === 'function'
   }
 
+  var matchesQueryOpts = function (controller, opts, queryOpts) {
+    if(!queryOpts) queryOpts = {}
+    if(queryOpts.type && queryOpts.type != controller.constructor.name) return false
+    return true
+  }
+
   return Type.sub('View')
 
     .proto(eventEmitter)
@@ -19,21 +25,21 @@ define([
     .use(classDeclarations, 'insertChildRule')
 
     .extend({
-      attachChild: function (type, value) {
-        this.__insertChildOfTypeUsingDataAttribute__(type, 'attach', value, function (child, element) {
+      attachChild: function (queryOpts, value) {
+        this.__insertChildUsingDataAttribute__(queryOpts, 'attach', value, function (child, element) {
           child.attachTo(element)
         })
       },
 
-      appendChild: function (type, value) {
-        this.__insertChildOfTypeUsingDataAttribute__(type, 'append', value, function (child, element) {
+      appendChild: function (queryOpts, value) {
+        this.__insertChildUsingDataAttribute__(queryOpts, 'append', value, function (child, element) {
           child.appendTo(element)
         })
       },
 
-      __insertChildOfTypeUsingDataAttribute__: function (type, attribute, value, insertCallback) {
+      __insertChildUsingDataAttribute__: function (queryOpts, attribute, value, insertCallback) {
         this.insertChildRule(function (child, opts) {
-          if(child.constructor.name != type) return false
+          if( !matchesQueryOpts(child, opts, queryOpts) ) return false
 
           var dataValue = value
           if (isFunction(dataValue)) { dataValue = dataValue.call(this, opts) }

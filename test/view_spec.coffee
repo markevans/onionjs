@@ -259,13 +259,13 @@ describe "View", ->
 
     describe "attachChild", ->
       it "maps a data-attach value", ->
-        ParentView.attachChild 'ChildView', 'kiddo'
+        ParentView.attachChild {type: 'ChildView'}, 'kiddo'
         parentView = new ParentView()
         assertAttachesTo '<p data-attach="kiddo"></p>', ->
           parentView.insertChild(childView)
 
       it "can take a function", ->
-        ParentView.attachChild 'ChildView', ({tag}) -> "tag-#{tag}"
+        ParentView.attachChild {type: 'ChildView'}, ({tag}) -> "tag-#{tag}"
         parentView = new ParentView()
         assertAttachesTo '<p data-attach="tag-egg"></p>', ->
           parentView.insertChild(childView, tag: 'egg')
@@ -273,30 +273,30 @@ describe "View", ->
           parentView.insertChild(childView, tag: 'potato')
 
       it "goes to the next rule until it finds the element", ->
-        ParentView.attachChild 'ChildView', 'kiddo'
-        ParentView.attachChild 'ChildView', 'bungies'
-        ParentView.attachChild 'ChildView', 'doobies'
+        ParentView.attachChild {type: 'ChildView'}, 'kiddo'
+        ParentView.attachChild {type: 'ChildView'}, 'bungies'
+        ParentView.attachChild {type: 'ChildView'}, 'doobies'
         parentView = new ParentView(attachTo: """<div><p data-attach="bungies"></p><p data-attach="doobies"></p></div>""")
         parentView.insertChild(childView)
         expect( childView.toHTML() ).to.equal("""<p data-attach="bungies"></p>""")
 
     describe "appendChild", ->
       it "maps a data-append value", ->
-        ParentView.appendChild 'ChildView', 'kiddo'
+        ParentView.appendChild {type: 'ChildView'}, 'kiddo'
         parentView = new ParentView()
         assertAppendsTo '<div><p data-append="kiddo"></p></div>', 'p', ->
           parentView.insertChild(childView)
 
       it "can take a function", ->
-        ParentView.appendChild 'ChildView', ({tag}) -> "tag-#{tag}"
+        ParentView.appendChild {type: 'ChildView'}, ({tag}) -> "tag-#{tag}"
         parentView = new ParentView()
         assertAppendsTo '<div><p data-append="tag-egg"></p></div>', 'p', ->
           parentView.insertChild(childView, tag: 'egg')
 
       it "goes to the next rule until it finds the element", ->
-        ParentView.appendChild 'ChildView', 'kiddo'
-        ParentView.appendChild 'ChildView', 'bungies'
-        ParentView.appendChild 'ChildView', 'doobies'
+        ParentView.appendChild {type: 'ChildView'}, 'kiddo'
+        ParentView.appendChild {type: 'ChildView'}, 'bungies'
+        ParentView.appendChild {type: 'ChildView'}, 'doobies'
         parentView = new ParentView(attachTo: """<div><p data-append="bungies"></p><p data-attach="doobies"></p></div>""")
         parentView.insertChild(childView)
         expect( $(childView.dom).parent().is('[data-append=bungies]') ).to.be.true
@@ -322,3 +322,4 @@ describe "View", ->
       view.appendTo('<div></div>')
       view.renderHTML('<br>')
       expect( view.isRendered() ).to.be.true
+
