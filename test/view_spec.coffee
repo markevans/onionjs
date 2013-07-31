@@ -216,26 +216,20 @@ describe "View", ->
       parentView.attachTo('<div></div>')
       parentView.insertChild({})
 
-    describe "insertChildOfType", ->
+    describe "insertChildRule", ->
       parentHTML = null
 
       beforeEach ->
         parentHTML = """<div><p></p><p class="egg"></p></div>"""
 
-      it "specifies (overrides default) how to insert children of a type, using the params passed to insertChild", ->
-        parentView.insertChildOfType "ChildView", (child, params) ->
+      it "specifies (overrides default) how to insert children using the params passed to insertChild", ->
+        parentView.insertChildRule (child, params) ->
           child.attachTo @find(".#{params.tag}")
         assertAttachesTo '<p class="egg"></p>', ->
           parentView.insertChild(childView, tag: 'egg')
 
-      it "doesn't affect children of a different type", ->
-        parentView.insertChildOfType "OtherChildView", (child, params) ->
-          child.attachTo @find(".#{params.tag}")
-        assertAppendsTo """<div><p class="egg"></p></div>""", 'div', ->
-          parentView.insertChild(childView, tag: 'egg')
-
       it "works with a class declaration", ->
-        ParentView.insertChildOfType "ChildView", (child, params) ->
+        ParentView.insertChildRule (child, params) ->
           child.attachTo @find(".#{params.tag}")
         parentView = new ParentView()
         assertAttachesTo '<p class="egg"></p>', ->
@@ -246,9 +240,9 @@ describe "View", ->
         rule2 = sinon.spy(-> true)
         rule3 = sinon.spy(-> true)
 
-        parentView.insertChildOfType "ChildView", rule1
-        parentView.insertChildOfType "ChildView", rule2
-        parentView.insertChildOfType "ChildView", rule3
+        parentView.insertChildRule rule1
+        parentView.insertChildRule rule2
+        parentView.insertChildRule rule3
 
         parentView.insertChild(childView)
 
@@ -259,7 +253,7 @@ describe "View", ->
       it "allows passing a string, referring to a method", ->
         parentView.insertChildView = (child, params) ->
           child.attachTo @find(".#{params.tag}")
-        parentView.insertChildOfType "ChildView", "insertChildView"
+        parentView.insertChildRule "insertChildView"
         assertAttachesTo '<p class="egg"></p>', ->
           parentView.insertChild(childView, tag: 'egg')
 

@@ -16,7 +16,7 @@ define([
     .proto(eventEmitter)
 
     .use(classDeclarations, 'onDom')
-    .use(classDeclarations, 'insertChildOfType')
+    .use(classDeclarations, 'insertChildRule')
 
     .extend({
       attachChild: function (type, value) {
@@ -32,11 +32,12 @@ define([
       },
 
       __insertChildOfTypeUsingDataAttribute__: function (type, attribute, value, insertCallback) {
-        this.insertChildOfType(type, function (child, opts) {
+        this.insertChildRule(function (child, opts) {
+          if(child.constructor.name != type) return false
+
           var dataValue = value
-          if (isFunction(dataValue)) {
-            dataValue = dataValue.call(this, opts)
-          }
+          if (isFunction(dataValue)) { dataValue = dataValue.call(this, opts) }
+
           var element = this.elementWithData(attribute, dataValue)
           if (element) {
             insertCallback(child, element)
@@ -118,14 +119,13 @@ define([
         this.__applyInsertRules__(childView, opts) || this.__defaultInsertChild__(childView, opts)
       },
 
-      insertChildOfType: function (type, rule) {
+      insertChildRule: function (rule) {
         var rule = isFunction(rule) ? rule : this[rule]
-        this.__insertRulesForType__(type).push(rule)
+        this.__insertRules__.push(rule)
       },
 
       __applyInsertRules__: function (childView, opts) {
-        var type = childView.constructor.name
-        return this.__insertRulesForType__(type).some(function(rule){
+        return this.__insertRules__.some(function(rule){
           return rule.call(this, childView, opts)
         }, this)
       },
@@ -140,10 +140,6 @@ define([
         } else {
           if(childView.appendTo) childView.appendTo(this.$())
         }
-      },
-
-      __insertRulesForType__: function (type) {
-        return this.__insertRules__[type] = this.__insertRules__[type] || []
       },
 
       toHTML: function () {
@@ -165,7 +161,7 @@ define([
       }
       this.models = options.models || {}
       this.__insertRules__ = []
-      this.__applyClassDeclarations__('insertChildOfType')
+      this.__applyClassDeclarations__('insertChildRule')
       this.__isRendered__ = false
     })
 
