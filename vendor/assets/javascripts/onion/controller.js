@@ -186,7 +186,7 @@ define([
 
       destroyChild: function (id) {
         var child = this.__children__[id]
-        child.destroy()
+        if(child) child.destroy()
         delete this.__children__[id]
       },
 

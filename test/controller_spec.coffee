@@ -321,6 +321,10 @@ describe "Controller", ->
         expect( child2.destroy.called ).to.be.false
         expect( child3.destroy.called ).to.be.true
 
+      it "does nothing if the child doesn't exist", ->
+        item = {uuid: -> 'a'}
+        parent.destroyChildWithModel('item', item)
+
     describe "destroyChild", ->
       it "destroys the child spawned with the specified id", ->
         child1 = parent.spawn(ChildController)
@@ -332,6 +336,9 @@ describe "Controller", ->
 
         expect( child1.destroy.called ).to.be.false
         expect( child2.destroy.called ).to.be.true
+
+      it "does nothing if the child doesn't exist", ->
+        parent.destroyChild('i-do-not-exist')
 
   describe "destroy", ->
     it "destroys children", ->
