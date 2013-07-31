@@ -5,8 +5,9 @@ define([
   'onion/sub',
   'onion/event_emitter',
   'onion/type',
-  'onion/membership'
-], function(extend, sub, eventEmitter, Type, Membership){
+  'onion/membership',
+  'onion/has_uuid'
+], function(extend, sub, eventEmitter, Type, Membership, hasUUID){
 
   var conditionsMatch = function (item, conditions) {
     if(typeof item.attrs != 'function') return false
@@ -37,6 +38,8 @@ define([
         }
       }
     })
+
+    .use(hasUUID)
 
     .proto(eventEmitter)
 

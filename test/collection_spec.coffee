@@ -449,3 +449,8 @@ describe "Collection", ->
         collection.add(4)
         collection.removeWhere(kung: 1, fu: 1)
         expect( collection.toArray() ).to.eql([m2, m3, 4])
+
+  describe "uuid", ->
+    it "has a uuid", ->
+      expect( new Collection().uuid() ).to.match(/^[\w-]+$/)
+

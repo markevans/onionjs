@@ -1,142 +1,30 @@
 if(typeof define!=='function'){var define=require('amdefine')(module);}
 
 define([
-  'onion/class_declarations',
-  'onion/event_emitter',
-  'onion/extend',
-  'onion/vendor/mustache',
-  'onion/type',
-  'jquery'
-], function(classDeclarations, eventEmitter, extend, Mustache, Type, $){
+    'onion/extend',
+    'onion/vendor/mustache'
+  ], function (extend, Mustache) {
+  return function (View) {
 
-  return Type.sub('MustacheView')
+    View
 
-    .proto(eventEmitter)
+      .proto({
 
-    .use(classDeclarations, 'onDom')
+        evalMustache: function (template, obj) {
+          return Mustache.render(template, obj)
+        },
 
-    .use(classDeclarations, 'helpers')
-
-    .extend({
-      template: function (template) {
-        this.prototype.__template__ = template
-        return this
-      }
-    })
-
-    .proto({
-      setDom: function (dom) {
-        var oldDom = this.__dom__
-        dom = $(dom)[0]
-        if(oldDom) {
-          $(oldDom).replaceWith(dom)
+        renderMustache: function () {
+          var args = Array.prototype.slice.call(arguments),
+              template = args.shift(),
+              objs = args,
+              obj = extend.apply(null, [{}].concat(objs)),
+              html = this.evalMustache(template, obj)
+          this.renderHTML(html)
         }
-        this.__dom__ = dom
-        this.__setUpDomListeners__()
-        return this
-      },
 
-      dom: function () {
-        if(!this.__dom__) throw new Error("the dom hasn't yet been set in "+this.constructor.name)
-        return this.__dom__
-      },
+      })
 
-      $dom: function () {
-        return $(this.dom())
-      },
-
-      onDom: function (selector, event, newEvent, argumentsMapper) {
-        var self = this
-        this.$dom().on(event, selector, function (event) {
-          event.stopPropagation()
-          event.preventDefault()
-
-          if(argumentsMapper) {
-            self.emit(newEvent, argumentsMapper.call(self, this, event))
-          } else {
-            self.emit(newEvent)
-          }
-        })
-        return this
-      },
-
-      __setUpDomListeners__: function () {
-        this.__applyClassDeclarations__('onDom')
-      },
-
-      renderTemplate: function (template, object) {
-        return Mustache.render(template, extend({}, object, this.__helpers__))
-      },
-
-      render: function (object) {
-        var html = this.renderTemplate(this.template(), object)
-        this.setDom($(html)[0])
-        return this
-      },
-
-      helpers: function () {
-        var self = this,
-            objects = Array.prototype.slice.call(arguments)
-        objects.forEach(function (object) {
-          for(var key in object) {
-            self.__helpers__[key] = object[key]
-          }
-        })
-      },
-
-      setTemplate: function(template) {
-        this.__template__ = template
-        return this
-      },
-
-      template: function () {
-        if(!this.__template__) throw new Error("the template hasn't yet been set")
-        return this.__template__
-      },
-
-      appendTo: function (element) {
-        $(this.dom()).appendTo(element)
-        return this
-      },
-
-      find: function (selector) {
-        return $(this.dom()).find(selector)
-      },
-
-      append: function (element) {
-        this.$dom().append(element)
-        return this
-      },
-
-      insertChild: function(childView, id){
-        if (childView.appendTo) {
-          var container = this.find('[data-child]').filter(function () {
-            return $(this).data('child').match(new RegExp('\\b' + id + '\\b'))
-          })
-          if(container.length === 0) container = this.$dom()
-          childView.appendTo(container)
-        }
-        return this
-      },
-
-      toHTML: function () {
-        return this.dom().outerHTML
-      },
-
-      destroy: function () {
-        this.$dom().remove()
-      }
-    })
-
-    .after('init', function (options) {
-      if(!options) options = {}
-
-      if(options.template) this.setTemplate(options.template)
-      if(options.dom) this.setDom(options.dom)
-
-      // Helpers
-      this.__helpers__ = {}
-      this.__applyClassDeclarations__('helpers')
-    })
-
+  }
 })
+

@@ -1,7 +1,7 @@
 if(typeof define!=='function'){var define=require('amdefine')(module);}
 
 define(function () {
-  return function (Controller, collectionName, itemName, itemController) {
+  return function (Controller, collectionName, itemName, ItemController) {
 
     Controller
       .onModel(collectionName, 'itemsAdded', 'addItemChildren')
@@ -11,7 +11,7 @@ define(function () {
       .proto({
 
         setItemChildren: function () {
-          this.destroyChild(collectionName)
+          this.destroyChildren({type: ItemController})
           this.addItemChildren(this.models[collectionName])
         },
 
@@ -20,9 +20,7 @@ define(function () {
         },
 
         addItemChild: function (model) {
-          var extraModels = {}
-          extraModels[itemName] = model
-          this.setChild([collectionName, model.mid()], itemController, extraModels)
+          this.spawnWithModel(ItemController, itemName, model)
         },
 
         removeItemChildren: function (models) {
@@ -30,7 +28,7 @@ define(function () {
         },
 
         removeItemChild: function (model) {
-          this.destroyChild([collectionName, model.mid()])
+          this.destroyChildWithModel(itemName, model)
         }
 
       })
@@ -38,3 +36,4 @@ define(function () {
   }
 
 })
+

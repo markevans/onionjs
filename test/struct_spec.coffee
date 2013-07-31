@@ -141,7 +141,7 @@ describe "Struct", ->
       struct.setArray(null)
       expect( struct.array() ).to.eql([null])
 
-  describe "mid", ->
+  describe "uuid", ->
     class TestStruct extends Struct
     struct = null
 
@@ -149,10 +149,10 @@ describe "Struct", ->
       struct = new TestStruct()
 
     it "is truthy", ->
-      assert.ok( struct.mid() )
+      assert.ok( struct.uuid() )
 
     it "is unique", ->
-      expect( struct.mid() ).not.to.eql( new TestStruct().mid() )
+      expect( struct.uuid() ).not.to.eql( new TestStruct().uuid() )
 
   describe "load", ->
     class TestStruct extends Struct

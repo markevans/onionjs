@@ -5,6 +5,21 @@ extend = requirejs('onion/extend')
 
 describe "Controller", ->
 
+  describe "uuid", ->
+    TestController = null
+
+    beforeEach ->
+      class TestController extends Controller
+
+    it "has a uuid of an appropriate format", ->
+      controller = new Controller
+      expect( controller.uuid() ).to.match(/[\w+-]+/)
+
+    it "is unique per controller", ->
+      controller1 = new Controller
+      controller2 = new Controller
+      expect( controller1.uuid() ).not.to.eql( controller2.uuid() )
+
   describe "models", ->
     TestController = null
     controller = null
@@ -145,11 +160,14 @@ describe "Controller", ->
       controller = new TestController()
       expect( controller.view ).to.eql(view)
 
-    it "instantiates the specified view class if declared at the class level", ->
-      View = ->
+    it "instantiates the specified view class if declared at the class level, passing in the models", ->
+      initializer = sinon.spy()
+      class View
+        constructor: initializer
       expect( TestController.view(View) ).to.eql(TestController)
       controller = new TestController()
       expect( controller.view.constructor ).to.eql(View)
+      expect( initializer.calledWith(models: controller.models) ).to.be.true
 
   describe "onView", ->
     controller = null
@@ -188,136 +206,163 @@ describe "Controller", ->
       controller.view.emit('chosen')
       assert.isTrue( controller.bingo.called )
 
-  describe "child controllers", ->
-    class TestController extends Controller
-      initView: ->
-        insertChild: ->
-        destroy: ->
-
-    class ChildController extends Controller
-      initView: ->
-        destroy: ->
-
-    controller = undefined
-    child = child1 = child2 = undefined
+  describe "children", ->
+    parent = null
+    ChildController = null
 
     beforeEach ->
-      controller = new TestController()
+      parent = new Controller
+      parent.view = { insertChild: -> }
+      ChildController = class ChildController extends Controller
+        @after 'init', (models, opts) ->
+          @opts = opts
+        initView: -> {}
+        run: -> @hasRun = true
 
-    it "destroys child controllers when destroyed", ->
-      child1 = controller.setChild '1', ChildController
-      child2 = controller.setChild '2', ChildController
-      sinon.spy(child1, 'destroy')
-      sinon.spy(child2, 'destroy')
-      controller.destroy()
-      assert.isTrue( child1.destroy.called )
-      assert.isTrue( child2.destroy.called )
+    describe "spawn", ->
+      it "creates a new child controller", ->
+        child = parent.spawn(ChildController)
+        expect( child ).to.be.an.instanceof(ChildController)
 
-    it "adds any models passed in to its own", ->
-      controller.models = {one: 1}
-      childController = controller.setChild 'blah', ChildController, {two: 2}
-      expect( childController.models ).to.eql(one: 1, two: 2)
+      it "calls run() on the child controller", ->
+        child = parent.spawn(ChildController)
+        expect( child.hasRun ).to.be.true
 
-    describe "setChild", ->
+      it "calls insertChild on the parent's view", ->
+        sinon.spy(parent.view, 'insertChild')
+        child = parent.spawn(ChildController)
+        expect( parent.view.insertChild.calledWith(child.view) ).to.be.true
+
+      it "passes the id to insertChild if given", ->
+        sinon.spy(parent.view, 'insertChild')
+        child = parent.spawn(ChildController, id: 'grog')
+        expect( parent.view.insertChild.calledWith(child.view, sinon.match(id: 'grog')) ).to.be.true
+
+      it "allows adding models", ->
+        child = parent.spawn(ChildController, models: {egg: 'nog'})
+        expect( child.models.egg ).to.equal('nog')
+
+      it "passes opts to the child", ->
+        child = parent.spawn(ChildController, opts: {egg: 'nog'})
+        expect( child.opts ).to.eql(egg: 'nog')
+
+      it "allows tagging, and passes the tag to insertChild", ->
+        sinon.spy(parent.view, 'insertChild')
+        child = parent.spawn(ChildController, tag: 'grapes')
+        expect( parent.view.insertChild.calledWith(child.view, sinon.match(tag: 'grapes')) ).to.be.true
+
+    describe "spawnWithModel", ->
+      egg = null
+
       beforeEach ->
-        controller = new TestController()
-        sinon.spy(controller.view, 'insertChild')
+        egg = {uuid: -> 'abc'}
 
-      describe "in general", ->
-        it "can receive an instantiated controller", ->
-          givenChild = new ChildController
-          returnedChild = controller.setChild 'list', givenChild
-          expect(returnedChild).to.eql(givenChild)
-          expect(controller.getChild 'list').to.eql(givenChild)
+      it "gives the child access to the passed model", ->
+        child = parent.spawnWithModel(ChildController, 'egg', egg)
+        expect( child.models.egg ).to.equal(egg)
 
-        it "inserts the child view", ->
-          childController = controller.setChild 'otherblah', ChildController
-          assert.isTrue( controller.view.insertChild.calledWith(childController.view, 'otherblah') )
+      it "allows passing extra models", ->
+        child = parent.spawnWithModel(ChildController, 'egg', egg, models: {food: 'pizza'})
+        expect( child.models.food ).to.equal('pizza')
 
-      describe "when receiving a scalar id", ->
-        beforeEach ->
-          child = controller.setChild 'list', ChildController
+      it "passes the model and modelName to insertChild", ->
+        sinon.spy(parent.view, 'insertChild')
+        child = parent.spawnWithModel(ChildController, 'egg', egg)
+        expect( parent.view.insertChild.calledWith(child.view, sinon.match(modelName: 'egg', model: egg)) ).to.be.true
 
-        it "sets a child controller", ->
-          expect( controller.getChild('list') ).to.eql(child)
+    describe "destroyChildren", ->
+      OtherChildController = null
 
-        it "sets the child view", ->
-          assert.isTrue( controller.view.insertChild.calledWith(child.view, 'list') )
-
-        it "destroys a replaced child", ->
-          sinon.spy(child, 'destroy')
-          newChild = controller.setChild 'list', ChildController
-          assert.isTrue( child.destroy.called )
-          expect( controller.getChild('list') ).to.eql(newChild)
-
-      describe "when receiving an array id", ->
-        beforeEach ->
-          child1 = controller.setChild ['list', 'uno'], ChildController
-          child2 = controller.setChild ['list', 'dos'], ChildController
-
-        it "sets a child controller", ->
-          expect( controller.getChild(['list', 'uno']) ).to.eql(child1)
-          expect( controller.getChild(['list', 'dos']) ).to.eql(child2)
-          expect( controller.getChild(['list', 'tres']) ).to.be.undefined
-
-        it "sets the child view", ->
-          assert.isTrue( controller.view.insertChild.calledWith(child1.view, 'list') )
-          assert.isTrue( controller.view.insertChild.calledWith(child2.view, 'list') )
-
-        it "destroys a replaced child", ->
-          sinon.spy(child2, 'destroy')
-          newChild = controller.setChild ['list', 'dos'], ChildController
-          assert.isTrue( child2.destroy.called )
-          expect( controller.getChild(['list', 'dos']) ).to.eql(newChild)
-
-    describe "addChild", ->
       beforeEach ->
-        controller = new TestController()
-        sinon.spy(controller.view, 'insertChild')
-
-        child1 = controller.addChild 'list', ChildController
-        child2 = controller.addChild 'list', ChildController
-
-      it "sets a child controller", ->
-        expect( controller.children['list'] ).to.eql({0: child1, 1: child2})
-
-      it "sets the child view", ->
-        assert.isTrue( controller.view.insertChild.calledWith(child1.view, 'list') )
-        assert.isTrue( controller.view.insertChild.calledWith(child2.view, 'list') )
-
-      # This fails if we don't make sure that separate __nextChildId__ values are used for each child
-      it "doesn't mess up other children", ->
-        other1 = controller.setChild 'blah', ChildController
-        child3 = controller.addChild 'list', ChildController
-        other2 = controller.setChild 'blah', ChildController
-        expect( controller.children['blah'] ).to.eql({0: other2})
-
-    describe "destroyChild", ->
-      beforeEach ->
-        child1 = controller.addChild 'list', ChildController
-        child2 = controller.addChild 'list', ChildController
-
-      it "destroys all items in the child", ->
-        sinon.spy(child1, 'destroy')
-        sinon.spy(child2, 'destroy')
-        controller.destroyChild('list')
-        assert.isTrue( child1.destroy.called )
-        assert.isTrue( child2.destroy.called )
-
-      it "does nothing when the child doesn't already exist", ->
-        controller.destroyChild('spuds')
-
-    describe "destroy", ->
-      beforeEach ->
-        child = controller.addChild 'loneChild', ChildController
-        child1 = controller.addChild 'list', ChildController
-        child2 = controller.addChild 'list', ChildController
+        OtherChildController = class OtherChildController extends Controller
 
       it "destroys all children", ->
+        child1 = parent.spawn(ChildController)
+        child2 = parent.spawn(OtherChildController)
         sinon.spy(child1, 'destroy')
         sinon.spy(child2, 'destroy')
+
+        parent.destroyChildren()
+
+        expect( child1.destroy.called ).to.be.true
+        expect( child2.destroy.called ).to.be.true
+
+      it "doesn't destroy an already destroyed child", ->
+        child = parent.spawn(ChildController)
         sinon.spy(child, 'destroy')
-        controller.destroy()
-        assert.isTrue( child1.destroy.called )
-        assert.isTrue( child2.destroy.called )
-        assert.isTrue( child.destroy.called )
+        parent.destroyChildren()
+        parent.destroyChildren()
+        expect( child.destroy.calledOnce ).to.be.true
+
+      it "destroys all children of a given type", ->
+        child1 = parent.spawn(ChildController)
+        child2 = parent.spawn(OtherChildController)
+        child3 = parent.spawn(ChildController)
+        sinon.spy(child1, 'destroy')
+        sinon.spy(child2, 'destroy')
+        sinon.spy(child3, 'destroy')
+
+        parent.destroyChildren(type: 'ChildController')
+
+        expect( child1.destroy.called ).to.be.true
+        expect( child2.destroy.called ).to.be.false
+        expect( child3.destroy.called ).to.be.true
+
+      it "destroys all children of a given tag", ->
+        child1 = parent.spawn(ChildController, tag: 'dog')
+        child2 = parent.spawn(ChildController, tag: 'pig')
+        child3 = parent.spawn(ChildController, tag: 'dog')
+        sinon.spy(child1, 'destroy')
+        sinon.spy(child2, 'destroy')
+        sinon.spy(child3, 'destroy')
+
+        parent.destroyChildren(tag: 'dog')
+
+        expect( child1.destroy.called ).to.be.true
+        expect( child2.destroy.called ).to.be.false
+        expect( child3.destroy.called ).to.be.true
+
+    describe "destroyChildWithModel", ->
+      it "destroys a specific child, matched with a model (on its uuid)", ->
+        item1 = {uuid: -> 'a'}
+        item2 = {uuid: -> 'b'}
+
+        child1 = parent.spawn(ChildController)
+        child2 = parent.spawnWithModel(ChildController, 'item', item1)
+        child3 = parent.spawnWithModel(ChildController, 'item', item2)
+        sinon.spy(child1, 'destroy')
+        sinon.spy(child2, 'destroy')
+        sinon.spy(child3, 'destroy')
+
+        parent.destroyChildWithModel('item', item2)
+
+        expect( child1.destroy.called ).to.be.false
+        expect( child2.destroy.called ).to.be.false
+        expect( child3.destroy.called ).to.be.true
+
+      it "does nothing if the child doesn't exist", ->
+        item = {uuid: -> 'a'}
+        parent.destroyChildWithModel('item', item)
+
+    describe "destroyChild", ->
+      it "destroys the child spawned with the specified id", ->
+        child1 = parent.spawn(ChildController)
+        child2 = parent.spawn(ChildController, id: 'helo')
+        sinon.spy(child1, 'destroy')
+        sinon.spy(child2, 'destroy')
+
+        parent.destroyChild('helo')
+
+        expect( child1.destroy.called ).to.be.false
+        expect( child2.destroy.called ).to.be.true
+
+      it "does nothing if the child doesn't exist", ->
+        parent.destroyChild('i-do-not-exist')
+
+  describe "destroy", ->
+    it "destroys children", ->
+      controller = new Controller
+      sinon.spy(controller, 'destroyChildren')
+      controller.destroy()
+      expect( controller.destroyChildren.called ).to.be.true
+
