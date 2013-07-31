@@ -26,6 +26,13 @@ define([
     return 'with-model-' + modelName + '-' + model.uuid()
   }
 
+  var matchesChild = function (queryOpts, child) {
+    if (!queryOpts) return true
+    if (queryOpts.type && queryOpts.type != child.type) return false
+    if (queryOpts.tag && queryOpts.tag != child.tag) return false
+    return true
+  }
+
   return Type.sub('Controller')
 
     .use(hasUUID)
@@ -151,10 +158,11 @@ define([
       spawn: function(Child, opts) {
         if(!opts) opts = {}
         var child = new Child(this.__mergeModels__(opts.models), opts.opts)
-        var id = this.__addChild__(child, opts.id)
+        var id = this.__addChild__(child, opts.id, opts.tag)
         this.view.insertChild(child.view, {
           modelName: opts.modelName,
           model: opts.model,
+          tag: opts.tag,
           id: id
         })
         child.run()
@@ -169,12 +177,9 @@ define([
         return this.spawn(Child, {models: models, id: id, modelName: modelName, model: model})
       },
 
-      destroyChildren: function (opts) {
-        if(!opts) opts = {}
-        this.__eachChild__(function (child, id) {
-          if(!opts.type || opts.type == child.constructor.name) {
-            this.destroyChild(id)
-          }
+      destroyChildren: function (queryOpts) {
+        this.__eachChild__(queryOpts, function (child) {
+          this.destroyChild(child.id)
         }, this)
       },
 
@@ -185,7 +190,7 @@ define([
 
       destroyChild: function (id) {
         var child = this.__children__[id]
-        if(child) child.destroy()
+        if(child) child.controller.destroy()
         delete this.__children__[id]
       },
 
@@ -195,15 +200,24 @@ define([
         return extend({}, this.models, models)
       },
 
-      __addChild__: function (child, id) {
-        if(!id) id = child.constructor.name + '-' + child.uuid()
-        this.__children__[id] = child
+      __addChild__: function (child, id, tag) {
+        var type = child.constructor.name
+        if(!id) id = type + '-' + child.uuid()
+        this.__children__[id] = {
+          controller: child,
+          tag: tag,
+          id: id,
+          type: type
+        }
         return id
       },
 
-      __eachChild__: function (callback, context) {
+      __eachChild__: function (queryOpts, callback, context) {
         for(var id in this.__children__) {
-          callback.call(context, this.__children__[id], id)
+          var child = this.__children__[id]
+          if( matchesChild(queryOpts, child) ) {
+            callback.call(context, child)
+          }
         }
       },
 

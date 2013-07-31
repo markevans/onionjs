@@ -246,6 +246,11 @@ describe "Controller", ->
         child = parent.spawn(ChildController, opts: {egg: 'nog'})
         expect( child.opts ).to.eql(egg: 'nog')
 
+      it "allows tagging, and passes the tag to insertChild", ->
+        sinon.spy(parent.view, 'insertChild')
+        child = parent.spawn(ChildController, tag: 'grapes')
+        expect( parent.view.insertChild.calledWith(child.view, sinon.match(tag: 'grapes')) ).to.be.true
+
     describe "spawnWithModel", ->
       egg = null
 
@@ -298,6 +303,20 @@ describe "Controller", ->
         sinon.spy(child3, 'destroy')
 
         parent.destroyChildren(type: 'ChildController')
+
+        expect( child1.destroy.called ).to.be.true
+        expect( child2.destroy.called ).to.be.false
+        expect( child3.destroy.called ).to.be.true
+
+      it "destroys all children of a given tag", ->
+        child1 = parent.spawn(ChildController, tag: 'dog')
+        child2 = parent.spawn(ChildController, tag: 'pig')
+        child3 = parent.spawn(ChildController, tag: 'dog')
+        sinon.spy(child1, 'destroy')
+        sinon.spy(child2, 'destroy')
+        sinon.spy(child3, 'destroy')
+
+        parent.destroyChildren(tag: 'dog')
 
         expect( child1.destroy.called ).to.be.true
         expect( child2.destroy.called ).to.be.false
