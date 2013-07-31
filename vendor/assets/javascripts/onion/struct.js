@@ -37,17 +37,15 @@ define([
         this.__attrs__[attr] = value
       },
 
-      set: function(attr, value) {
+      set: function(name, value) {
         var attrs = {}
-        attrs[attr] = value
-        var changes = this.__collectChanges__(attrs)
-        this.__writeAttribute__(attr, value)
-        this.__notifyChanges__(changes)
-        return this
+        attrs[name] = value
+        this.setAttrs(attrs)
       },
 
       setAttrs: function(attrs) {
-        var changes = this.__collectChanges__(attrs)
+        var key,
+            changes = this.__collectChanges__(attrs)
         for(key in attrs){
           if(this.constructor.attributeNames.indexOf(key) != -1){
             this.__writeAttribute__(key, attrs[key])
@@ -69,9 +67,8 @@ define([
       },
 
       __collectChanges__: function (attrs) {
-        var changes = {}
-        var newValue, oldValue
-        var attr
+        var changes = {},
+            newValue, oldValue, attr
         for (attr in attrs) {
           newValue = attrs[attr]
           oldValue = this.__readAttribute__(attr)
@@ -83,8 +80,7 @@ define([
       },
 
       __notifyChanges__: function (changes) {
-        var change
-        var attr
+        var change, attr
         for (attr in changes) {
           change = changes[attr]
           this.emit('change:'+attr, change)

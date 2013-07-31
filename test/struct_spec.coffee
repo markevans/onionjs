@@ -45,7 +45,7 @@ describe "Struct", ->
         struct.setGold('lots')
       .toEmitOn(struct, 'change')
       expect( struct.gold() )
-        .to.eql('lots', {gold: {from: undefined, to: 'lots'}})
+        .to.eql('lots')
 
     it "sets and emits the `change:gold` event", ->
       expect ->
