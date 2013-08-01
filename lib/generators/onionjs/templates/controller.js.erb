@@ -10,8 +10,10 @@ define([
 
     .view(<%= view_name %>)
 
-    .after('init', function () {
-      this.view.render()
+    .proto({
+      run: function () {
+        this.view.render()
+      }
     })
 
 })
