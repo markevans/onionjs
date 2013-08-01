@@ -4,7 +4,8 @@ Generates an onionjs module
 Example:
     rails generate onionjs:module monkey_list
 
-    This will create a controller (js), view (js), template (mustache) and styles (scss) for AutocompleteController
+    This will create a controller (js), view (js), template (mustache) and styles (scss) for MonkeyListController
 
 Coffeescript example:
     rails generate onionjs:module monkey_list --coffee
+
