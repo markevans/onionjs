@@ -159,12 +159,14 @@ define([
         if(!opts) opts = {}
         var child = new Child(this.__mergeModels__(opts.models), opts.opts)
         var id = this.__addChild__(child, opts.id, opts.tag)
-        this.view.insertChild(child.view, {
-          modelName: opts.modelName,
-          model: opts.model,
-          tag: opts.tag,
-          id: id
-        })
+        if(this.view && child.view) {
+          this.view.insertChild(child.view, {
+            modelName: opts.modelName,
+            model: opts.model,
+            tag: opts.tag,
+            id: id
+          })
+        }
         child.run()
         return child
       },

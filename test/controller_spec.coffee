@@ -238,6 +238,16 @@ describe "Controller", ->
         child = parent.spawn(ChildController, id: 'grog')
         expect( parent.view.insertChild.calledWith(child.view, sinon.match(id: 'grog')) ).to.be.true
 
+      it "still works if the parent has no view", ->
+        parent.view = null
+        child = parent.spawn(ChildController)
+        expect( child ).to.be.an.instanceof(ChildController)
+
+      it "still works if the child has no view", ->
+        ChildController::initView = ->
+        child = parent.spawn(ChildController)
+        expect( child ).to.be.an.instanceof(ChildController)
+
       it "allows adding models", ->
         child = parent.spawn(ChildController, models: {egg: 'nog'})
         expect( child.models.egg ).to.equal('nog')
