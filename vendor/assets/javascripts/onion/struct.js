@@ -56,15 +56,8 @@ define([
       },
 
       setAttrs: function(attrs) {
-        var key,
-            changes = this.__collectChanges__(attrs)
-        for(key in attrs){
-          if(this.constructor.attributeNames.indexOf(key) != -1){
-            this.__writeAttribute__(key, attrs[key])
-          } else {
-            throw new Error("unknown attribute " + key + " for " + this.constructor.name)
-          }
-        }
+        var changes = this.__collectChanges__(attrs)
+        this.__writeChanges__(changes)
         this.__notifyChanges__(changes)
       },
 
@@ -84,11 +77,20 @@ define([
         for (attr in attrs) {
           newValue = attrs[attr]
           oldValue = this.__readAttribute__(attr)
-          if(newValue != oldValue) {
+          if(newValue !== oldValue) {
             changes[attr] = {from: oldValue, to: newValue}
           }
         }
         return changes
+      },
+
+      __writeChanges__: function (changes) {
+        for(var key in changes){
+          if(this.constructor.attributeNames.indexOf(key) === -1){
+            throw new Error("unknown attribute " + key + " for " + this.constructor.name)
+          }
+          this.__writeAttribute__(key, changes[key].to)
+        }
       },
 
       __notifyChanges__: function (changes) {
@@ -126,7 +128,7 @@ define([
         return instance
       },
 
-      attributes: function(){
+      attributes: function () {
         if(!this.attributeNames) this.attributeNames = []
         var i
         for(i=0; i<arguments.length; i++){
