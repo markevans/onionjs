@@ -4,8 +4,9 @@ define([
   'onion/class_declarations',
   'onion/event_emitter',
   'onion/type',
+  'onion/has_uuid',
   'jquery'
-], function(classDeclarations, eventEmitter, Type, $){
+], function(classDeclarations, eventEmitter, Type, hasUuid, $){
 
   var isFunction = function (object) {
     return typeof object === 'function'
@@ -22,6 +23,7 @@ define([
 
     .proto(eventEmitter)
 
+    .use(hasUuid)
     .use(classDeclarations, 'onDom')
     .use(classDeclarations, 'insertChildRule')
 
