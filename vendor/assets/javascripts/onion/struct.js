@@ -34,7 +34,19 @@ define([
       },
 
       __writeAttribute__: function(attr, value) {
+        var decorator = this.__writerDecoratorFor__(attr)
+        if (decorator) {
+          var ignoreDecorator = value === null && decorator.options.includeNull != true
+          if (!ignoreDecorator) {
+            value = decorator.func(value)
+          }
+        }
         this.__attrs__[attr] = value
+      },
+
+      __writerDecoratorFor__: function (attribute) {
+        var decorators = this.constructor.__writerDecorators__
+        return decorators && decorators[attribute]
       },
 
       set: function(name, value) {
@@ -126,10 +138,8 @@ define([
       },
 
       decorateWriter: function (attribute, decorator, options) {
-        var includeNull = !!(options && options.includeNull)
-        this.decorate(setterMethodName(attribute), function (setter, value) {
-          setter((includeNull || value != null) ? decorator(value) : value)
-        })
+        if(!this.__writerDecorators__) this.__writerDecorators__ = {}
+        this.__writerDecorators__[attribute] = {func: decorator, options: (options || {})}
         return this
       },
 

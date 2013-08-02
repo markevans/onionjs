@@ -129,6 +129,11 @@ describe "Struct", ->
       struct.setArray(null)
       expect( struct.array() ).to.eql([null])
 
+    it "works with setAttrs", ->
+      struct = new TestStruct()
+      struct.setAttrs(thing: 'blob')
+      expect( struct.thing() ).to.eql('BLOB')
+
   describe "uuid", ->
     class TestStruct extends Struct
     struct = null
