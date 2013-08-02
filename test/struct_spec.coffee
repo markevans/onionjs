@@ -178,3 +178,50 @@ describe "Struct", ->
       struct.setColour('')
       struct.setDefaults(colour: 'blue')
       expect( struct.colour() ).to.eql('')
+
+  describe "relatedAttributes", ->
+    struct = null
+    TestStruct = null
+
+    beforeEach ->
+      TestStruct = class TestStruct extends Struct
+        @attributes 'number', 'doubleNumber', 'tripleNumber'
+        @relateAttributes 'doubleNumber', ['number'], (number) -> number * 2
+      struct = new TestStruct()
+
+    it "updates when the other is updated", ->
+      struct.setNumber(3)
+      expect( struct.doubleNumber() ).to.equal(6)
+
+    it "emits both change events", ->
+      expect(-> struct.setNumber(3) ).toEmitOn(struct, 'change:number')
+      expect(-> struct.setNumber(4) ).toEmitOn(struct, 'change:doubleNumber')
+
+    it "doesn't run in reverse", ->
+      struct.setDoubleNumber(6)
+      expect( struct.number() ).to.be.undefined
+
+    it "doesn't run the function if it isn't affected by changes", ->
+      spy = sinon.spy()
+      TestStruct = class TestStruct extends Struct
+        @attributes 'a', 'b', 'c'
+        @relateAttributes 'a', ['b'], spy
+      struct = new TestStruct()
+      struct.setC('stuff')
+      expect( spy.called ).to.be.false
+
+    it "sanity check with more complex example", ->
+      TestStruct = class TestStruct extends Struct
+        @attributes 'firstName', 'lastName', 'fullName'
+        @relateAttributes 'fullName', ['firstName', 'lastName'], (first, last) -> "#{first} #{last}"
+        @relateAttributes 'firstName', ['fullName'], (fullName) -> fullName.split(' ')[0]
+        @relateAttributes 'lastName', ['fullName'], (fullName) -> fullName.split(' ')[1]
+      struct = new TestStruct()
+
+      struct.setAttrs(firstName: 'John', lastName: 'Barnes')
+      expect( struct.fullName() ).to.equal("John Barnes")
+
+      struct.setAttrs(fullName: 'Mary Egg')
+      expect( struct.firstName() ).to.equal("Mary")
+      expect( struct.lastName() ).to.equal("Egg")
+

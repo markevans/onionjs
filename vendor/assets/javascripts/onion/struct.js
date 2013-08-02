@@ -6,11 +6,11 @@ define([
   'onion/has_uuid'
 ], function (Type, eventEmitter, hasUUID) {
 
-  function setterMethodName(attributeName){
+  function setterMethodName (attributeName) {
     return 'set' + attributeName.replace(/./, function(ch){ return ch.toUpperCase() })
   }
 
-  function copy(dest, src, keys){
+  function copy (dest, src, keys) {
     var key
     for(key in src){
       if(keys && (keys.indexOf(key) == -1)) continue
@@ -19,6 +19,13 @@ define([
       }
     }
     return dest
+  }
+
+  function containsAnyOfKeys (obj, keys) {
+    for(var i = 0; i < keys.length; i++) {
+      if (obj.hasOwnProperty(keys[i]) ) { return true }
+    }
+    return false
   }
 
   return Type.sub('Struct')
@@ -57,6 +64,7 @@ define([
 
       setAttrs: function(attrs) {
         var changes = this.__collectChanges__(attrs)
+        this.__addChangesToRelatedAttrs__(changes)
         this.__writeChanges__(changes)
         this.__notifyChanges__(changes)
       },
@@ -72,16 +80,33 @@ define([
       },
 
       __collectChanges__: function (attrs) {
-        var changes = {},
-            newValue, oldValue, attr
-        for (attr in attrs) {
-          newValue = attrs[attr]
-          oldValue = this.__readAttribute__(attr)
-          if(newValue !== oldValue) {
-            changes[attr] = {from: oldValue, to: newValue}
-          }
+        var changes = {}
+        for (var attr in attrs) {
+          this.__addToChanges__(changes, attr, attrs[attr])
         }
         return changes
+      },
+
+      __addToChanges__: function (changes, attr, newValue) {
+        var oldValue = this.__readAttribute__(attr)
+        if(newValue !== oldValue) {
+          changes[attr] = {from: oldValue, to: newValue}
+        }
+      },
+
+      __addChangesToRelatedAttrs__: function (changes) {
+        var attr, change, relation
+        var relations = this.constructor.__attributeRelations__
+        if(!relations) return
+        for (attr in relations) {
+          relation = relations[attr]
+          if (containsAnyOfKeys(changes, relation.attributes)) {
+            var otherValues = relation.attributes.map(function (otherAttr) {
+              return changes[otherAttr] ? changes[otherAttr].to : this.__readAttribute__(otherAttr)
+            }, this)
+            this.__addToChanges__(changes, attr, relation.relationFunction.apply(this, otherValues))
+          }
+        }
       },
 
       __writeChanges__: function (changes) {
@@ -135,6 +160,15 @@ define([
           this.__createReader__(arguments[i])
           this.__createWriter__(arguments[i])
           this.attributeNames.push(arguments[i])
+        }
+        return this
+      },
+
+      relateAttributes: function (attribute, otherAttributes, relation) {
+        if(!this.__attributeRelations__) this.__attributeRelations__ = {}
+        this.__attributeRelations__[attribute] = {
+          attributes: otherAttributes,
+          relationFunction: relation
         }
         return this
       },
