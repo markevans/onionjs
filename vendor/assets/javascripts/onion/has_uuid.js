@@ -4,12 +4,9 @@ define(['onion/uuid'], function (uuid) {
   return function (Constructor) {
     Constructor
 
-      .before('init', function () {
-        this.__uuid__ = uuid()
-      })
-
       .proto({
         uuid: function () {
+          if (!this.__uuid__) this.__uuid__ = uuid()
           return this.__uuid__
         }
       })
