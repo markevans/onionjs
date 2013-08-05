@@ -39,8 +39,9 @@ define([
 
     .proto(subscriber)
 
-    .after('init', function(models, opts){
-      if(!opts) opts = {}
+    .after('init', function(models, options){
+      // Options
+      this.options = options || {}
 
       // Models
       this.models = extend({}, models)
@@ -48,7 +49,7 @@ define([
       this.__disabledModelListeners__ = {}
 
       // View
-      this.view = opts.view || this.initView()
+      this.view = this.options.view || this.initView()
       this.__setUpViewListeners__()
 
       // Children

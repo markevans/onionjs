@@ -57,6 +57,11 @@ describe "Controller", ->
       TestController.models 'two', 'three'
       expect( TestController.__requiredModels__ ).to.eql(['one', 'two', 'three'])
 
+  describe "options", ->
+    it "assigns options to an options object", ->
+      controller = new Controller({}, {some: 'option'})
+      expect( controller.options ).to.eql(some: 'option')
+
   describe "newModel", ->
     class TestController extends Controller
     controller = null
