@@ -6,7 +6,6 @@ define(function () {
     Controller
       .onModel(collectionName, 'itemsAdded', 'addItemChildren')
       .onModel(collectionName, 'itemsRemoved', 'removeItemChildren')
-      .onModel(collectionName, 'set', 'syncWithCollection')
 
       .proto({
 
