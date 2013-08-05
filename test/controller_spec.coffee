@@ -219,8 +219,6 @@ describe "Controller", ->
       parent = new Controller
       parent.view = { insertChild: -> }
       ChildController = class ChildController extends Controller
-        @after 'init', (models, opts) ->
-          @opts = opts
         initView: -> {}
         run: -> @hasRun = true
 
@@ -257,9 +255,9 @@ describe "Controller", ->
         child = parent.spawn(ChildController, models: {egg: 'nog'})
         expect( child.models.egg ).to.equal('nog')
 
-      it "passes opts to the child", ->
-        child = parent.spawn(ChildController, opts: {egg: 'nog'})
-        expect( child.opts ).to.eql(egg: 'nog')
+      it "passes options to the child", ->
+        child = parent.spawn(ChildController, options: {egg: 'nog'})
+        expect( child.options ).to.eql(egg: 'nog')
 
       it "allows tagging, and passes the tag to insertChild", ->
         sinon.spy(parent.view, 'insertChild')

@@ -158,7 +158,7 @@ define([
 
       spawn: function(Child, opts) {
         if(!opts) opts = {}
-        var child = new Child(this.__mergeModels__(opts.models), opts.opts)
+        var child = new Child(this.__mergeModels__(opts.models), opts.options)
         var id = this.__addChild__(child, opts.id, opts.tag)
         if(this.view && child.view) {
           this.view.insertChild(child.view, {
