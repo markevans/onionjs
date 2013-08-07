@@ -20,7 +20,7 @@
             <h1 class="title"><a href="{{ site.baseurl }}/">{{ site.name }}</a></h1>
             <p>Onion JS. Brings tears to your eyes.</p>
             <ul>
-              {% for post in site.posts %}
+              {% for post in site.posts reversed %}
               <li><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></li>
               {% endfor %}
             </ul>
