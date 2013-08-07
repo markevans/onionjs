@@ -2,4 +2,5 @@ name: Onion JS
 markdown: redcarpet
 pygments: true
 permalink: /:title
+baseurl: /onionjs
 
