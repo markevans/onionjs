@@ -1,0 +1,39 @@
+---
+layout: default
+title:  "Some Page"
+---
+
+# Some Page (H1)
+## Some Page (H2)
+### Some Page (H3)
+### Some Page (H4)
+
+Some text in backticks is `_posts` and some text in italics is _hello_ 
+
+- some
+- list
+
+{% highlight ruby %}
+# Some ruby
+def some_ruby(name)
+  puts "Hi, #{name}"
+end
+{% endhighlight %}
+
+{% highlight javascript %}
+// Some Javascript
+var someJavascript = function (name) {
+  console.log("Hi, " + name)
+}
+{% endhighlight %}
+
+{% highlight javascript %}
+# Some Coffeescript
+someCoffeescript = (name) ->
+  console.log("Hi, #{name}")
+{% endhighlight %}
+
+Here's an [example link][link].
+
+[link]:    http://example.com
+
