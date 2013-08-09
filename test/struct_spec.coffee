@@ -147,16 +147,6 @@ describe "Struct", ->
     it "is unique", ->
       expect( struct.uuid() ).not.to.eql( new TestStruct().uuid() )
 
-  describe "load", ->
-    class TestStruct extends Struct
-    struct = null
-
-    beforeEach ->
-      struct = TestStruct.load(something: 'nice')
-
-    it "creates a struct with attrs exactly as passed in", ->
-      expect( struct.attrs() ).to.eql(something: 'nice')
-
   describe "setDefaults", ->
     class TestStruct extends Struct
       @attributes 'colour'

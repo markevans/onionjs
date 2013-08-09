@@ -75,10 +75,6 @@ define([
         return copy({}, this.__attrs__, keys)
       },
 
-      loadAttrs: function (attrs) {
-        copy(this.__attrs__, attrs)
-      },
-
       __collectChanges__: function (attrs) {
         var changes = {}
         for (var attr in attrs) {
@@ -146,12 +142,6 @@ define([
     })
 
     .extend({
-
-      load: function (attrs) {
-        var instance = new this()
-        instance.loadAttrs(attrs)
-        return instance
-      },
 
       attributes: function () {
         if(!this.attributeNames) this.attributeNames = []
