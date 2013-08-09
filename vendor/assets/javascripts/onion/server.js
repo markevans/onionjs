@@ -39,11 +39,11 @@ define([
         }, this)
       },
 
-      withEvent: function (prefix, callback) {
-        this.emit(prefix + "pending")
+      withEventPrefix: function (prefix, callback) {
+        this.emit(prefix + ":pending")
         var deferred = callback.call(this)
-        deferred.done(function () { this.emit(prefix + "done") }.bind(this))
-        deferred.fail(function () { this.emit(prefix + "fail") }.bind(this))
+        deferred.done(function () { this.emit(prefix + ":done") }.bind(this))
+        deferred.fail(function () { this.emit(prefix + ":fail") }.bind(this))
         return deferred
       }
     })
