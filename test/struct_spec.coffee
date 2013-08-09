@@ -215,3 +215,10 @@ describe "Struct", ->
       expect( struct.firstName() ).to.equal("Mary")
       expect( struct.lastName() ).to.equal("Egg")
 
+  describe "newFromAttributes", ->
+    it "creates a new struct, ignoring attributes it doesn't know about", ->
+      class TestStruct extends Struct
+        @attributes 'sound'
+      struct = TestStruct.newFromAttributes(sound: 'hollow', colour: 'eh?')
+      expect( struct.sound() ).to.equal('hollow')
+

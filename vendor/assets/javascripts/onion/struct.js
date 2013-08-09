@@ -169,6 +169,11 @@ define([
         return this
       },
 
+      newFromAttributes: function (attributes) {
+        var validAttributes = copy({}, attributes, this.attributeNames)
+        return new this(validAttributes)
+      },
+
       __createReader__: function(attr){
         this.prototype[attr] = function(){
           return this.__readAttribute__(attr)
