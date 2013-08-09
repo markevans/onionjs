@@ -11,6 +11,11 @@ define([
     .proto(eventEmitter)
 
     .proto({
+      init: function (options) {
+        this.urlPrefix = options.urlPrefix || ""
+        this.defaultAjaxOptions = options.defaultAjaxOptions || {}
+      },
+
       get: function (url, data, opts) {
         return this.ajax('GET', url, data, opts)
       },
@@ -28,12 +33,13 @@ define([
       },
 
       ajax: function (type, url, data, opts) {
+        url = this.urlPrefix + url
         opts = $.extend({
             type: type,
             url: url,
             data: data,
             contentType: 'application/json'
-          }, opts)
+          }, this.defaultAjaxOptions, opts)
         return $.ajax(opts)
       }
     })
