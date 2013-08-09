@@ -13,34 +13,35 @@ define([
     .proto({
       init: function (options) {
         this.urlPrefix = options.urlPrefix || ""
-        this.defaultAjaxOptions = options.defaultAjaxOptions || {}
+        this.ajaxOptions = options.ajaxOptions || {}
       },
 
-      get: function (url, data, opts) {
-        return this.ajax('GET', url, data, opts)
+      get: function (url, data, options) {
+        return this.ajax('GET', url, data, options)
       },
 
-      put: function (url, data, opts) {
-        return this.ajax('PUT', url, JSON.stringify(data), $.extend({processData: false}, opts))
+      put: function (url, data, options) {
+        return this.ajax('PUT', url, JSON.stringify(data), options)
       },
 
-      post: function (url, data, opts) {
-        return this.ajax('POST', url, JSON.stringify(data), $.extend({processData: false}, opts))
+      post: function (url, data, options) {
+        return this.ajax('POST', url, JSON.stringify(data), options)
       },
 
-      delete: function (url, data, opts) {
-        return this.ajax('DELETE', url, JSON.stringify(data), $.extend({processData: false}, opts))
+      delete: function (url, data, options) {
+        return this.ajax('DELETE', url, JSON.stringify(data), options)
       },
 
-      ajax: function (type, url, data, opts) {
+      ajax: function (type, url, data, options) {
         url = this.urlPrefix + url
-        opts = $.extend({
-            type: type,
-            url: url,
-            data: data,
-            contentType: 'application/json'
-          }, this.defaultAjaxOptions, opts)
-        return $.ajax(opts)
+        if(!options) options = {}
+        return $.ajax($.extend({
+          type: type,
+          url: url,
+          data: data,
+          contentType: 'application/json',
+          processData: (type === 'GET' ? true : false)
+        }, this.ajaxOptions, options.ajaxOptions))
       }
     })
 
