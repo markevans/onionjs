@@ -12,6 +12,7 @@ define([
 
     .proto({
       init: function (options) {
+        if (!options) options = {}
         this.urlPrefix = options.urlPrefix || ""
         this.ajaxOptions = options.ajaxOptions || {}
       },
