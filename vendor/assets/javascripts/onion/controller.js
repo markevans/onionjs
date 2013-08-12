@@ -204,7 +204,7 @@ define([
       },
 
       __addChild__: function (child, id, tag) {
-        var type = child.constructor.name
+        var type = child.typeName()
         if(!id) id = type + '-' + child.uuid()
         this.__children__[id] = {
           controller: child,
@@ -235,7 +235,7 @@ define([
             this[name] = this.models[name]
             this.__createModelSubscriptionsFor__(name)
           } else {
-            throw new Error(this.constructor.name+" missing model "+name)
+            throw new Error(this.typeName()+" missing model "+name)
           }
         }
       },

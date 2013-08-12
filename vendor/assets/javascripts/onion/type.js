@@ -41,6 +41,10 @@ define(['onion/decorator', 'onion/extend', 'onion/sub'], function (decorator, ex
     return this
   }
 
+  Type.prototype.typeName = function () {
+    return this.constructor.name
+  }
+
   Type.use(decorator.plugin)
 
   return Type

@@ -14,7 +14,7 @@ define([
 
   var matchesQueryOpts = function (controller, opts, queryOpts) {
     if(!queryOpts) queryOpts = {}
-    if(queryOpts.type && queryOpts.type != controller.constructor.name) return false
+    if(queryOpts.type && queryOpts.type != controller.typeName()) return false
     if(queryOpts.tag && queryOpts.tag != opts.tag) return false
     return true
   }
@@ -141,7 +141,7 @@ define([
 
       __defaultInsertChild__: function (childView, opts) {
         var element,
-            type = childView.constructor.name
+            type = childView.typeName()
         if(element = this.elementWithData('append', type)) {
           childView.appendTo(element)
         } else if(element = this.elementWithData('attach', type)) {
@@ -166,7 +166,7 @@ define([
       if(options.attachTo) {
         this.attachTo(options.attachTo)
       } else {
-        this.dom = $('<script>', {type: 'application/vnd.onionjs.placeholder', 'data-view-class': this.constructor.name})[0]
+        this.dom = $('<script>', {type: 'application/vnd.onionjs.placeholder', 'data-view-class': this.typeName()})[0]
       }
       this.models = options.models || {}
       this.__insertRules__ = []

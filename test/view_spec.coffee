@@ -214,7 +214,7 @@ describe "View", ->
 
     it "doesn't complain if the child has no appendTo method", ->
       parentView.attachTo('<div></div>')
-      parentView.insertChild({})
+      parentView.insertChild({typeName: -> "MyView"})
 
     describe "insertChildRule", ->
       parentHTML = null

@@ -108,7 +108,7 @@ define([
       __writeChanges__: function (changes) {
         for(var key in changes){
           if(this.constructor.attributeNames.indexOf(key) === -1){
-            throw new Error("unknown attribute " + key + " for " + this.constructor.name)
+            throw new Error("unknown attribute " + key + " for " + this.typeName())
           }
           this.__writeAttribute__(key, changes[key].to)
         }
