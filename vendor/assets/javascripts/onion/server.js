@@ -37,14 +37,6 @@ define([
         return data.map(function (attrs) {
           return Class.newFromAttributes(this.camelizeAttrs(attrs))
         }, this)
-      },
-
-      withEventPrefix: function (prefix, callback) {
-        this.emit(prefix + ":pending")
-        var deferred = callback.call(this)
-        deferred.done(function () { this.emit(prefix + ":done") }.bind(this))
-        deferred.fail(function () { this.emit(prefix + ":fail") }.bind(this))
-        return deferred
       }
     })
 
