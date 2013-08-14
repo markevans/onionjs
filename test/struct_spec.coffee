@@ -134,19 +134,6 @@ describe "Struct", ->
       struct.setAttrs(thing: 'blob')
       expect( struct.thing() ).to.eql('BLOB')
 
-  describe "uuid", ->
-    class TestStruct extends Struct
-    struct = null
-
-    beforeEach ->
-      struct = new TestStruct()
-
-    it "is truthy", ->
-      assert.ok( struct.uuid() )
-
-    it "is unique", ->
-      expect( struct.uuid() ).not.to.eql( new TestStruct().uuid() )
-
   describe "setDefaults", ->
     class TestStruct extends Struct
       @attributes 'colour'

@@ -1,10 +1,8 @@
 if(typeof define!=='function'){var define=require('amdefine')(module);}
 
 define([
-  'onion/type',
-  'onion/event_emitter',
-  'onion/has_uuid'
-], function (Type, eventEmitter, hasUUID) {
+  'onion/model',
+], function (Model) {
 
   function setterMethodName (attributeName) {
     return 'set' + attributeName.replace(/./, function(ch){ return ch.toUpperCase() })
@@ -28,11 +26,7 @@ define([
     return false
   }
 
-  return Type.sub('Struct')
-
-    .use(hasUUID)
-
-    .proto(eventEmitter)
+  return Model.sub('Struct')
 
     .proto({
 
