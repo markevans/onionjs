@@ -45,6 +45,7 @@ define([
 
       // Models
       this.models = extend({}, models)
+      this.selectedModels = {}
       this.__registerModels__()
       this.__disabledModelListeners__ = {}
 
@@ -90,7 +91,7 @@ define([
 
       view: function (ViewClass) {
         this.prototype.initView = function () {
-          return new ViewClass({models: this.models})
+          return new ViewClass({models: this.selectedModels})
         }
         return this
       }
@@ -111,8 +112,7 @@ define([
 
       newModel: function(name, model){
         this.models[name] = model
-        this[name] = model
-        this.__createModelSubscriptionsFor__(name)
+        this.__selectModel__(name)
         return model
       },
 
@@ -227,20 +227,23 @@ define([
       __registerModels__: function(){
         var requiredModels = this.constructor.__requiredModels__
         if(!requiredModels) { return }
-
-        var name
         for(var i=0; i<requiredModels.length; i++){
-          name = requiredModels[i]
-          if(typeof this.models[name] !== 'undefined'){
-            this[name] = this.models[name]
-            this.__createModelSubscriptionsFor__(name)
-          } else {
-            throw new Error(this.typeName()+" missing model "+name)
-          }
+          this.__selectModel__(requiredModels[i])
         }
       },
 
-      __createModelSubscriptionsFor__: function(modelName){
+      __selectModel__: function (name) {
+        var model = this.models[name]
+        if(typeof model !== 'undefined'){
+          this[name] = model
+          this.selectedModels[name] = model
+          this.__createModelSubscriptionsFor__(name)
+        } else {
+          throw new Error(this.typeName()+" missing model "+name)
+        }
+      },
+
+      __createModelSubscriptionsFor__: function (modelName) {
         this.constructor.onModelSubscriptions(modelName).forEach(function (sub) {
           this.subscribe(this.models[modelName], sub.eventName, function () {
             var callback = this.__callbackFrom__(sub.callbackOrMethodName)

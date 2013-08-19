@@ -151,7 +151,10 @@ describe "Controller", ->
         expect( controller.onBarkCalled ).to.be.true
 
   describe "views", ->
-    class TestController extends Controller
+    TestController = null
+
+    beforeEach ->
+      TestController = class TestController extends Controller
 
     it "allows passing in a view", ->
       view = {some: 'object'}
@@ -165,14 +168,15 @@ describe "Controller", ->
       controller = new TestController()
       expect( controller.view ).to.eql(view)
 
-    it "instantiates the specified view class if declared at the class level, passing in the models", ->
+    it "instantiates the specified view class if declared at the class level, passing in only the required models", ->
+      TestController.models 'chalk'
       initializer = sinon.spy()
       class View
         constructor: initializer
       expect( TestController.view(View) ).to.eql(TestController)
-      controller = new TestController()
+      controller = new TestController(chalk: 'chalk', cheese: 'cheese')
       expect( controller.view.constructor ).to.eql(View)
-      expect( initializer.calledWith(models: controller.models) ).to.be.true
+      expect( initializer.calledWith(models: {chalk: 'chalk'}) ).to.be.true
 
   describe "onView", ->
     controller = null
