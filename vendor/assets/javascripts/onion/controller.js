@@ -235,9 +235,9 @@ define([
       __selectModel__: function (modelName) {
         var name, model, matches
         if ( matches = modelName.match(/^(.*)\.(.*)$/) ) {
-          var namespace = matches[1]
+          var parent = this.models[matches[1]]
           name = matches[2]
-          model = this.models[namespace][name]
+          model = isFunction(parent[name]) ? parent[name]() : parent[name]
         } else {
           model = this.models[modelName]
           name = modelName

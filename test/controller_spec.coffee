@@ -76,7 +76,7 @@ describe "Controller", ->
         expect( model.on.called ).to.be.true
 
       it "works when nested in a method", ->
-        controller = new TestController(some: {thing: 3})
+        controller = new TestController(some: {num: 3, thing: -> @num})
         expect( controller.thing ).to.eql(3)
 
   describe "options", ->
