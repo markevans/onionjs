@@ -24,38 +24,60 @@ describe "Controller", ->
     TestController = null
     controller = null
 
-    beforeEach ->
-      TestController = class TestController extends Controller
-        @models 'one', 'two'
+    describe "non-nested", ->
+      beforeEach ->
+        TestController = class TestController extends Controller
+          @models 'one', 'two'
 
-    it "throws an error if the required models are not passed in", ->
-      expect(-> new TestController({one: 1}) ).to.throw("TestController missing model two")
+      it "throws an error if the required models are not passed in", ->
+        expect(-> new TestController({one: 1}) ).to.throw("TestController missing model two")
 
-    it "adds all models to the models object", ->
-      controller = new TestController(one: 1, two: 2, three: 3)
-      expect( controller.models ).to.eql({one: 1, two: 2, three: 3})
+      it "adds all models to the models object", ->
+        controller = new TestController(one: 1, two: 2, three: 3)
+        expect( controller.models ).to.eql({one: 1, two: 2, three: 3})
 
-    it "adds only declared models to the controller itself", ->
-      controller = new TestController(one: 1, two: 2, three: 3)
-      expect( controller.one ).to.eql(1)
-      expect( controller.two ).to.eql(2)
-      expect( controller.three ).to.be.undefined
+      it "adds only declared models to the controller itself", ->
+        controller = new TestController(one: 1, two: 2, three: 3)
+        expect( controller.one ).to.eql(1)
+        expect( controller.two ).to.eql(2)
+        expect( controller.three ).to.be.undefined
+        expect( controller.selectedModels ).to.eql(one: 1, two: 2)
 
-    it "makes a copy of the passed-in models object", ->
-      models = {one: 1, two: 2}
-      controller = new TestController(models)
-      models.extra = 'extra'
-      expect( controller.models ).to.eql({one: 1, two: 2})
+      it "makes a copy of the passed-in models object", ->
+        models = {one: 1, two: 2}
+        controller = new TestController(models)
+        expect( controller.models ).to.eql(models)
+        expect( controller.models ).not.to.equal(models)
 
-    it "allows falsy values for models", ->
-      models = {one: false, two: '', three: 0}
-      controller = new TestController(models)
-      TestController.models 'three'
-      expect( controller.models ).to.eql({one: false, two: '', three: 0})
+      it "allows falsy values for models", ->
+        TestController.models 'three'
+        models = {one: false, two: '', three: 0}
+        controller = new TestController(models)
+        expect( controller.models ).to.eql(models)
 
-    it "allows calling twice, with no overlap", ->
-      TestController.models 'two', 'three'
-      expect( TestController.__requiredModels__ ).to.eql(['one', 'two', 'three'])
+      it "allows calling twice, with no overlap", ->
+        TestController.models 'two', 'three'
+        expect( TestController.__requiredModels__ ).to.eql(['one', 'two', 'three'])
+
+    describe "nested", ->
+      beforeEach ->
+        TestController = class TestController extends Controller
+          @models 'some.thing'
+
+      it "can select nested models", ->
+        controller = new TestController(some: {thing: 3})
+        expect( controller.thing ).to.eql(3)
+        expect( controller.selectedModels ).to.eql(thing: 3)
+
+      it "still uses the non-nested name to bind to", ->
+        model = {on: sinon.spy()}
+        TestController.onModel 'thing', 'thing', ->
+        controller = new TestController(some: {thing: model})
+        expect( model.on.called ).to.be.true
+
+      it "works when nested in a method", ->
+        controller = new TestController(some: {thing: 3})
+        expect( controller.thing ).to.eql(3)
 
   describe "options", ->
     it "assigns options to an options object", ->

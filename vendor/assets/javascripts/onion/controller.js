@@ -232,8 +232,16 @@ define([
         }
       },
 
-      __selectModel__: function (name) {
-        var model = this.models[name]
+      __selectModel__: function (modelName) {
+        var name, model, matches
+        if ( matches = modelName.match(/^(.*)\.(.*)$/) ) {
+          var namespace = matches[1]
+          name = matches[2]
+          model = this.models[namespace][name]
+        } else {
+          model = this.models[modelName]
+          name = modelName
+        }
         if(typeof model !== 'undefined'){
           this[name] = model
           this.selectedModels[name] = model
@@ -245,7 +253,7 @@ define([
 
       __createModelSubscriptionsFor__: function (modelName) {
         this.constructor.onModelSubscriptions(modelName).forEach(function (sub) {
-          this.subscribe(this.models[modelName], sub.eventName, function () {
+          this.subscribe(this.selectedModels[modelName], sub.eventName, function () {
             var callback = this.__callbackFrom__(sub.callbackOrMethodName)
             if (this.__isModelListenerEnabled__(modelName, sub.eventName)) {
               callback.apply(this, arguments)
