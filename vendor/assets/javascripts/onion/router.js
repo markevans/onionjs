@@ -50,8 +50,10 @@ define([
         if (path.match(segment)) {
           path = path.replace(segment, params[key])
         } else {
-          if (query) { query += '&' }
-          query += [key, params[key]].join('=')
+          if (params[key]) {
+            if (query) { query += '&' }
+            query += [key, params[key]].join('=')
+          }
         }
       }
       return query ? [path,query].join('?') : path

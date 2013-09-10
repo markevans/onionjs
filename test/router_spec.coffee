@@ -46,3 +46,7 @@ describe "Router", ->
       router.route("greeting", '/greeting/:what')
       expect( router.path('greeting', what: 'hi', who: 'me', when: 'now') ).to.eql("/greeting/hi?who=me&when=now")
 
+    it "doesn't add empty parameters to the query string", ->
+      router.route("greeting", '/greeting')
+      expect( router.path('greeting', who: null, when: '') ).to.eql("/greeting")
+
