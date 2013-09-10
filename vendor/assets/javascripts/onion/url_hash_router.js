@@ -7,9 +7,7 @@ define([
   return Router.sub('UrlHashRouter')
 
     .after('init', function () {
-      $(window).hashchange( function () {
-        this.process(this.hash())
-      }.bind(this))
+      $(window).hashchange( this.sync.bind(this) )
     })
 
     .proto({
@@ -27,6 +25,10 @@ define([
 
       update: function (name, params) {
         this.setHash(this.path(name, params))
+      },
+
+      sync: function () {
+        this.process(this.hash())
       }
 
     })
