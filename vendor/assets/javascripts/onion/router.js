@@ -2,12 +2,8 @@ define([
   'onion/type',
   'onion/event_emitter',
   'onion/class_declarations'
-], function (Type, eventEmitter, classDeclarations) {
-
-  // http://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
-  var regexpEscape = function (string) {
-    return string.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")
-  }
+  'onion/regexp_escape'
+], function (Type, eventEmitter, classDeclarations, regexpEscape) {
 
   function Route(name, pattern){
     this.name = name
