@@ -3,7 +3,7 @@ Router = requirejs('onion/router')
 describe "Router", ->
   router = null
 
-  describe "parsing urls", ->
+  describe "parsing", ->
 
     beforeEach ->
       router = new Router()
@@ -26,4 +26,23 @@ describe "Router", ->
     it "doesn't match longer routes that contain the pattern", ->
       router.route("greeting", "/greeting/:what/:who")
       expect( router.match("/greeting/hi/everyone/wassup") ).to.eql(null)
+
+  describe "generating routes", ->
+    router = null
+
+    beforeEach ->
+      router = new Router()
+
+    it "raises if the named route doesn't exist", ->
+      expect( ->
+        router.path('greeting', who: 'me')
+      ).to.throw("route greeting does not exist")
+
+    it "creates a path", ->
+      router.route("greeting", '/greeting/:what')
+      expect( router.path('greeting', what: 'hi') ).to.eql("/greeting/hi")
+
+    it "adds a query string if extra params are passed", ->
+      router.route("greeting", '/greeting/:what')
+      expect( router.path('greeting', what: 'hi', who: 'me', when: 'now') ).to.eql("/greeting/hi?who=me&when=now")
 

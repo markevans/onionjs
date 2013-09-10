@@ -19,7 +19,7 @@ define([
       return this.regexp.test(path.split('?')[0])
     },
 
-    parse: function (path) {
+    pathToParams: function (path) {
       var params = {},
           parts = path.split('?'),
           pathSegment = parts[0],
@@ -42,6 +42,21 @@ define([
       return params
     },
 
+    paramsToPath: function (params) {
+      var path = this.pattern,
+          query = ""
+      for(var key in params) {
+        var segment = ":"+key
+        if (path.match(segment)) {
+          path = path.replace(segment, params[key])
+        } else {
+          if (query) { query += '&' }
+          query += [key, params[key]].join('=')
+        }
+      }
+      return query ? [path,query].join('?') : path
+    },
+
     __parsePattern__: function () {
       this.keyNames = []
       // e.g. for pattern '/:hello/:there'
@@ -59,6 +74,7 @@ define([
 
     .after('init', function () {
       this.__routes__ = []
+      this.__routesLookup__ = {}
       this.__applyClassDeclarations__('route')
     })
 
@@ -69,12 +85,13 @@ define([
       route: function (name, pattern) {
         var route = new Route(name, pattern)
         this.__routes__.push(route)
+        this.__routesLookup__[name] = route
         return route
       },
 
       process: function (path) {
-        var route = this.match(path)
-        if (route) this.emit('route', route.name, route.parse(path))
+        var result = this.match(path)
+        if (result) this.emit('route', result)
       },
 
       match: function (path) {
@@ -86,15 +103,20 @@ define([
           }
         }
         if (route) {
-          return {name: route.name, params: route.parse(path)}
+          return {name: route.name, params: route.pathToParams(path)}
         } else {
           console.log("Router didn't match path " + path)
           return null
         }
       },
 
-      update: function (name, params) {
-
+      path: function (name, params) {
+        var route = this.__routesLookup__[name]
+        if (route) {
+          return route.paramsToPath(params)
+        } else {
+          throw new Error("route " + name + " does not exist")
+        }
       }
 
     })
