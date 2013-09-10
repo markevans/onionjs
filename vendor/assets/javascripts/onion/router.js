@@ -91,7 +91,7 @@ define([
 
       process: function (path) {
         var result = this.match(path)
-        if (result) this.emit('route', result)
+        if (result) this.emit('route', result.name, result.params)
       },
 
       match: function (path) {
