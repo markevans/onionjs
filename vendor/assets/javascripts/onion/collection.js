@@ -141,14 +141,6 @@ define([
         })
       },
 
-      bubble: function (originalEvent, newEvent) {
-        newEvent = newEvent || originalEvent
-        var self = this
-        this.onItem(originalEvent, function () {
-          self.emit(newEvent)
-        })
-      },
-
       membershipFor: function (item) {
         return new Membership(item, this)
       },

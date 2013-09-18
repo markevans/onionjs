@@ -333,28 +333,7 @@ describe "Collection", ->
       collection.onItem('change', callback)
       collection.add(5)
 
-  describe "bubble", ->
-    item = null
-    collection = null
-    callback = null
-
-    beforeEach ->
-      item = extend({}, eventEmitter)
-      collection = new Collection([item])
-
-    it "bubbles up item events", ->
-      collection.bubble('change', 'item:change')
-      expect ->
-        item.emit('change')
-      .toEmitOn(collection, 'item:change')
-
-    it "defaults to the same event name", ->
-      collection.bubble('change')
-      expect ->
-        item.emit('change')
-      .toEmitOn(collection, 'change')
-
-  describe "indexFor", ->
+ describe "indexFor", ->
     collection = null
 
     describe "indexOf functionality", ->
