@@ -9,6 +9,10 @@ define([
   'onion/has_uuid'
 ], function(extend, sub, eventEmitter, Type, Membership, hasUUID){
 
+  var isFunction = function (object) {
+    return typeof object === 'function'
+  }
+
   var conditionsMatch = function (item, conditions) {
     if(typeof item.attrs != 'function') return false
     var attrs = item.attrs()
@@ -203,6 +207,12 @@ define([
 
       last: function () {
         return this[this.length-1]
+      },
+
+      pluck: function (attr) {
+        return this.map(function (item) {
+          return isFunction(item[attr]) ? item[attr]() : item[attr]
+        })
       },
 
       // For items with an 'attrs' method (e.g. models)

@@ -433,3 +433,22 @@ describe "Collection", ->
     it "has a uuid", ->
       expect( new Collection().uuid() ).to.match(/^[\w-]+$/)
 
+  describe "pluck", ->
+    collection = null
+
+    beforeEach ->
+      collection = new Collection()
+
+    it "plucks an attribute", ->
+      collection.set [
+        {name: 'wing'}
+        {name: 'nut'}
+      ]
+      expect( collection.pluck('name') ).to.eql(['wing', 'nut'])
+
+    it "calls if a function", ->
+      collection.set [
+        {name: -> 'wing'}
+        {name: -> 'nut'}
+      ]
+      expect( collection.pluck('name') ).to.eql(['wing', 'nut'])
