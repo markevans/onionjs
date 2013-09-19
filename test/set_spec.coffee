@@ -22,6 +22,11 @@ describe "Set", ->
       set.addMany([4, 13])
       expect( set.toArray() ).to.eql([4, 27, 13])
 
+    it "ignores duplicates in the added array in addMany", ->
+      set = new Set()
+      set.addMany([4, 4])
+      expect( set.toArray() ).to.eql([4])
+
     it "uses 'isEqualTo' if implemented on the objects", ->
       isEqualTo = (other) -> @name == other.name
       newObject = (name) ->

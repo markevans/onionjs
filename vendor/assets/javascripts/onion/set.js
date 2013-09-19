@@ -33,7 +33,7 @@ define([
   })
 
   decorator.decorate(Set.prototype, 'addMany', function (addMany, items) {
-    var itemsToAdd = items.filter(function (item) {
+    var itemsToAdd = removeDuplicates(items).filter(function (item) {
       return !this.contains(item)
     }, this)
     addMany(itemsToAdd)
