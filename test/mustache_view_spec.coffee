@@ -10,13 +10,13 @@ describe "mustacheView", ->
     view = null
 
     beforeEach ->
-      view = new MyView()
+      view = new MyView(models: {age: 32})
 
-    it "renders a mustache template", ->
-      view.renderMustache('<p>{{age}}</p>', age: 32)
+    it "renders a mustache template, using the models", ->
+
+      view.renderMustache('<p>{{age}}</p>')
       expect( view.toHTML() ).to.equal('<p>32</p>')
 
-    it "allows passing more than one object to merge into the rendered obj", ->
-      view.renderMustache('<p>{{age}}, {{height}}</p>', {age: 32}, {height: 'teeny'})
+    it "allows passing an extra object for helpers etc.", ->
+      view.renderMustache('<p>{{age}}, {{height}}</p>', height: 'teeny')
       expect( view.toHTML() ).to.equal('<p>32, teeny</p>')
-

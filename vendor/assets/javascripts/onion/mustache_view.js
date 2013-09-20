@@ -14,11 +14,8 @@ define([
           return Mustache.render(template, obj)
         },
 
-        renderMustache: function () {
-          var args = Array.prototype.slice.call(arguments),
-              template = args.shift(),
-              objs = args,
-              obj = extend.apply(null, [{}].concat(objs)),
+        renderMustache: function (template, helpers) {
+          var obj = extend({}, this.models, helpers),
               html = this.evalMustache(template, obj)
           this.renderHTML(html)
         }
@@ -27,4 +24,3 @@ define([
 
   }
 })
-
