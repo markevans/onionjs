@@ -10,13 +10,13 @@ define([
 
       .proto({
 
-        evalMustache: function (template, obj) {
-          return Mustache.render(template, obj)
+        evalMustache: function (template, obj, partials) {
+          return Mustache.render(template, obj, partials)
         },
 
-        renderMustache: function (template, helpers) {
+        renderMustache: function (template, helpers, partials) {
           var obj = extend({}, this.models, helpers),
-              html = this.evalMustache(template, obj)
+              html = this.evalMustache(template, obj, partials)
           this.renderHTML(html)
         }
 

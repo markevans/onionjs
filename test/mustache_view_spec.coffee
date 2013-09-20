@@ -13,10 +13,13 @@ describe "mustacheView", ->
       view = new MyView(models: {age: 32})
 
     it "renders a mustache template, using the models", ->
-
       view.renderMustache('<p>{{age}}</p>')
       expect( view.toHTML() ).to.equal('<p>32</p>')
 
     it "allows passing an extra object for helpers etc.", ->
       view.renderMustache('<p>{{age}}, {{height}}</p>', height: 'teeny')
       expect( view.toHTML() ).to.equal('<p>32, teeny</p>')
+
+    it "allows passing in extra templates", ->
+      view.renderMustache('<p>{{>smidge}}</p>', {}, smidge: 'Smidge is {{age}}')
+      expect( view.toHTML() ).to.equal('<p>Smidge is 32</p>')
