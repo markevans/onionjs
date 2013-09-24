@@ -41,6 +41,12 @@ define([
 
   extend(Set.prototype, {
 
+    union: function (items) {
+      var union = this.clone()
+      union.addMany(items)
+      return union
+    },
+
     intersection: function (items) {
       var intersection = new Set()
       items.forEach(function(item) {

@@ -58,3 +58,9 @@ describe "Set", ->
       set = new Set([3, 55, 66, 345])
       newSet = set.difference([55, 345, 678])
       expect( newSet.toArray() ).to.eql([3, 66])
+
+  describe "union", ->
+    it "returns items that occur in either collection", ->
+      set = new Set([3, 55, 66, 345])
+      newSet = set.union([55, 345, 678])
+      expect( newSet.toArray() ).to.eql([3, 55, 66, 345, 678])
