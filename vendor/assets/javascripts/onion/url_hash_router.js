@@ -24,12 +24,12 @@ define([
       // Firefox seems to act differently to Chrome when using location.hash
       hash: function () {
         var matches = window.location.href.match(/#(.*)$/)
-        return matches ? matches[1] : ""
+        return matches ? window.decodeURI(matches[1]) : ""
       },
 
       setHash: function (hash) {
         // Need to test this in IE7
-        window.location.hash = hash
+        window.location.hash = window.encodeURI(hash)
       },
 
       updateUrl: function (name, params) {
