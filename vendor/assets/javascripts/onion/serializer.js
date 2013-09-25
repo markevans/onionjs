@@ -1,18 +1,12 @@
 define([
   'onion/type',
-  'onion/class_declarations'
-], function (Type, classDeclarations) {
+], function (Type) {
 
   return Type.sub('Serializer')
-
-    .use(classDeclarations, 'serializeRule')
-    .use(classDeclarations, 'deserializeRule')
 
     .after('init', function () {
       this.__serializeRules__ = {}
       this.__deserializeRules__ = []
-      this.__applyClassDeclarations__('serializeRule')
-      this.__applyClassDeclarations__('deserializeRule')
     })
 
     .proto({
@@ -41,7 +35,7 @@ define([
         if (rule) {
           return {name: rule.name, params: rule.callback(string, matches)}
         } else {
-          throw new Error('cannot deserialize "' + string + '"')
+          return null
         }
       },
 
@@ -50,6 +44,7 @@ define([
         if (rule) {
           return rule(params)
         } else {
+          return null
           throw new Error('cannot serialize with name "' + name + '"')
         }
       }

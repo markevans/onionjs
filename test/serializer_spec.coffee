@@ -10,7 +10,7 @@ describe "Serializer", ->
       serializer.serializeRule('egg', (params) -> params.howCooked )
 
     it "returns nothing if not matched", ->
-      expect(-> serializer.serialize('fish', {howCooked: 'boiled'}) ).to.throw('cannot serialize with name "fish"')
+      expect( serializer.serialize('fish', {howCooked: 'boiled'}) ).to.be.null
 
     it "serializes if matched", ->
       expect( serializer.serialize('egg', {howCooked: 'boiled'}) ).to.eql("boiled")
@@ -26,7 +26,7 @@ describe "Serializer", ->
         }
 
     it "returns nothing if not matched", ->
-      expect(-> serializer.deserialize('fried') ).to.throw('cannot deserialize "fried"')
+      expect( serializer.deserialize('fried') ).to.be.null
 
     it "serializes if matched", ->
       expect( serializer.deserialize('me boiled').name ).to.eql('egg')
