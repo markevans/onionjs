@@ -1,13 +1,22 @@
 define([
-  'onion/router',
+  'onion/type',
+  'onion/serializer',
   'jquery',
-  'onion/vendor/jquery.hashchange'
-], function (Router, $) {
+  'onion/vendor/jquery.hashchange',
+  'onion/class_declarations',
+  'onion/event_emitter'
+], function (Type, Serializer, $, _, classDeclarations, eventEmitter) {
 
-  return Router.sub('UrlHashRouter')
+  return Type.sub('UrlHashRouter')
+
+    .proto(eventEmitter)
+
+    .use(classDeclarations, 'route')
 
     .after('init', function () {
-      $(window).hashchange( this.sync.bind(this) )
+      this.serializer = new Serializer()
+      $(window).hashchange( this.processUrl.bind(this) )
+      this.__applyClassDeclarations__('route')
     })
 
     .proto({
@@ -23,15 +32,20 @@ define([
         window.location.hash = hash
       },
 
-      update: function (name, params) {
-        this.setHash(this.path(name, params))
+      updateUrl: function (name, params) {
+        this.setHash(this.serializer.serialize(name, params))
       },
 
-      sync: function () {
-        this.process(this.hash())
+      processUrl: function () {
+        var result = this.serializer.deserialize(this.hash())
+        if (result) this.emit('route', result.name, result.params)
+      },
+
+      route: function (options) {
+        this.serializer.serializeRule(options.name, options.serialize)
+        this.serializer.deserializeRule(options.pattern, options.name, options.deserialize)
       }
 
     })
 
 })
-
