@@ -2,7 +2,7 @@ define([
   'onion/type',
   'onion/event_emitter',
   'onion/class_declarations',
-  'onion/regexp_escape'
+  'onion/utils/regexp_escape'
 ], function (Type, eventEmitter, classDeclarations, regexpEscape) {
 
   function Route(name, pattern){

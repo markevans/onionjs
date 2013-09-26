@@ -1,6 +1,6 @@
 if(typeof define!=='function'){var define=require('amdefine')(module);}
 
-define(['onion/extend'], function(extend){
+define(['onion/utils/extend'], function(extend){
 
   var chainPrototype = function (child, parent) {
     function ctor() {

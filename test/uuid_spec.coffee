@@ -1,4 +1,4 @@
-uuid = requirejs('onion/uuid')
+uuid = requirejs('onion/utils/uuid')
 
 describe "uuid", ->
 

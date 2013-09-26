@@ -3,7 +3,7 @@ if(typeof define!=='function'){var define=require('amdefine')(module);}
 define([
   'onion/collection',
   'onion/decorator',
-  'onion/extend',
+  'onion/utils/extend',
   'onion/sub'
 ], function(Collection, decorator, extend, sub){
 

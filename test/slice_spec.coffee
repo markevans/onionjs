@@ -1,4 +1,4 @@
-slice = requirejs('onion/slice')
+slice = requirejs('onion/utils/slice')
 
 describe "slice", ->
   attrs = {}

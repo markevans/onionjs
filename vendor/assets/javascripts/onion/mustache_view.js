@@ -1,7 +1,7 @@
 if(typeof define!=='function'){var define=require('amdefine')(module);}
 
 define([
-    'onion/extend',
+    'onion/utils/extend',
     'onion/vendor/mustache'
   ], function (extend, Mustache) {
   return function (View) {

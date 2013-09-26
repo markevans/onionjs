@@ -1,6 +1,6 @@
 if(typeof define!=='function'){var define=require('amdefine')(module)}
 
-define(['onion/decorator', 'onion/extend', 'onion/sub'], function (decorator, extend, sub) {
+define(['onion/decorator', 'onion/utils/extend', 'onion/sub'], function (decorator, extend, sub) {
 
   var copyOnto = function (destination, sources) {
     sources = Array.prototype.slice.call(sources) // convert "arguments" object to array

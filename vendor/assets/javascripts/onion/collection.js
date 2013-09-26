@@ -1,7 +1,7 @@
 if(typeof define!=='function'){var define=require('amdefine')(module);}
 
 define([
-  'onion/extend',
+  'onion/utils/extend',
   'onion/sub',
   'onion/event_emitter',
   'onion/type',

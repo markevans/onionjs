@@ -1,6 +1,6 @@
 Collection = requirejs('onion/collection')
 eventEmitter = requirejs('onion/event_emitter')
-extend = requirejs('onion/extend')
+extend = requirejs('onion/utils/extend')
 
 describe "Collection", ->
   describe "array-like properties", ->

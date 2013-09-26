@@ -2,7 +2,7 @@ if(typeof define!=='function'){var define=require('amdefine')(module);}
 
 define([
     'onion/class_declarations',
-    'onion/extend',
+    'onion/utils/extend',
     'onion/type',
     'onion/subscriber',
     'onion/has_uuid'

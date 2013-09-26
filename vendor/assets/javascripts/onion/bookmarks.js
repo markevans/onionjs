@@ -1,7 +1,7 @@
 define([
   'onion/model',
   'onion/class_declarations',
-  'onion/extend'
+  'onion/utils/extend'
   ], function (Model, classDeclarations, extend) {
 
   return Model.sub("Bookmarks")

@@ -1,7 +1,7 @@
 Controller = requirejs('onion/controller')
 eventEmitter = requirejs('onion/event_emitter')
 Struct = requirejs('onion/struct')
-extend = requirejs('onion/extend')
+extend = requirejs('onion/utils/extend')
 
 describe "Controller", ->
 

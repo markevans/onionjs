@@ -4,7 +4,7 @@ define([
   'jquery',
   'onion/type',
   'onion/event_emitter',
-  'onion/extend'
+  'onion/utils/extend'
 ], function($, Type, eventEmitter, extend){
 
   return Type.sub('JsonApi')

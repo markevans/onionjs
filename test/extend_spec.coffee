@@ -1,4 +1,4 @@
-extend = requirejs('onion/extend')
+extend = requirejs('onion/utils/extend')
 
 describe "extend", ->
   a = null
