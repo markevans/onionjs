@@ -52,9 +52,9 @@ define(function(){
       return this
     },
 
-    silently: function(callback){
+    silently: function(callback, context){
       this.__silent__ = true
-      callback()
+      callback.call(context || this)
       this.__silent__ = false
     }
   }
