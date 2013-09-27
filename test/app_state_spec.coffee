@@ -41,24 +41,3 @@ describe "AppState", ->
       appState.run('page', tab: 2)
       expect( appState.currentTab ).to.eql(2)
       expect( appState.currentState() ).to.be.undefined
-
-    it "doesn't run a state again if it's already there", ->
-      sinon.spy( appState, 'run' )
-      appState.load('page', tab: 2)
-      appState.load('page', tab: 2)
-      expect( appState.run.callCount ).to.equal(1)
-
-    it "runs a state again if the params are different", ->
-      sinon.spy( appState, 'run' )
-      appState.load('page', tab: 2)
-      appState.load('page', tab: 3)
-      expect( appState.run.callCount ).to.equal(2)
-
-    it "runs a state again if the name is different", ->
-      appState.state 'tab',
-        toParams: -> {}
-        fromParams: ->
-      sinon.spy( appState, 'run' )
-      appState.load('page', tab: 2)
-      appState.load('tab', tab: 2)
-      expect( appState.run.callCount ).to.equal(2)
