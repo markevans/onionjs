@@ -33,12 +33,18 @@ define([
       },
 
       updateUrl: function (name, params) {
-        this.setHash(this.serializer.serialize(name, params))
+        var hash = this.serializer.serialize(name, params)
+        this.__hashFromUpdateUrl__ = hash
+        this.setHash(hash)
       },
 
       processUrl: function () {
-        var result = this.serializer.deserialize(this.hash())
-        if (result) this.emit('route', result.name, result.params)
+        var hash = this.hash()
+        if (hash != this.__hashFromUpdateUrl__) {
+          var result = this.serializer.deserialize(hash)
+          if (result) this.emit('route', result.name, result.params)
+        }
+        this.__hashFromUpdateUrl__ = null
       },
 
       route: function (options) {
