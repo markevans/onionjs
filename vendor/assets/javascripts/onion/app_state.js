@@ -1,8 +1,9 @@
 define([
   'onion/model',
   'onion/class_declarations',
-  'onion/utils/extend'
-  ], function (Model, classDeclarations, extend) {
+  'onion/utils/extend',
+  'onion/utils/object_signature'
+  ], function (Model, classDeclarations, extend, objectSignature) {
 
   return Model.sub("AppState")
 
@@ -34,12 +35,20 @@ define([
       },
 
       load: function (name, params) {
+        if( this.matchesCurrentState(name, params) ) return
         this.run(name, params)
         this.setCurrentState(name, params)
       },
 
       run: function (name, params) {
         return this.__getState__(name).fromParams.call(this, extend({}, params))
+      },
+
+      matchesCurrentState: function (name, params) {
+        var currentState = this.currentState()
+        return currentState &&
+          currentState.name === name &&
+          objectSignature(currentState.params) === objectSignature(params)
       },
 
       __getState__: function (name) {
@@ -51,4 +60,3 @@ define([
     })
 
 })
-
