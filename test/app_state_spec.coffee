@@ -36,3 +36,8 @@ describe "AppState", ->
       appState.load('page', tab: 2)
       expect( appState.currentTab ).to.eql(2)
       expect( appState.currentState() ).to.eql(name: 'page', params: {tab: 2})
+
+    it "can run a state function", ->
+      appState.run('page', tab: 2)
+      expect( appState.currentTab ).to.eql(2)
+      expect( appState.currentState() ).to.be.undefined

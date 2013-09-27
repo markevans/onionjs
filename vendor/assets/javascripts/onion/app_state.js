@@ -34,7 +34,11 @@ define([
       },
 
       load: function (name, params) {
+        this.run(name, params)
         this.setCurrentState(name, params)
+      },
+
+      run: function (name, params) {
         return this.__getState__(name).fromParams.call(this, extend({}, params))
       },
 
