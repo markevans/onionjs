@@ -4,8 +4,9 @@ define([
   'jquery',
   'onion/type',
   'onion/event_emitter',
-  'onion/utils/extend'
-], function($, Type, eventEmitter, extend){
+  'onion/utils/extend',
+  'onion/utils/object_signature'
+], function($, Type, eventEmitter, extend, objectSignature){
 
   return Type.sub('JsonApi')
 
@@ -17,10 +18,20 @@ define([
         this.urlPrefix = options.urlPrefix || ""
         this.ajaxOptions = options.ajaxOptions || {}
         this.persistentParams = options.persistentParams || {}
+        this.__cache__ = {}
+      },
+
+      __get__: function (url, data, options) {
+        return this.ajax('GET', url, this.__addPersistentParams__(data), options)
       },
 
       get: function (url, data, options) {
-        return this.ajax('GET', url, this.__addPersistentParams__(data), options)
+        if( options && options.cache ) {
+          var sig = objectSignature({url: url, data: data, options: options})
+          return this.__cache__[sig] = this.__cache__[sig] || this.__get__(url, data, options)
+        } else {
+          return this.__get__(url, data, options)
+        }
       },
 
       put: function (url, data, options) {
