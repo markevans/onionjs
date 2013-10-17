@@ -17,7 +17,9 @@
   },
   "dependencies": {
     "commander": "*",
-    "mustache": "*"
+    "mustache": "*",
+    "string": "*",
+    "mkdirp": "*"
   },
   "devDependencies": {
     "requirejs": "*",
