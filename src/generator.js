@@ -38,23 +38,23 @@ function Module (name) {
 }
 Module.prototype = {
   controllerPath: function () {
-    return "js/controllers/" + this.controllerBasename() + ".js"
+    return config.controllerDir() + "/" + this.controllerBasename() + ".js"
   },
 
   viewPath: function () {
-    return "js/views/" + this.viewBasename() + ".js"
+    return config.viewDir() + "/" + this.viewBasename() + ".js"
   },
 
   templatePath: function () {
-    return "templates/" + this.basename() + ".mustache"
+    return config.templateDir() + "/" + this.basename() + ".mustache"
   },
 
   cssPath: function () {
-    return "css/" + this.basename() + ".css"
+    return config.cssDir() + "/" + this.basename() + ".css"
   },
 
   underscored: function () {
-    return this.name.camelize().replace(/Controller$/, '').underscore()
+    return this.name.underscore()
   },
 
   namespace: function () {
