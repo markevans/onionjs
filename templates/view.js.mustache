@@ -1,0 +1,21 @@
+define([
+  'onion/view',
+  'onion/mustache_view',
+  'onion/vendor/text!{{ moduleDirname }}/{{ templateFilename }}'
+], function (
+  View,
+  mustacheView,
+  template
+) {
+
+  return View.sub('{{ viewName }}')
+
+    .use(mustacheView)
+
+    .proto({
+      render: function () {
+        this.renderMustache(template)
+      }
+    })
+
+})

@@ -1,0 +1,20 @@
+define([
+  'onion/controller',
+  '{{ moduleDirname }}/{{ viewBasename }}'
+], function (
+  Controller,
+  {{ viewName }} 
+) {
+
+  return Controller.sub('{{ controllerName }}')
+
+  .view({{ viewName }})
+
+    .proto({
+      run: function () {
+        this.view.render()
+      }
+    })
+
+})
+

@@ -1,0 +1,11 @@
+{
+  "module": {
+    "viewPath": "js/views",
+    "controllerPath": "js/controllers",
+    "cssPath": "css",
+    "templatePath": "templates",
+  },
+  "model": {
+    "path": "js/models"
+  }
+}

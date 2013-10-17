@@ -9,10 +9,16 @@
   },
   "scripts": {
   },
+  "bin": {
+    "onion": "bin/onion.js"
+  },
   "engines": {
     "node": "~v0.6.11"
   },
-  "dependencies": {},
+  "dependencies": {
+    "commander": "*",
+    "mustache": "*"
+  },
   "devDependencies": {
     "requirejs": "*",
     "mocha": "*",
