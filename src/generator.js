@@ -22,16 +22,15 @@ module.exports = {
 
   createModule: function (name) {
     module = new Module(name)
-    generate(__dirname+"/../templates/controller.js.mustache", module.controllerPath(), module.toObj())
-    generate(__dirname+"/../templates/view.js.mustache", module.viewPath(), module.toObj())
-    generate(__dirname+"/../templates/template.mustache.mustache", module.templatePath(), module.toObj())
-    generate(__dirname+"/../templates/view.css.mustache", module.cssPath(), module.toObj())
+    generate(__dirname+"/../templates/controller.js.mustache", module.controllerPath(), module)
+    generate(__dirname+"/../templates/view.js.mustache", module.viewPath(), module)
+    generate(__dirname+"/../templates/template.mustache.mustache", module.templatePath(), module)
+    generate(__dirname+"/../templates/view.css.mustache", module.cssPath(), module)
   },
 
   createModel: function (name) {
   }
 }
-
 
 /////// Module ///////
 function Module (name) {
@@ -76,7 +75,7 @@ Module.prototype = {
   },
 
   controllerName: function () {
-    return this.controllerBasename().camelize()
+    return this.controllerBasename().capitalize().camelize()
   },
 
   viewBasename: function () {
@@ -84,17 +83,10 @@ Module.prototype = {
   },
 
   viewName: function () {
-    return this.viewBasename().camelize()
+    return this.viewBasename().capitalize().camelize()
   },
 
   viewCssClass: function () {
-    return dasherize(this.viewBasename())
-  },
-
-  toObj: function () {
-    return [].reduce(function (obj, key) {
-      obj[key] = this[key]()
-      return obj
-    }, {}, this)
+    return this.viewBasename().dasherize()
   }
 }

@@ -3,12 +3,12 @@ define([
   '{{ moduleDirname }}/{{ viewBasename }}'
 ], function (
   Controller,
-  {{ viewName }} 
+  {{ viewName }}
 ) {
 
   return Controller.sub('{{ controllerName }}')
 
-  .view({{ viewName }})
+    .view({{ viewName }})
 
     .proto({
       run: function () {
