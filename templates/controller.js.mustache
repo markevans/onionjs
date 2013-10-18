@@ -1,14 +1,14 @@
 define([
   'onion/controller',
-  '{{ moduleDirname }}/{{ viewBasename }}'
+  '{{{ viewRequirePath }}}'
 ], function (
   Controller,
-  {{ viewName }}
+  {{ viewTypeName }}
 ) {
 
-  return Controller.sub('{{ controllerName }}')
+  return Controller.sub('{{ controllerTypeName }}')
 
-    .view({{ viewName }})
+    .view({{ viewTypeName }})
 
     .proto({
       run: function () {
@@ -17,4 +17,3 @@ define([
     })
 
 })
-

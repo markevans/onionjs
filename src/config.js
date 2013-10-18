@@ -32,25 +32,6 @@ module.exports = {
       }
     }
     return value
-  },
-
-  controllerDir: function () {
-    return this.get('dirs', 'controllers')
-  },
-
-  cssDir: function () {
-    return this.get('dirs', 'css')
-  },
-
-  viewDir: function () {
-    return this.get('dirs', 'views')
-  },
-
-  templateDir: function () {
-    return this.get('dirs', 'templates')
-  },
-
-  modelDir: function () {
-    return this.get('dirs', 'models')
   }
+
 }

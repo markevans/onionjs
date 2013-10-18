@@ -1,9 +1,10 @@
 {
-  "dirs": {
-    "views": "js/views",
-    "controllers": "js/controllers",
-    "css": "css",
-    "templates": "templates",
-    "models": "js/models"
-  }
+  "baseUrl": "js",
+  "module": {
+    "view": "js/views/<name>_view.js",
+    "controller": "js/controllers/<name>_controller.js",
+    "css": "css/<name>.css",
+    "template": "js/templates/<name>.mustache"
+  },
+  "model": "js/models/<name>.js"
 }

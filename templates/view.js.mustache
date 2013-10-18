@@ -1,14 +1,14 @@
 define([
   'onion/view',
   'onion/mustache_view',
-  'onion/vendor/text!{{ moduleDirname }}/{{ templateFilename }}'
+  'onion/vendor/text!{{{ templateRequirePath }}}'
 ], function (
   View,
   mustacheView,
   template
 ) {
 
-  return View.sub('{{ viewName }}')
+  return View.sub('{{ viewTypeName }}')
 
     .use(mustacheView)
 
