@@ -1,6 +1,5 @@
 var S = require('string'),
-    config = require('./config'),
-    Mustache = require('mustache')
+    config = require('./config')
 
 S.extendPrototype()
 
@@ -10,12 +9,11 @@ function ModuleConfig (name) {
 
 ModuleConfig.prototype = {
   getConfig: function (key) {
-    var _this = this
-    return config.get('module', key).replace(/<(.+?)>/g, function (_, meth) { return _this[meth]() })
+    return config.getAndParse(['module', key], this)
   },
 
   baseUrl: function () {
-    return config.get('baseUrl')
+    return config.get(['baseUrl'])
   },
 
   controllerPath: function () {

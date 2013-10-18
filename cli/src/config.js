@@ -18,9 +18,12 @@ module.exports = {
     return this.__config__ = this.__config__ || this.readFile('onion.json')
   },
 
-  get: function () {
-    var args = Array.prototype.slice.call(arguments)
+  get: function (args) {
     return this.fetch(this.config(), args) || this.fetch(this.defaultConfig(), args)
+  },
+
+  getAndParse: function (args, object) {
+    return this.get(args).replace(/<(.+?)>/g, function (_, meth) { return object[meth]() })
   },
 
   fetch: function (object, keys) {

@@ -1,5 +1,6 @@
 var fs = require('fs'),
     ModuleConfig = require('./module_config'),
+    ModelConfig = require('./model_config'),
     Mustache = require('mustache'),
     mkdirp = require('mkdirp'),
     path = require('path')
@@ -26,5 +27,7 @@ module.exports = {
   },
 
   createModel: function (name) {
+    config = new ModelConfig(name)
+    generate(__dirname+"/../templates/model.js.mustache", config.modelPath(), config)
   }
 }
