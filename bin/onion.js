@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var program = require('commander')
-    generator = require('../src/generator')
+    generator = require('../cli/src/generator')
 
 program
   .version('0.0.1')
