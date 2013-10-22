@@ -3,7 +3,8 @@ var fs = require('fs'),
     ModelConfig = require('./model_config'),
     Mustache = require('mustache'),
     mkdirp = require('mkdirp'),
-    path = require('path')
+    path = require('path'),
+    ncp = require('ncp').ncp
 
 function generate (templatePath, destPath, object) {
   console.log("Writing to "+destPath)
@@ -29,5 +30,13 @@ module.exports = {
   createModel: function (name) {
     config = new ModelConfig(name)
     generate(__dirname+"/../templates/model.js.mustache", config.modelPath(), config)
+  },
+
+  install: function (dir) {
+    directory = (dir || ".") + "/onion"
+    console.log("Copying onion files to directory " + directory)
+    ncp(__dirname+"/../../src/onion", directory, function (err) {
+     if (err) { return console.error(err) }
+    })
   }
 }

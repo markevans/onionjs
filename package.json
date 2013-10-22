@@ -19,7 +19,8 @@
     "commander": "*",
     "mustache": "*",
     "string": "*",
-    "mkdirp": "*"
+    "mkdirp": "*",
+    "ncp": "*"
   },
   "devDependencies": {
     "requirejs": "*",

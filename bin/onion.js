@@ -13,6 +13,13 @@ program
   })
 
 program
+  .command("install [dir]")
+  .usage("install [dir]")
+  .action(function (dir) {
+    generator.install(dir)
+  })
+
+program
   .command("module [name]")
   .usage("module name")
   .action(function (name) {
@@ -22,6 +29,7 @@ program
 
 program
   .command("model [name]")
+  .usage("model name")
   .action(function (name) {
     if(!name) program.help()
     generator.createModel(name)
