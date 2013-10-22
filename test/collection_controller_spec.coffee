@@ -57,12 +57,23 @@ describe "collectionController", ->
     expect( ChildController::init.callCount ).to.equal(1)
     expect( ChildController::destroy.callCount ).to.equal(0)
 
-  it "syncs (for one-off initialization)", ->
-    collection.set([new Struct(), new Struct()])
-    controller = new ParentController(items: collection)
-    assertNumChildren(0)
-    controller.syncWithCollection()
-    assertNumChildren(2)
+  describe "syncing (for one-off initialization)", ->
+    beforeEach ->
+      collection.set([new Struct(), new Struct()])
+
+    it "syncs", ->
+      controller = new ParentController(items: collection)
+      assertNumChildren(0)
+      controller.syncWithCollection()
+      assertNumChildren(2)
+
+    it "syncs with differently named selected models", ->
+      class PadreController extends Controller
+        @models 'shingle.beans'
+        @use collectionController, 'beans', 'bean', ChildController
+      controller = new PadreController(shingle: {beans: collection})
+      controller.syncWithCollection()
+      assertNumChildren(2)
 
   it "doesn't interfere other children", ->
     class OtherChildController extends Controller

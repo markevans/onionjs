@@ -10,7 +10,7 @@ define(function () {
       .proto({
 
         syncWithCollection: function () {
-          this.addItemChildren(this.models[collectionName])
+          this.addItemChildren(this.selectedModels[collectionName])
         },
 
         addItemChildren: function (models) {
