@@ -1,7 +1,7 @@
 var requirejs = require('requirejs')
 
 requirejs.config({
-  baseUrl: 'vendor/assets/javascripts',
+  baseUrl: 'src',
   nodeRequire: require
 })
 
