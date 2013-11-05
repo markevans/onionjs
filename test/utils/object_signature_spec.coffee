@@ -26,3 +26,8 @@ describe "objectSignature", ->
     obj2.d = 5
     sig2 = objectSignature(obj2)
     expect( sig ).to.equal(sig2)
+
+  it "works with arrays", ->
+    sig1 = objectSignature(['a','b','c'])
+    sig2 = objectSignature(['a','b','c'])
+    expect( sig1 ).to.equal(sig2)
