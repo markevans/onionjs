@@ -29,6 +29,7 @@ define([
   sub(Collection, Array)
 
   extend(Collection, Type)
+  extend(Collection.prototype, Type.prototype)
 
   return Collection
     .extend({
