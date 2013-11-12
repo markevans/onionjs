@@ -5,7 +5,7 @@ define([
   'onion/sub',
   'onion/event_emitter',
   'onion/type',
-  'onion/has_uuid'
+  'onion/plugins/has_uuid'
 ], function(extend, sub, eventEmitter, Type, hasUUID){
 
   var isFunction = function (object) {

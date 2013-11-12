@@ -1,5 +1,5 @@
 Controller = requirejs('onion/controller')
-collectionController = requirejs('onion/collection_controller')
+collectionController = requirejs('onion/plugins/collection_controller')
 Collection = requirejs('onion/collection')
 Struct = requirejs('onion/struct')
 

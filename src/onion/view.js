@@ -1,10 +1,10 @@
 if(typeof define!=='function'){var define=require('amdefine')(module);}
 
 define([
-  'onion/class_declarations',
+  'onion/plugins/class_declarations',
   'onion/event_emitter',
   'onion/type',
-  'onion/has_uuid',
+  'onion/plugins/has_uuid',
   'jquery'
 ], function(classDeclarations, eventEmitter, Type, hasUuid, $){
 

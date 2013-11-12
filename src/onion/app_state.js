@@ -1,6 +1,6 @@
 define([
   'onion/model',
-  'onion/class_declarations',
+  'onion/plugins/class_declarations',
   'onion/utils/extend'
   ], function (Model, classDeclarations, extend) {
 

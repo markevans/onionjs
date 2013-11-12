@@ -1,11 +1,11 @@
 if(typeof define!=='function'){var define=require('amdefine')(module);}
 
 define([
-    'onion/class_declarations',
+    'onion/plugins/class_declarations',
     'onion/utils/extend',
     'onion/type',
     'onion/subscriber',
-    'onion/has_uuid'
+    'onion/plugins/has_uuid'
   ], function(
     classDeclarations,
     extend,

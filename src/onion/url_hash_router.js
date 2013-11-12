@@ -3,7 +3,7 @@ define([
   'onion/serializer',
   'jquery',
   'onion/vendor/jquery.hashchange',
-  'onion/class_declarations',
+  'onion/plugins/class_declarations',
   'onion/event_emitter'
 ], function (Type, Serializer, $, _, classDeclarations, eventEmitter) {
 

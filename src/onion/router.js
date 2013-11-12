@@ -1,7 +1,7 @@
 define([
   'onion/type',
   'onion/event_emitter',
-  'onion/class_declarations',
+  'onion/plugins/class_declarations',
   'onion/utils/regexp_escape'
 ], function (Type, eventEmitter, classDeclarations, regexpEscape) {
 
