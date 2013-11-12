@@ -5,9 +5,8 @@ define([
   'onion/sub',
   'onion/event_emitter',
   'onion/type',
-  'onion/membership',
   'onion/has_uuid'
-], function(extend, sub, eventEmitter, Type, Membership, hasUUID){
+], function(extend, sub, eventEmitter, Type, hasUUID){
 
   var isFunction = function (object) {
     return typeof object === 'function'
@@ -144,10 +143,6 @@ define([
             }
           })
         })
-      },
-
-      membershipFor: function (item) {
-        return new Membership(item, this)
       },
 
       // Returns the index of an item, but will use isEqualTo function

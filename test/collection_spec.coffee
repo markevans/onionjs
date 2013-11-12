@@ -393,12 +393,6 @@ describe "Collection", ->
       expect( collection.first() ).to.eql(undefined)
       expect( collection.last() ).to.eql(undefined)
 
-  describe "membershipFor", ->
-    it "returns a membership object", ->
-      collection = new Collection()
-      membership = collection.membershipFor({})
-      expect( membership.exists() ).to.eql(false)
-
   describe "filtering", ->
     newModel = (attributes) -> {attrs: -> attributes}
     collection = null
