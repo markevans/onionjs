@@ -10,10 +10,7 @@ describe "extendable", ->
       @use extendable
     object = new MyClass()
 
-  it "gives an extensions object", ->
-    expect( object.extensions() ).to.be.truthy
-
   it "gives accessors for getting/setting extensions", ->
-    expect( object.extensions().get('lobo') ).to.be.undefined
-    object.extensions().set('lobo', 2)
-    expect( object.extensions().get('lobo') ).to.equal(2)
+    expect( object.extension('lobo') ).to.be.undefined
+    object.setExtension('lobo', 2)
+    expect( object.extension('lobo') ).to.equal(2)

@@ -22,6 +22,14 @@ define(function () {
         extensions: function () {
           if (!this.__extensions__) this.__extensions__ = new Extensions()
           return this.__extensions__
+        },
+
+        extension: function (key) {
+          return this.extensions().get(key)
+        },
+
+        setExtension: function (key, value) {
+          this.extensions().set(key, value)
         }
       })
   }
