@@ -7,16 +7,12 @@ define(function(){
   }
 
   function decorate(obj, method, callback){
-    var originalOwnMethod
-    if(obj.hasOwnProperty(method)) originalOwnMethod = obj[method]
-    var parentPrototype = Object.getPrototypeOf(obj)
+    var originalMethod = obj[method]
 
     obj[method] = function(){
       var souper, args
-      if(originalOwnMethod){
-        souper = originalOwnMethod.bind(this)
-      } else if(parentPrototype[method]) {
-        souper = parentPrototype[method].bind(this)
+      if(originalMethod){
+        souper = originalMethod.bind(this)
       }
       args = [souper].concat(argumentsToArray(arguments))
       return callback.apply(this, args)
