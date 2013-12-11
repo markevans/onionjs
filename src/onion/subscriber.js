@@ -4,10 +4,10 @@ define(function(){
 
   return {
     subscriptions: function(){
-      if(!this.__subscriptions__) this.__subscriptions__ = []
+      if(!this.__subscriptions__) this.__subscriptions__ = {}
       return this.__subscriptions__
     },
-    
+
     subscribe: function(publisher, event, callback){
       var subscriptions = this.subscriptions()
       var subscriptionID = Object.keys(subscriptions).length,
@@ -27,7 +27,7 @@ define(function(){
         delete subscriptions[id]
       }
     },
-     
+
     unsubscribeAll: function(){
       for(var id in this.subscriptions()){
         this.unsubscribe(id)
