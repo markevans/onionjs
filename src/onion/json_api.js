@@ -42,7 +42,7 @@ define([
         return this.ajax('POST', url, JSON.stringify(this.__addPersistentParams__(data)), options)
       },
 
-      delete: function (url, data, options) {
+      "delete": function (url, data, options) {
         return this.ajax('DELETE', url, JSON.stringify(this.__addPersistentParams__(data)), options)
       },
 
