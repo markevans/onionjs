@@ -37,7 +37,7 @@ define([
       __writeAttribute__: function(attr, value) {
         var decorator = this.__writerDecoratorFor__(attr)
         if (decorator) {
-          var ignoreDecorator = value === null && decorator.options.includeNull != true
+          var ignoreDecorator = value === null && decorator.options.includeNull !== true
           if (!ignoreDecorator) {
             value = decorator.func(value)
           }
@@ -180,7 +180,7 @@ define([
           this.set(attr, value)
           return this
         }
-      },
+      }
 
     })
 
