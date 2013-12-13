@@ -81,7 +81,7 @@ describe "Collection", ->
       miniCollection = new Collection([56, 44])
       expect ->
         collection.addMany(miniCollection)
-      .toEmitOn(collection, 'addMany', miniCollection)
+      .toEmitOn(collection, 'addMany', [56, 44])
       expect( collection.toArray() ).to.eql([33, 44, 56, 76])
 
     it "emits a change event", ->
@@ -146,6 +146,13 @@ describe "Collection", ->
       expect ->
         collection.removeMany([4, 6])
       .toEmitOn(collection, 'removeMany', [4, 4, 6])
+
+    it "works with a collection", ->
+      miniCollection = new Collection([6, 4])
+      expect ->
+        collection.removeMany(miniCollection)
+      .toEmitOn(collection, 'removeMany', [6, 4, 4])
+      expect( collection.toArray() ).to.eql([5, 7])
 
     it "emits a change event", ->
       expect ->

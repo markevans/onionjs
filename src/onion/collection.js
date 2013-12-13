@@ -1,12 +1,8 @@
 if(typeof define!=='function'){var define=require('amdefine')(module);}
 
 define([
-  'onion/utils/extend',
-  'onion/sub',
-  'onion/event_emitter',
-  'onion/type',
-  'onion/plugins/has_uuid'
-], function(extend, sub, eventEmitter, Type, hasUUID){
+  'onion/model'
+], function(Model){
 
   var isFunction = function (object) {
     return typeof object === 'function'
@@ -21,16 +17,8 @@ define([
     return true
   }
 
-  function Collection(){
-    this.init.apply(this, arguments)
-  }
+  return Model.sub('Collection')
 
-  sub(Collection, Array)
-
-  extend(Collection, Type)
-  extend(Collection.prototype, Type.prototype)
-
-  return Collection
     .extend({
       compare: function(a, b) {
         if(a > b) {
@@ -43,10 +31,6 @@ define([
       }
     })
 
-    .use(hasUUID)
-
-    .proto(eventEmitter)
-
     .proto({
       init: function (items, opts) {
         opts = opts || {}
@@ -54,18 +38,16 @@ define([
           this.__comparator__ = opts.orderBy
         }
 
-        if(items) this.__initItems__(items)
-      },
+        this.__items__ = items ? (items.toArray ? items.toArray() : items.slice()) : []
 
-      __initItems__: function (items) {
-        this.push.apply(this, Array.prototype.slice.call(items))
         this.order()
       },
 
       set: function(items){
-        if(items.toArray){ items = items.toArray() }
-        var oldItems = this.toArray()
-        this.splice.apply(this, [0, this.length].concat(items))
+        if (items.toArray) { items = items.toArray() }
+        var oldItems = this.toArray(),
+            _items = this.__items__
+        _items.splice.apply(_items, [0, _items.length].concat(items))
         this.order()
         this.emit('itemsRemoved', oldItems)
         this.emit('itemsAdded', items)
@@ -74,9 +56,9 @@ define([
       },
 
       add: function(item){
-        this.push(item)
+        this.__items__.push(item)
         this.order()
-        var index = this.indexOf(item)
+        var index = this.__items__.indexOf(item)
         this.emit('itemsAdded', [item])
         this.emit('add', item, index)
         this.emit('change', this)
@@ -84,8 +66,9 @@ define([
       },
 
       addMany: function(items) {
-        var itemsArray = Array.prototype.slice.call(items)
-        this.splice.apply(this, [this.length, 0].concat(itemsArray))
+        if (items.toArray) { items = items.toArray() }
+        var _items = this.__items__
+        _items.splice.apply(_items, [_items.length, 0].concat(items))
         this.order()
         this.emit('itemsAdded', items)
         this.emit('addMany', items)
@@ -95,7 +78,7 @@ define([
       remove: function(item) {
         var index = this.indexFor(item)
         if(index >= 0) {
-          var removedItems = this.splice(index, 1)
+          var removedItems = this.__items__.splice(index, 1)
           this.emit('itemsRemoved', removedItems)
           this.emit('remove', removedItems[0], index)
           this.emit('change', this)
@@ -106,12 +89,12 @@ define([
       },
 
       removeMany: function(items) {
-        var itemsArray = Array.prototype.slice.call(items)
+        if (items.toArray) { items = items.toArray() }
         var removedItems = []
-        itemsArray.forEach(function(item) {
+        items.forEach(function(item) {
           var index
           while((index = this.indexFor(item)) >= 0) {
-            removedItems.push(this.splice(index, 1)[0])
+            removedItems.push(this.__items__.splice(index, 1)[0])
           }
         }, this)
 
@@ -149,20 +132,20 @@ define([
       // if defined on the item.
       indexFor: function(item) {
         if(typeof item.isEqualTo === 'function') {
-          for(var i = 0; i < this.length; i++) {
-            if(item.isEqualTo(this[i])) {
+          for(var i = 0; i < this.__items__.length; i++) {
+            if(item.isEqualTo(this.__items__[i])) {
               return i
             }
           }
           return -1
         } else {
-          return this.indexOf(item)
+          return this.__items__.indexOf(item)
         }
       },
 
       indexWhere: function(comparator) {
-        for(var i = 0; i < this.length; i++) {
-          var item = this[i]
+        for(var i = 0; i < this.__items__.length; i++) {
+          var item = this.__items__[i]
           if(comparator(item)) {
             return i
           }
@@ -180,11 +163,11 @@ define([
       },
 
       order: function(){
-        if(this.__comparator__) this.sort(this.__comparator__)
+        if(this.__comparator__) this.__items__.sort(this.__comparator__)
       },
 
       isEmpty: function() {
-        return this.length === 0
+        return this.__items__.length === 0
       },
 
       clone: function() {
@@ -198,11 +181,31 @@ define([
       },
 
       first: function () {
-        return this[0]
+        return this.__items__[0]
       },
 
       last: function () {
-        return this[this.length-1]
+        return this.__items__[this.__items__.length-1]
+      },
+
+      forEach: function (callback, context) {
+        this.__items__.forEach(callback, context)
+      },
+
+      map: function (callback, context) {
+        var results = []
+        this.forEach(function (a,b,c) {
+          results.push(callback.call(context, a,b,c))
+        })
+        return results
+      },
+
+      filter: function (callback, context) {
+        var results = []
+        this.forEach(function (item,b,c) {
+          if ( callback.call(context,item,b,c) ) results.push(item)
+        })
+        return results
       },
 
       pluck: function (attr) {
