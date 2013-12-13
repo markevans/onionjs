@@ -48,10 +48,6 @@ define([
         this.__items__ = items.toArray ? items.toArray() : items.slice()
       },
 
-      count: function () {
-        return this.__items__.length
-      },
-
       set: function(items){
         if (items.toArray) { items = items.toArray() }
         var oldItems = this.toArray(),
@@ -185,16 +181,28 @@ define([
         return clone
       },
 
+      count: function () {
+        return this.__items__.length
+      },
+
       contains: function(value) {
         return this.indexFor(value) != -1
       },
 
+      at: function (index) {
+        if ( index < 0 ) {
+          return this.__items__[this.count() + index]
+        } else {
+          return this.__items__[index]
+        }
+      },
+
       first: function () {
-        return this.__items__[0]
+        return this.at(0)
       },
 
       last: function () {
-        return this.__items__[this.__items__.length-1]
+        return this.at(-1)
       },
 
       forEach: function (callback, context) {

@@ -48,6 +48,21 @@ describe "Collection", ->
       collection = new Collection([2, 4])
       expect( collection.count() ).to.equal(2)
 
+  describe "at", ->
+    collection = null
+
+    beforeEach ->
+      collection = new Collection([2, 4, 19])
+
+    it "returns the nth value", ->
+      expect( collection.at(1) ).to.equal(4)
+
+    it "returns values from the end", ->
+      expect( collection.at(-1) ).to.equal(19)
+
+    it "returns undefined if non-existent", ->
+      expect( collection.at(17) ).to.be.undefined
+
   describe "add", ->
     collection = null
 
