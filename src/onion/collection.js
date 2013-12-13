@@ -215,6 +215,14 @@ define([
         return results
       },
 
+      reduce: function (callback, initialValue) {
+        var value = initialValue
+        this.forEach(function (a,b,c) {
+          value = callback(value,a,b,c)
+        })
+        return value
+      },
+
       pluck: function (attr) {
         return this.map(function (item) {
           return isFunction(item[attr]) ? item[attr]() : item[attr]

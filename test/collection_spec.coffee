@@ -36,6 +36,13 @@ describe "Collection", ->
         {number: 27}
       ])
 
+    it "implements reduce", ->
+      result = collection.reduce (str, obj, i) ->
+        str += "#{obj.number}-#{i} "
+        str
+      , ""
+      expect( result ).to.eql("4-0 27-1 ")
+
   describe "count", ->
     it "returns the length", ->
       collection = new Collection([2, 4])
