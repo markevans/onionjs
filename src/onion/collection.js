@@ -34,16 +34,18 @@ define([
     .proto({
       init: function (items, opts) {
         opts = opts || {}
+
+        this.__items__ = []
+        if (items) this.__populateItems__(items)
+
         if(opts.orderBy) {
           this.__comparator__ = opts.orderBy
         }
-
-        this.__initItems__(items)
         this.order()
       },
 
-      __initItems__: function (items) {
-        this.__items__ = items ? (items.toArray ? items.toArray() : items.slice()) : []
+      __populateItems__: function (items) {
+        this.__items__ = items.toArray ? items.toArray() : items.slice()
       },
 
       count: function () {

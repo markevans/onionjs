@@ -2,69 +2,64 @@ if(typeof define!=='function'){var define=require('amdefine')(module);}
 
 define([
   'onion/collection',
-  'onion/decorator',
-  'onion/utils/extend',
-  'onion/sub'
-], function(Collection, decorator, extend, sub){
+], function(Collection){
 
-  var removeDuplicates = function (items) {
-    return items.reduce(function (uniqueItems, elem) {
-      if (!uniqueItems.contains(elem)) uniqueItems.push(elem)
-      return uniqueItems
-    }, new Set())
-  }
+  return Collection.sub("Set")
 
-  function Set(items, opts){
-    Collection.call(this, items, opts)
-  }
+    .decorate('__populateItems__', function (souper, items) {
+      souper(this.__removeDuplicatesOf__(items))
+    })
 
-  sub(Set, Collection)
+    .decorate('set', function (souper, items) {
+      souper(this.__removeDuplicatesOf__(items))
+    })
 
-  decorator.decorate(Set.prototype, '__initItems__', function (__initItems__, items) {
-    __initItems__(removeDuplicates(items))
-  })
+    .decorate('add', function (souper, item) {
+      if(!this.contains(item)) souper(item)
+    })
 
-  decorator.decorate(Set.prototype, 'set', function (set, items) {
-    set(removeDuplicates(items))
-  })
-
-  decorator.decorate(Set.prototype, 'add', function (add, item) {
-    if(!this.contains(item)) add(item)
-  })
-
-  decorator.decorate(Set.prototype, 'addMany', function (addMany, items) {
-    var itemsToAdd = removeDuplicates(items).filter(function (item) {
-      return !this.contains(item)
-    }, this)
-    addMany(itemsToAdd)
-  })
-
-  extend(Set.prototype, {
-
-    union: function (items) {
-      var union = this.clone()
-      union.addMany(items)
-      return union
-    },
-
-    intersection: function (items) {
-      var intersection = new Set()
-      items.forEach(function(item) {
-        if(this.contains(item)) {
-          intersection.push(item)
-        }
+    .decorate('addMany', function (souper, items) {
+      var itemsToAdd = this.__removeDuplicatesOf__(items).filter(function (item) {
+        return !this.contains(item)
       }, this)
-      intersection.orderBy(this.__comparator__)
-      return intersection
-    },
+      souper(itemsToAdd)
+    })
 
-    difference: function (items) {
-      var difference = this.clone()
-      difference.removeMany(items)
-      return difference
-    }
+    .proto({
 
-  })
+      _push: function (elem) { /* sort of protected */
+        this.__items__.push(elem)
+      },
 
-  return Set
+      union: function (items) {
+        var union = this.clone()
+        union.addMany(items)
+        return union
+      },
+
+      intersection: function (items) {
+        var intersection = new this.constructor()
+        items.forEach(function(item) {
+          if(this.contains(item)) {
+            intersection._push(item)
+          }
+        }, this)
+        intersection.orderBy(this.__comparator__)
+        return intersection
+      },
+
+      difference: function (items) {
+        var difference = this.clone()
+        difference.removeMany(items)
+        return difference
+      },
+
+      __removeDuplicatesOf__: function (items) {
+        return items.reduce(function (uniqueItems, elem) {
+          if (!uniqueItems.contains(elem)) uniqueItems._push(elem)
+          return uniqueItems
+        }, new this.constructor())
+      }
+    })
+
 })
