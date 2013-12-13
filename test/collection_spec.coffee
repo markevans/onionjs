@@ -36,6 +36,11 @@ describe "Collection", ->
         {number: 27}
       ])
 
+  describe "count", ->
+    it "returns the length", ->
+      collection = new Collection([2, 4])
+      expect( collection.count() ).to.equal(2)
+
   describe "add", ->
     collection = null
 

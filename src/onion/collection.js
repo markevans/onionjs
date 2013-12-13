@@ -43,6 +43,10 @@ define([
         this.order()
       },
 
+      count: function () {
+        return this.__items__.length
+      },
+
       set: function(items){
         if (items.toArray) { items = items.toArray() }
         var oldItems = this.toArray(),
