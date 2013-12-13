@@ -38,9 +38,12 @@ define([
           this.__comparator__ = opts.orderBy
         }
 
-        this.__items__ = items ? (items.toArray ? items.toArray() : items.slice()) : []
-
+        this.__initItems__(items)
         this.order()
+      },
+
+      __initItems__: function (items) {
+        this.__items__ = items ? (items.toArray ? items.toArray() : items.slice()) : []
       },
 
       count: function () {
