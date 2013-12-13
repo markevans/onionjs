@@ -29,6 +29,13 @@ describe "Collection", ->
         [{number: 27}, 1]
       ])
 
+    it "implements filter", ->
+      result = collection.filter (obj, i) ->
+        obj.number == 27 && i == 1
+      expect( result ).to.eql([
+        {number: 27}
+      ])
+
   describe "add", ->
     collection = null
 
@@ -283,7 +290,7 @@ describe "Collection", ->
       expect( collection.__comparator__ ).to.eql( cloned.__comparator__ )
 
     it "doesn't effect the original", ->
-      cloned.push(42)
+      cloned.add(42)
 
       expect( collection.toArray() ).to.eql( [3, 6, 8] )
       expect( cloned.toArray() ).to.eql( [3, 6, 8, 42] )
