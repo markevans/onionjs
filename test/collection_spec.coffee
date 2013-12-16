@@ -43,6 +43,12 @@ describe "Collection", ->
       , ""
       expect( result ).to.eql("4-0 27-1 ")
 
+    it "implements slice", ->
+      result = collection.slice(1, 2)
+      expect( result ).to.eql([
+        {number: 27}
+      ])
+
   describe "count", ->
     it "returns the length", ->
       collection = new Collection([2, 4])

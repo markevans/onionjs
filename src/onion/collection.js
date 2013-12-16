@@ -17,7 +17,7 @@ define([
     return true
   }
 
-  return Model.sub('Collection')
+  var Collection = Model.sub('Collection')
 
     .extend({
       compare: function(a, b) {
@@ -205,34 +205,6 @@ define([
         return this.at(-1)
       },
 
-      forEach: function (callback, context) {
-        this.__items__.forEach(callback, context)
-      },
-
-      map: function (callback, context) {
-        var results = []
-        this.forEach(function (a,b,c) {
-          results.push(callback.call(context, a,b,c))
-        })
-        return results
-      },
-
-      filter: function (callback, context) {
-        var results = []
-        this.forEach(function (item,b,c) {
-          if ( callback.call(context,item,b,c) ) results.push(item)
-        })
-        return results
-      },
-
-      reduce: function (callback, initialValue) {
-        var value = initialValue
-        this.forEach(function (a,b,c) {
-          value = callback(value,a,b,c)
-        })
-        return value
-      },
-
       pluck: function (attr) {
         return this.map(function (item) {
           return isFunction(item[attr]) ? item[attr]() : item[attr]
@@ -253,4 +225,14 @@ define([
       }
 
     })
+
+  /* Array-like methods */
+  var arrayMethods = ['forEach', 'map', 'filter', 'reduce', 'slice']
+  arrayMethods.forEach(function (method) {
+    Collection.prototype[method] = function () {
+      return this.__items__[method].apply(this.__items__, arguments)
+    }
+  })
+
+  return Collection
 })
