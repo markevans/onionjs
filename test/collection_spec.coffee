@@ -53,6 +53,19 @@ describe "Collection", ->
       collection = new Collection([3,5,7])
       expect( collection.join(',') ).to.equal("3,5,7")
 
+    it "implements concat", ->
+      expect( collection.concat([32]) ).to.eql([
+        {number: 4}
+        {number: 27}
+        32
+      ])
+
+    it "implements some", ->
+      expect( collection.some (i) -> i.number == 4 ).to.be.true
+
+    it "implements every", ->
+      expect( collection.every (i) -> i.number == 4 ).to.be.false
+
   describe "count", ->
     it "returns the length", ->
       collection = new Collection([2, 4])
