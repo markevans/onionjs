@@ -227,7 +227,7 @@ define([
     })
 
   /* Array-like methods */
-  var arrayMethods = ['forEach', 'map', 'filter', 'reduce', 'slice']
+  var arrayMethods = ['forEach', 'map', 'filter', 'reduce', 'slice', 'join']
   arrayMethods.forEach(function (method) {
     Collection.prototype[method] = function () {
       return this.__items__[method].apply(this.__items__, arguments)

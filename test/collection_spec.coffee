@@ -49,6 +49,10 @@ describe "Collection", ->
         {number: 27}
       ])
 
+    it "implements join", ->
+      collection = new Collection([3,5,7])
+      expect( collection.join(',') ).to.equal("3,5,7")
+
   describe "count", ->
     it "returns the length", ->
       collection = new Collection([2, 4])
