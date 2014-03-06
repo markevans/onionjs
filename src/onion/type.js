@@ -13,7 +13,17 @@ define(['onion/decorator', 'onion/utils/extend', 'onion/sub'], function (decorat
     if (!name.match(/^[A-Z]\w*$/)) {
       throw "invalid name '" + name + "'"
     }
-    eval("var t=function " + name + "(){if(this.init)this.init.apply(this,arguments)}")
+    var t
+    try {
+      eval("t=function " + name + "(){if(this.init)this.init.apply(this,arguments)}")
+    }
+    catch(e) {
+      // Eval failed, probably because a CSP doesn't allow it,
+      // proceed with a standard anonymous function.
+      // Disadvantage: `t.constructor.name` will be "Function"
+      // (or similar), instead of the actual name we gave to the type
+      t = function(){if(this.init)this.init.apply(this,arguments)}
+    }
     sub(t, this)
     if (definition) definition.call(t, t)
     return t
